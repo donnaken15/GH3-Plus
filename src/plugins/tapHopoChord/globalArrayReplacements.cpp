@@ -6,6 +6,22 @@
 
 #define ArrayLength(x) (sizeof(x)/sizeof(*(x)))
 
+#ifdef HATRED
+#define EXE_DET_WFKF   0x00D7F05A
+#define EXE_DET_WFKF_R 0x00D7F063
+#define EXE_VAL_FWK    0x00D7F06D
+#define EXE_VAL_FWKP   0x00D7F074
+#endif
+
+#ifdef BATTERY
+#define EXE_DET_WFKF   0x0173AD88
+#define EXE_DET_WFKF_R 0x0173AD91
+#define EXE_VAL_FWK    0x0173AD9B
+#define EXE_VAL_FWKP   0x0173ADAE
+#endif
+
+// FWKP: guessing if thats what is aligned with securom asm
+
 //.data:00957B90 
 uint32_t g_gemColorKey[] = { KEY_GREEN, KEY_RED, KEY_YELLOW, KEY_BLUE, KEY_ORANGE, GH3::QbKey("open") };
 void * g_gemColorKeyReferences[] =
@@ -58,7 +74,7 @@ void * g_fxWhammyKeyReferences[] =
 {
 
 	(void *)(0x0042B144 + 3),
-	(void *)(0x0173AD9B + 3)
+	(void *)(EXE_VAL_FWK + 3)
 };
 
 
@@ -69,7 +85,7 @@ void * g_fxWhammyParticleKeyReferences[] =
 {
 
 	(void *)(0x0042B14B + 3),
-	(void *)(0x0173ADAE + 3)
+	(void *)(EXE_VAL_FWKP + 3)
 };
 
 //main fxWhammyKey ussage
@@ -109,10 +125,10 @@ void __declspec(naked) whammyFxKeyFixingNaked()
 //.securom : 0173AD8C lea     eax, [eax + ecx * 4]
 //.securom : 0173AD8F add     eax, ecx
 
-static void * whammyFxKeyFixingSecuromDetour = (void *)0x0173AD88;
+static void * whammyFxKeyFixingSecuromDetour = (void *)EXE_DET_WFKF;
 void __declspec(naked) whammyFxKeyFixingSecuromNaked()
 {
-	static const void * returnAddress = (void *)0x0173AD91;
+	static const void * returnAddress = (void *)EXE_DET_WFKF_R;
 	__asm
 	{
 		mov     eax, [esp + 1Ch];

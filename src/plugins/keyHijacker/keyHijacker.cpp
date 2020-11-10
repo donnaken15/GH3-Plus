@@ -8,6 +8,7 @@
 #include <string>
 #include <cstdio>
 #pragma comment(lib,"Winmm.lib")
+// MULTIMEDIA LOLLLLL
 
 static const LPVOID changeDetour = (LPVOID)0x00538EF0;
 static const LPVOID gameFrameDetour = (LPVOID)0x005B0C50;
@@ -159,27 +160,42 @@ void resetKeys()
 
 void checkKeys()
 {
-    int number = getKeypadNumber();
+	//own testing
+	{
+		static uint8_t keys[256];
+		memset(keys, 0, sizeof(keys));
+		GetKeyboardState(keys);
 
-    if (!g_keyHeld && number >= 0)
-    {
-        g_keyHeld = true;
-        g_multiplier += (g_currentInt * number);
-        g_currentInt /= 10;
+		if (keys[VK_END])
+		{
+			MessageBox(0,L"Test",L"Test",0);
+		}
+	}
 
-        if (g_currentInt == 0)
-        {
-            applyNewSpeed(g_multiplier);
-            resetKeys();
-            
-            PlaySound(TEXT("quack.wav"), NULL, SND_FILENAME | SND_ASYNC);
-        }
-    }
+	//speedhack
+	{
+		int number = getKeypadNumber();
 
-    if (g_keyHeld && number == -1)
-    {
-        g_keyHeld = false;
-    }
+		if (!g_keyHeld && number >= 0)
+		{
+			g_keyHeld = true;
+			g_multiplier += (g_currentInt * number);
+			g_currentInt /= 10;
+
+			if (g_currentInt == 0)
+			{
+				applyNewSpeed(g_multiplier);
+				resetKeys();
+
+				PlaySound(TEXT("quack.wav"), NULL, SND_FILENAME | SND_ASYNC);
+			}
+		}
+
+		if (g_keyHeld && number == -1)
+		{
+			g_keyHeld = false;
+		}
+	}
 }
 
 int32_t getKeypadNumber()

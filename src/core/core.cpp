@@ -15,7 +15,7 @@ std::vector<HANDLE> g_loadedPlugins;
 void LoadPlugins()
 {
 	std::wofstream log;
-	log.open("debug.txt");
+	log.open("log.txt");
 	log << L"Loading plugins...\n";
 
 	HANDLE hFind;
@@ -39,7 +39,7 @@ void LoadPlugins()
 		FindClose(hFind);
 	}
 
-	log << L"All plugins loaded...\n";
+	log << L"Plugin loading successful.\n";
 	log.close();
 }
 

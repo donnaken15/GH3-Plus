@@ -3,6 +3,12 @@
 #include "core\Patcher.h"
 #include "gh3\QbArray.h"
 
+//#define EXE HATRED
+#define HATRED
+//#define BATTERY
+// EXE KEYWORDS:
+// BATTERY - 37MB - DEFAULT
+// HATRED - 6MB
 
 ///Determines which tapping gem sprite to use under starpower since we don't have a starpower texture
 //Set this to 0 to use the green note texture
