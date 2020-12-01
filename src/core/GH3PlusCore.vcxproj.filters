@@ -54,6 +54,9 @@
     <ClCompile Include="..\gh3\QbScript.cpp">
       <Filter>Source Files\GH3</Filter>
     </ClCompile>
+    <ClCompile Include="..\gh3\QbKey.cpp">
+      <Filter>Source Files\GH3</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="core.h">
@@ -138,6 +141,15 @@
       <Filter>Header Files\GH3</Filter>
     </ClInclude>
     <ClInclude Include="..\gh3\CXboxFont.h">
+      <Filter>Header Files\GH3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\GH3GlobalAddresses.h">
+      <Filter>Header Files\GH3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\GH3Keys.h">
+      <Filter>Header Files\GH3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\GH3Functions.h">
       <Filter>Header Files\GH3</Filter>
     </ClInclude>
   </ItemGroup>

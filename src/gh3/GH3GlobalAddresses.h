@@ -251,3 +251,6 @@
 #define ADDR_countCtrlrRelated_        0x017B38BD 
 #define ADDR_unknownQbKey              0x018C3EB8 
 #define ADDR_HitOrMissedNote_          0x0203B372
+
+// window api stuff
+#define ADDR_hwnd                      0x00C5B8F8

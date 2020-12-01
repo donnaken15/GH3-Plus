@@ -48,7 +48,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(SolutionDir)..\plugins\</OutDir>
+    <OutDir>$(SolutionDir)..\..\plugins\</OutDir>
     <TargetName>core</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -97,6 +97,7 @@
     <ClCompile Include="..\gh3\BinaryTree.cpp" />
     <ClCompile Include="..\gh3\GlobalMap.cpp" />
     <ClCompile Include="..\gh3\QbArray.cpp" />
+    <ClCompile Include="..\gh3\QbKey.cpp" />
     <ClCompile Include="..\gh3\QbMap.cpp" />
     <ClCompile Include="..\gh3\QbScript.cpp" />
     <ClCompile Include="..\gh3\QbStruct.cpp" />
@@ -110,6 +111,9 @@
     <ClInclude Include="..\gh3\BinaryTree.h" />
     <ClInclude Include="..\gh3\CAliveRefCounted.h" />
     <ClInclude Include="..\gh3\CXboxFont.h" />
+    <ClInclude Include="..\gh3\GH3Functions.h" />
+    <ClInclude Include="..\gh3\GH3GlobalAddresses.h" />
+    <ClInclude Include="..\gh3\GH3Keys.h" />
     <ClInclude Include="..\gh3\GlobalMap.h" />
     <ClInclude Include="..\gh3\List.h" />
     <ClInclude Include="..\gh3\malloc.h" />
