@@ -1,18 +1,13 @@
 // GH3Hack.cpp : Defines the exported functions for the DLL application.
 //
 
-//#define FASTGH3
-
-#ifdef FASTGH3
-#include <Windows.h>
-#endif
-
 #include "noteLimitFix.h"
 #include "core\Patcher.h"
 #include <stdint.h>
+#include <Windows.h>
 
-uint32_t MAX_NOTES = 0x110000; //?1,048,576?
-const uint32_t GH3_MAX_PLAYERS = 2;
+uint32_t MAX_NOTES = 0x100000; // = 1048576
+uint32_t GH3_MAX_PLAYERS = 2;
 
 void * const SIZEOP_NOTE_ALLOCATION = (void *)0x0041AA78;
 									
@@ -28,21 +23,15 @@ static uint32_t *fixedOffsetArray = nullptr;
 
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
+static char inipath[MAX_PATH];
+
 // Writes to the code segment of GH3, overwriting the operands responsible for creating or pointing
 // towards the fixed 4000 size note arrays with its own allocated arrays
 void FixNoteLimit()
 {
-#ifdef FASTGH3
-	WCHAR pwd[MAX_PATH];
-	GetCurrentDirectory(MAX_PATH,pwd);
-	//SetCurrentDirectory
-	MAX_NOTES = GetPrivateProfileIntA("Player", "MaxNotes", 4000, "settings.ini");
-
-	std::wofstream log;
-	log.open("log.txt");
-	log << L"Loading plugins...\n";
-	log.close();
-#endif
+	GetCurrentDirectoryA(MAX_PATH, inipath);
+	strcat_s(inipath, MAX_PATH, "\\settings.ini");
+	MAX_NOTES = GetPrivateProfileIntA("Player", "MaxNotes", 0x100000, inipath);
 
 	if (fixedSustainArray == nullptr)
 		fixedSustainArray = new float[MAX_NOTES * GH3_MAX_PLAYERS];

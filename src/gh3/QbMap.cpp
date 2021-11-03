@@ -22,6 +22,7 @@ namespace GH3
 
 	uint32_t & QbMap::operator[](QbKey key)
 	{
+		
 		static uint32_t &nullref = *reinterpret_cast<uint32_t *>(0);
 
 		if (m_nodes == nullptr)

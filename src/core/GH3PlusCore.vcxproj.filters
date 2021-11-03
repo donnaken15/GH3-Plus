@@ -110,37 +110,10 @@
     <ClInclude Include="..\gh3\malloc.h">
       <Filter>Header Files\GH3</Filter>
     </ClInclude>
-    <ClInclude Include="..\gh3\QbScript.h">
+    <ClInclude Include="..\gh3\GH3GlobalAddresses.h">
       <Filter>Header Files\GH3</Filter>
     </ClInclude>
-    <ClInclude Include="..\gh3\SText.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\SDraw2D.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CXboxText.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CTextElement.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CScreenElement.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CRefCounted.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CObject.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CAliveRefCounted.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\List.h">
-      <Filter>Header Files\GH3</Filter>
-    </ClInclude>
-    <ClInclude Include="..\gh3\CXboxFont.h">
+    <ClInclude Include="..\gh3\GH3Functions.h">
       <Filter>Header Files\GH3</Filter>
     </ClInclude>
     <ClInclude Include="..\gh3\GH3GlobalAddresses.h">
@@ -151,6 +124,39 @@
     </ClInclude>
     <ClInclude Include="..\gh3\GH3Functions.h">
       <Filter>Header Files\GH3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CAliveRefCounted.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CXboxFont.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\List.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\QbScript.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CRefCounted.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CScreenElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CTextElement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\CXboxText.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\SDraw2D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gh3\SText.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,5 +1,5 @@
 #include <windows.h>
-#include <tchar.h> 
+#include <tchar.h>
 #include <wctype.h>
 #include <stdio.h>
 #include <iostream>
@@ -8,15 +8,14 @@
 #include <algorithm>
 #include "core.h"
 
+
 std::vector<HANDLE> g_loadedPlugins;
 
-/// Load all plugins in the plugins folder.
-/// This has the potential to load a malicious binary! Ensure that all binaries in the plugins folder are trusted!
 void LoadPlugins()
 {
 	std::wofstream log;
-	log.open("log.txt");
-	log << L"Loading plugins...\n";
+	log.open("plugins\\_log.txt");
+	log << L"GH3+ initializing...\nLoading plugins...\n";
 
 	HANDLE hFind;
 	WIN32_FIND_DATA data;
@@ -28,10 +27,11 @@ void LoadPlugins()
 		do
 		{
 			HANDLE plugin = LoadPlugin(data.cFileName, log);
-			
+
 			if (plugin != NULL)
 			{
 				g_loadedPlugins.push_back(plugin);
+
 			}
 
 		} while (FindNextFile(hFind, &data));
@@ -39,11 +39,10 @@ void LoadPlugins()
 		FindClose(hFind);
 	}
 
-	log << L"Plugin loading successful.\n";
+	log << L"Done...\n";
 	log.close();
 }
 
-/// Attempt's to load a DLL in the plugins folder (which is trusted to be a GH3+ plugin)
 HANDLE LoadPlugin(LPCWSTR plugin, std::wofstream &log)
 {
 	std::wstring plugin2(plugin);
@@ -55,22 +54,21 @@ HANDLE LoadPlugin(LPCWSTR plugin, std::wofstream &log)
 
 	std::wstring dir(L"plugins\\");
 	dir.append(lowerPlugin2);
-	
-    HANDLE pluginHandle = LoadLibraryW(dir.c_str());
 
+    HANDLE pluginHandle = LoadLibraryW(dir.c_str());
     if (pluginHandle != INVALID_HANDLE_VALUE && pluginHandle != NULL)
     {
-        log << L"Loaded " << dir.c_str() << " at " << pluginHandle << L"\n";
+        log << L"Loaded: " << dir.c_str() << " @ " << pluginHandle << L"\n";
     }
     else
     {
-        log << L"Failed to load " << dir.c_str() << L". Error code given: " << GetLastError() << L"\n";
+        log << L"Failed: " << dir.c_str() << L", Returned: " << GetLastError() << L"\n";
     }
-
     return pluginHandle;
+
+
 }
 
-/// Returns true if the wide string ends with the specified ending
 bool lendswith(LPCWSTR str, LPCWSTR ending)
 {
 	int length = lstrlen(str);

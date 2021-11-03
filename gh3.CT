@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CheatTable CheatEngineTableVersion="24">
+  <CheatEntries>
+    <CheatEntry>
+      <ID>4</ID>
+      <Description>"Score"</Description>
+      <VariableType>2 Bytes</VariableType>
+      <Address>gh3.exe+612B00</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>10</ID>
+      <Description>"Streak"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>gh3.exe+612AE8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>6</ID>
+      <Description>"Health"</Description>
+      <VariableType>Float</VariableType>
+      <Address>gh3.exe+612AF0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>11</ID>
+      <Description>"Starpower"</Description>
+      <VariableType>Float</VariableType>
+      <Address>gh3.exe+612AF8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>12</ID>
+      <Description>"Health Intensity"</Description>
+      <LastState Value="0.8500000238" RealAddress="00A13128"/>
+      <VariableType>Float</VariableType>
+      <Address>0x00A13128</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>7</ID>
+      <Description>"Maximum Health"</Description>
+      <LastState Value="2" RealAddress="00A13130"/>
+      <VariableType>Float</VariableType>
+      <Address>0x00A13130</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>8</ID>
+      <Description>"No Fail (viewer mode)"</Description>
+      <LastState Value="0" RealAddress="00A1312C"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0x00A1312C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>1</ID>
+      <Description>"+pts per note"</Description>
+      <VariableType>Float</VariableType>
+      <Address>gh3.exe+612B78</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>2</ID>
+      <Description>"+pts per beat"</Description>
+      <VariableType>Float</VariableType>
+      <Address>gh3.exe+612B70</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>3</ID>
+      <Description>"Song Speed"</Description>
+      <LastState Value="116" RealAddress="00A12C44"/>
+      <VariableType>Float</VariableType>
+      <Address>0x00A12C44</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>5</ID>
+      <Description>"Time (seconds)"</Description>
+      <LastState Value="89.87012482" RealAddress="00A12C50"/>
+      <VariableType>Float</VariableType>
+      <Address>0x00A12C50</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>9</ID>
+      <Description>"Script Assembly"</Description>
+      <LastState Value="0" RealAddress="00B54538"/>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0x00B54538</Address>
+    </CheatEntry>
+  </CheatEntries>
+  <UserdefinedSymbols>
+    <SymbolEntry>
+      <Name>_playerbase</Name>
+      <Address>001B0000</Address>
+    </SymbolEntry>
+    <SymbolEntry>
+      <Name>note_streak</Name>
+      <Address>00430019</Address>
+    </SymbolEntry>
+  </UserdefinedSymbols>
+  <Structures StructVersion="2">
+    <Structure Name="WTF" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="Pointer" Bytesize="4" Description="this" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="4" Vartype="4 Bytes" Bytesize="4" Description="textureKey" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="Pointer" Bytesize="4" ChildStruct="struct_highwaySubElement" Description="sprite" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="12" Vartype="Pointer" Bytesize="4" Description="this2" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="16" Vartype="4 Bytes" Bytesize="4" Description="result" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+    <Structure Name="struct_highwaySubElement" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="4 Bytes" Bytesize="4" Description="vtable" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="4" Vartype="4 Bytes" Bytesize="4" Description="field_4" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="Pointer" Bytesize="4" ChildStruct="TextureMetadata" Description="textureMetadata" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+    <Structure Name="TextureMetadata" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="Array of byte" Bytesize="3" Description="qup0" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="3" Vartype="Byte" Bytesize="1" Description="type" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="4" Vartype="4 Bytes" Bytesize="4" Description="dword4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="Array of byte" Bytesize="12" Description="qup8" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="20" Vartype="Byte" Bytesize="1" Description="MipLevels" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="21" Vartype="Byte" Bytesize="1" Description="reversd" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="22" Vartype="2 Bytes" Bytesize="2" Description="textureFormat" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="24" Vartype="Pointer" Bytesize="4" Description="texFile1" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="28" Vartype="Pointer" Bytesize="4" Description="textures" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="32" Vartype="4 Bytes" Bytesize="4" Description="StartIndex" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="36" Vartype="Pointer" Bytesize="4" Description="texFile2" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+  </Structures>
+</CheatTable>

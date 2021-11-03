@@ -1,19 +1,26 @@
 
-#define FUNC_CreateNote 0x41D41B
-#define ARGS_CreateNote (QbArray *noteArray, int noteIndex, int noteTime, int greenLength, int redLength, int yellowLength, int blueLength, int orangeLength, int hopoFlag, int nextNoteTime)
+#pragma once
 
-#define EnableCalls
-
-#ifdef EnableCalls
-
+#include "QbStruct.h"
 #include "QbArray.h"
 
-typedef int GH3Func(void);
+using namespace GH3;
 
-GH3Func* CreateNote = (GH3Func*)FUNC_CreateNote;
+typedef int CFunc();
+typedef int CFuncI(int);
+typedef int CFuncI2(int, int);
+typedef int CFuncQ(QbStruct*);
+typedef int PrintsubIthinkT(char*, size_t, int);
 
-//int i = f();
+CFuncI2 * WinPortSioGetDevicePress          = (CFuncI2 *)(0x00419A20);
+CFuncI2 * WinPortSioGetControlPress         = (CFuncI2 *)(0x00419A50);
+CFuncI  * WinPortSioIsDirectInputGamepad    = (CFuncI  *)(0x00419AE0);
+CFuncI  * WinPortSioIsKeyboard              = (CFuncI  *)(0x00419B30);
+CFuncI  * WinPortSioSetDevice0				= (CFuncI  *)(0x00419B80);
+CFuncQ  * LoadPak							= (CFuncQ  *)(0x004A1780);
 
-//FUNC_CreateNote ARGS_CreateNote
+typedef int CFuncCreateNote(QbArray *noteArray, int noteIndex, int noteTime, int greenLength, int redLength, int yellowLength, int blueLength, int orangeLength, int hopoFlag, int nextNoteTime);
+CFuncCreateNote  * CreateNote = (CFuncCreateNote*)(0x41D41B);
 
-#endif
+CFuncI2 * ScriptAssert                      = (CFuncI2 *)(0x00532DD0);
+PrintsubIthinkT * PrintsubIthink            = (PrintsubIthinkT *)(0x00532A80);

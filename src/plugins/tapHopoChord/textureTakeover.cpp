@@ -116,46 +116,24 @@ static std::map<uint32_t, GH3::QbImage *> g_imageMap;
 static std::map<uint32_t, GH3::TextureMetadata *> g_metadataMap;
 static std::map<uint32_t, WeirdTextureStruct> g_weirdMap;
 
-static constexpr std::pair<GH3::QbKey, GH3::QbKey> g_texKeyMapping[] = {
-	{ RawOpenTextureKey, OpenTextureKey },
-	{ RawOpenHammerTextureKey, OpenHammerTextureKey },
-	{ RawOpenTapTextureKey, OpenTapTextureKey },
-	{ RawOpenAnimTextureKey, OpenAnimTextureKey },
-	{ RawOpenAnimHammerTextureKey, OpenAnimHammerTextureKey },
-	{ RawOpenStarTextureKey, OpenStarTextureKey },
-	{ RawOpenStarHammerTextureKey, OpenStarHammerTextureKey },
-	{ RawOpenStarTapTextureKey, OpenStarTapTextureKey },
-	{ RawOpenStarpowerTextureKey, OpenStarpowerTextureKey },
-	{ RawOpenStarpowerHammerTextureKey, OpenStarpowerHammerTextureKey },
-	{ RawOpenStarpowerTapTextureKey, OpenStarpowerTapTextureKey },
-	{ RawOpenAnimStarpowerTextureKey, OpenAnimStarpowerTextureKey },
-	{ RawOpenAnimStarpowerHammerTextureKey, OpenAnimStarpowerHammerTextureKey },
-
-	{ RawGreenAnimTextureKey, GreenAnimTextureKey },
-	{ RawGreenHammerAnimTextureKey, GreenHammerAnimTextureKey },
-	{ RawRedAnimTextureKey, RedAnimTextureKey },
-	{ RawRedHammerAnimTextureKey, RedHammerAnimTextureKey },
-	{ RawYellowAnimTextureKey, YellowAnimTextureKey },
-	{ RawYellowHammerAnimTextureKey, YellowHammerAnimTextureKey },
-	{ RawBlueAnimTextureKey, BlueAnimTextureKey },
-	{ RawBlueHammerAnimTextureKey, BlueHammerAnimTextureKey },
-	{ RawOrangeAnimTextureKey, OrangeAnimTextureKey },
-	{ RawOrangeHammerAnimTextureKey, OrangeHammerAnimTextureKey },
-	{ RawStarpowerAnimTextureKey, StarpowerAnimTextureKey },
-	{ RawStarpowerHammerAnimTextureKey, StarpowerHammerAnimTextureKey },
-
-	{ RawGreenTapTextureKey, GreenTapTextureKey },
-	{ RawRedTapTextureKey, RedTapTextureKey },
-	{ RawYellowTapTextureKey, YellowTapTextureKey },
-	{ RawBlueTapTextureKey, BlueTapTextureKey },
-	{ RawOrangeTapTextureKey, OrangeTapTextureKey },
-	{ RawStarpowerTapTextureKey, StarpowerTapTextureKey },
-	{ RawGreenTapStarTextureKey, GreenTapStarTextureKey },
-	{ RawRedTapStarTextureKey, RedTapStarTextureKey },
-	{ RawYellowTapStarTextureKey, YellowTapStarTextureKey },
-	{ RawBlueTapStarTextureKey, BlueTapStarTextureKey },
-	{ RawOrangeTapStarTextureKey, OrangeTapStarTextureKey },
+static constexpr GH3::QbKey g_rawKeys[] = {
+	RawOpenTextureKey,
+	RawOpenHammerTextureKey,
+	RawOpenStarTextureKey,
+	RawOpenStarHammerTextureKey,
+	RawOpenStarpowerTextureKey,
+	RawOpenStarpowerHammerTextureKey,
 };
+
+static constexpr GH3::QbKey g_textureKeys[] = {
+	OpenTextureKey,
+	OpenHammerTextureKey,
+	OpenStarTextureKey,
+	OpenStarHammerTextureKey,
+	OpenStarpowerTextureKey,
+	OpenStarpowerHammerTextureKey,
+};
+
 
 ///////////////////////////
 // Retrieve our textures //
@@ -189,7 +167,7 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 	}
 }
 
-bool constexpr isOpenTextureKey(GH3::QbKey key)
+bool constexpr isTextureKey(GH3::QbKey key)
 {
 	return	key == OpenTextureKey ||
 		key == OpenHammerTextureKey ||
@@ -199,16 +177,6 @@ bool constexpr isOpenTextureKey(GH3::QbKey key)
 		key == OpenStarpowerHammerTextureKey;
 }
 
-bool isTextureKey(GH3::QbKey key)
-{
-	for (auto i = 0; i < ArrayLength(g_texKeyMapping); i++) {
-		if (g_texKeyMapping[i].second == key) {
-			return true;
-
-		}
-	}
-	return false;
-}
 
 void CopyExistingWeirdStruct(WeirdTextureStruct *dest, const WeirdTextureStruct *src, GH3::QbKey newKey, GH3::TextureMetadata *newMetadata)
 {
@@ -220,23 +188,16 @@ void CopyExistingWeirdStruct(WeirdTextureStruct *dest, const WeirdTextureStruct 
 WeirdTextureStruct * __stdcall frankerzFix(GH3::QbMap *map, GH3::QbKey *key)
 {
 	WeirdTextureStruct * node = reinterpret_cast<WeirdTextureStruct *>(map->Get(*key));
-	if (node == nullptr) {
-		GH3::QbKey yellowKey;
-
-		if (isTextureKey(*key)) {
-			yellowKey = YellowStarTextureKey;
-		}
-		else {
-			return nullptr;
-		}
-
+	if (node == nullptr && isTextureKey(*key))
+	{
+		GH3::QbKey yellowKey = getYellowEquivalent(*key);
 		WeirdTextureStruct *yellowWeird = reinterpret_cast<WeirdTextureStruct *>(map->Get(yellowKey));
-		WeirdTextureStruct *newWeird = &g_weirdMap[*key];
+		WeirdTextureStruct *openWeird = &g_weirdMap[*key];
 
 		GH3::TextureMetadata *metadata = g_metadataMap[*key];
-		CopyExistingWeirdStruct(newWeird, yellowWeird, *key, metadata);
+		CopyExistingWeirdStruct(openWeird, yellowWeird, *key, metadata);
 
-		map->Insert(*key, reinterpret_cast<uint32_t>(newWeird));
+		map->Insert(*key, reinterpret_cast<uint32_t>(openWeird));
 		node = reinterpret_cast<WeirdTextureStruct *>(map->Get(*key));
 	}
 	return node;
@@ -271,9 +232,9 @@ void __declspec(naked) frankerzFixNaked()
 
 bool isRawTextureKey(GH3::QbKey key, int &i)
 {
-	for (i = 0; i < ArrayLength(g_texKeyMapping); ++i)
+	for (i = 0; i < ArrayLength(g_rawKeys); ++i)
 	{
-		if (key == g_texKeyMapping[i].first)
+		if (key == g_rawKeys[i])
 			return true;
 	}
 
@@ -286,20 +247,10 @@ bool  __stdcall storeSpecialTextures(GH3::QbImage *img, GH3::TextureMetadata *me
 
 	if (isRawTextureKey(metadata->key, index))
 	{
-		GH3::QbKey textureKey = g_texKeyMapping[index].second;
+		GH3::QbKey textureKey = g_textureKeys[index];
 		g_metadataMap[textureKey] = metadata;
 		g_imageMap[textureKey] = img;
 		g_weirdMap[textureKey] = WeirdTextureStruct();
-
-		// Try to detect which features the current zones support
-		if(metadata->key == RawGreenAnimTextureKey)
-		{
-			animNotesEnabled = true;
-		}
-		else if(metadata->key == RawOpenTapTextureKey)
-		{
-			openTapsEnabled = true;
-		}
 	}
 
 	return false;
@@ -329,5 +280,6 @@ bool TryApplyTextureTakeoverPatches()
 	if (!g_patcher.WriteJmp(storeSpecialTexturesDetour, storeSpecialTexturesNaked) ||
 		!g_patcher.WriteJmp(frankerzDetour, frankerzFixNaked))
 		return false;
-	return true;
+
+    return true;
 }

@@ -5,8 +5,6 @@
 
 GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
-bool animNotesEnabled = false;
-bool openTapsEnabled = false;
 
 void ApplyHack()
 {
@@ -16,8 +14,7 @@ void ApplyHack()
 		!TryApplyNoteLoadingPatches() ||
 		!TryApplyNoteLogicPatches() ||
 		!TryApplyGemConstantsPatches() ||
-		!TryApplyTextureTakeoverPatches()
-		)
+		!TryApplyTextureTakeoverPatches())
 	{
 		g_patcher.RemoveAllChanges();
 	}

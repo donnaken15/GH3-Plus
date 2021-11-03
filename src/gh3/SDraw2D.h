@@ -4,7 +4,7 @@
 
 namespace GH3
 {
-	enum class BlendModeEnum
+	enum class BlendModeEnum // most likely appears in header for .tex files
 	{
 		DIFFUSE = 0x0,
 		ADD = 0x1,
