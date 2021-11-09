@@ -9,7 +9,9 @@
 static char inipath[MAX_PATH],
 			logfile[MAX_PATH],
 			dbgpath[MAX_PATH];
-BYTE l_CreateCon, l_WriteFile, l_FixKeys, l_PrintStruct, l_AllSuccess = 1;
+BYTE l_CreateCon, l_WriteFile, l_FixKeys,
+l_PrintStruct, l_AllSuccess = 1,
+l_CreateConFail = 0, l_DbgLoaded = 0;
 FILE * log, * CON;
 
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
@@ -112,11 +114,19 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 	qss = qsh->first;
 	while (qss)
 	{
-		if (qss->key)
-			qbstrstr2 = sprintf(qbstrstr, "    %02X %-16s = ", HIBYTE(qss->type), QbKeyPrintFix(qss->key), qss->value);
+		if (l_DbgLoaded)
+		{
+			if (qss->key)
+				qbstrstr2 = sprintf(qbstrstr, "    %02X %-16s = ", HIBYTE(qss->type), QbKeyPrintFix(qss->key), qss->value);
+			else
+				qbstrstr2 = sprintf(qbstrstr, "    %02X %-16s = ", HIBYTE(qss->type), "0x00000000");
+		}
 		else
-			qbstrstr2 = sprintf(qbstrstr, "    %02X %-16s = ", HIBYTE(qss->type), "0x00000000");
-		sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(qss->value));
+			qbstrstr2 = sprintf(qbstrstr, "    %02X %08X = ", HIBYTE(qss->type), qss->key, qss->value);
+		if (l_DbgLoaded)
+			sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(qss->value));
+		else
+			sprintf(qbstrstr + qbstrstr2, "%08X\n", qss->value);
 		switch (HIBYTE(qss->type)) // FLOOR(TYPE/2) >:(
 		{
 		case Int:
@@ -170,6 +180,31 @@ __declspec(naked) void MyPrintStruct()
 	}
 }
 
+FILE*gh3pl;
+char gh3pll[64];
+// run after GH3+ core loads evrything
+static void *RandomDetour2 = (void *)0x0047B30B;
+__declspec(naked) void* PrintGH3Plog()
+{
+	static const uint32_t returnAddress = 0x0047B310;
+	gh3pl = fopen("PLUGINS\\_log.txt", "r");
+	if (gh3pl)
+	{
+		fputs("GH3+ Log:\n", CON);
+		while (fgets(gh3pll, 64, gh3pl))
+		{
+			fputs(gh3pll, CON);
+		}
+		fputs("\n", CON);
+		fclose(gh3pl);
+	}
+	else
+		fputs("Cannot access GH3+ log.\n\n", CON);
+	__asm {
+		jmp returnAddress;
+	}
+}
+
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -183,13 +218,23 @@ void ApplyHack()
 	l_PrintStruct = GetPrivateProfileIntA("Logger", "PrintStruct", 1, inipath);
 	if (l_CreateCon)
 	{
-		AllocConsole();
-		freopen_s(&CON, "CONOUT$", "w", stdout);
+		l_CreateCon = 0;
+		if (AllocConsole())
+			if (!freopen_s(&CON, "CONOUT$", "w", stdout))
+				l_CreateCon = 1;
+		if (!l_CreateCon)
+			l_CreateConFail = 1;
 	}
 	if (l_WriteFile)
 	{
 		strcat_s(logfile, MAX_PATH, "\\output.txt");
-		fopen_s(&log, logfile, "w");
+		l_WriteFile = 0;
+		if (!fopen_s(&log, logfile, "w"))
+		{
+			l_WriteFile = 1;
+			if (l_CreateConFail)
+				fputs("Error creating console.\n", log);
+		}
 	}
 	if (l_CreateCon)
 	{
@@ -271,6 +316,7 @@ void ApplyHack()
 					}
 
 				} while (checkIfNZ);
+				l_DbgLoaded = 1;
 				if (g_patcher.WriteJmp(UnkKeyDetour, QbKeyPrintFix))
 				{
 					if (l_CreateCon) {
@@ -290,15 +336,23 @@ void ApplyHack()
 				if (l_WriteFile)
 					fputs("Failed to open debug pak.\nDoes it exist?\n", log);
 			}
+			fclose(dbgpak);
 		}
 		if (l_PrintStruct) {
 			if (g_patcher.WriteJmp(PrintStructDetour, MyPrintStruct) &&
 				g_patcher.WriteInt8((void*)(&PrintStructDetour + 5), 0xC3)) // lol
 			{
-				fputs("Patched PrintStruct.\n", CON);
+				if (l_CreateCon)
+					fputs("Patched PrintStruct.\n", CON);
 			}
 		}
 		if (l_AllSuccess)
-			fputs("Success!\n\n", CON);
+			if (l_CreateCon)
+				fputs("Success!\n\n", CON);
+		if (l_CreateCon)
+			if (!g_patcher.WriteJmp(RandomDetour2, PrintGH3Plog))
+			{
+				fputs("Cannot access GH3+ log.\n\n", CON);
+			}
 	}
 }

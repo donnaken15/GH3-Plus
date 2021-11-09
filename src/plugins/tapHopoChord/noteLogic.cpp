@@ -91,9 +91,9 @@ static void _declspec(naked) fixHeldFretsLoading()
 
 		//Displaced code
 	DISPLACED_CODE:
-		and		ebx, esi;          //		.text:00431891 184 
-		mov     edx, ecx;		   //		.text:00431893 184 
-		add     esp, 4;			   //		.text:00431895 184 
+		and		ebx, esi;          //		.text:00431891 184
+		mov     edx, ecx;		   //		.text:00431893 184
+		add     esp, 4;			   //		.text:00431895 184
 
 		jmp returnAddress;
 	}
@@ -125,7 +125,7 @@ static void __declspec(naked) chordBranchFixNaked()
 		test al, al;
 		jnz IS_SINGLE;
 		jmp returnIsChord;
-	IS_SINGLE:	
+	IS_SINGLE:
 		jmp returnIsSingle;
 	}
 }
@@ -365,7 +365,7 @@ __declspec(naked) void chordHitCheckNaked()
 		cmp		byte ptr[esp + 17h], 0;  //var_184 + 3. I don't know what this is
 		jnz		L_CHORD_CHECK_PASSED;
 
-		mov		ecx, [esp + 0x10]; //pIdx9 
+		mov		ecx, [esp + 0x10]; //pIdx9
 		cmp		[ADDR_hitNoNotes_bool + ecx * 4], edi;
 		jnz		L_CHORD_CHECK_FAILED;
 
@@ -429,7 +429,7 @@ uint32_t getAnchoredMask(uint32_t fretMask)
 		return fretMask | 0x11110;
 
 	return 0x00000;
-	
+
 	//return 0x11111;
 }
 
@@ -483,7 +483,8 @@ __declspec(naked) void noteHitEndNaked()
 //TryHitNote updates
 
 //If an open note is being hit, make the pattern 0x33333 so that all the frets pop up!
-//This will also make it count them as 250 points so that needs to be fixed elsewhere
+//Here, try to implement animation for hitting open notes (flame like sprites)
+//Somehow scripts can't be executed in plugins though
 static void * const noteHitPatternDetour = (void *)0x00430985;
 void __declspec(naked) noteHitPatternFixNaked()
 {
@@ -496,7 +497,7 @@ void __declspec(naked) noteHitPatternFixNaked()
 
 		mov     edi, (OPEN | GREEN | RED | YELLOW | BLUE | ORANGE);
 		mov		[esp + 5Ch], edi;
-		
+
 	DONE:
 		//Displaced code
 		mov eax, KEY_PATTERN;
