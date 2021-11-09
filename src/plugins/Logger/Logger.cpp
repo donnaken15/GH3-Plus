@@ -329,6 +329,7 @@ void ApplyHack()
 					if (l_WriteFile)
 						fputs("Failed to patch debug key formatter.\n", log);
 				}
+				fclose(dbgpak);
 			}
 			else {
 				if (l_CreateCon)
@@ -336,7 +337,6 @@ void ApplyHack()
 				if (l_WriteFile)
 					fputs("Failed to open debug pak.\nDoes it exist?\n", log);
 			}
-			fclose(dbgpak);
 		}
 		if (l_PrintStruct) {
 			if (g_patcher.WriteJmp(PrintStructDetour, MyPrintStruct) &&
