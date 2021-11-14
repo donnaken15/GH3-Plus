@@ -3,6 +3,7 @@
 #include "core\Patcher.h"
 #include "gh3\QbArray.h"
 
+#define OPEN_NOTEFX 1
 
 ///Determines which tapping gem sprite to use under starpower since we don't have a starpower texture
 //Set this to 0 to use the green note texture
@@ -81,6 +82,11 @@ constexpr GH3::QbKey RawOpenStarTextureKey =			"images\\highway\\star2d_open.img
 constexpr GH3::QbKey RawOpenStarHammerTextureKey =		"images\\highway\\star2d_open_hammer.img";
 constexpr GH3::QbKey RawOpenStarpowerTextureKey =		"images\\highway\\gem2d_open_starpower.img";
 constexpr GH3::QbKey RawOpenStarpowerHammerTextureKey = "images\\highway\\gem2d_open_hammer_starpower.img";
+constexpr GH3::QbKey RawOpenWhammyTextureKey =			"images\\highway\\whammy2d_open.img";
+constexpr GH3::QbKey RawOpenWhammyStarTextureKey =		"images\\highway\\whammy2d_open_star.img";
+constexpr GH3::QbKey RawOpenWhammyDeadTextureKey =		"images\\highway\\whammy2d_open_dead.img";
+constexpr GH3::QbKey RawOpenHitFx1TextureKey =			"images\\highway\\openfx1.img";
+constexpr GH3::QbKey RawOpenHitFx2TextureKey =			"images\\highway\\openfx2.img";
 
 constexpr GH3::QbKey OpenTextureKey =					"sys_gem2d_open_sys_gem2d_open";
 constexpr GH3::QbKey OpenHammerTextureKey =				"sys_gem2d_open_hammer_sys_gem2d_open_hammer";
@@ -88,6 +94,11 @@ constexpr GH3::QbKey OpenStarTextureKey =				"sys_star2d_open_sys_gem2d_open";
 constexpr GH3::QbKey OpenStarHammerTextureKey =			"sys_star2d_open_hammer_sys_gem2d_open_hammer";
 constexpr GH3::QbKey OpenStarpowerTextureKey =			"sys_gem2d_open_starpower_sys_gem2d_open_starpower";
 constexpr GH3::QbKey OpenStarpowerHammerTextureKey =	"sys_gem2d_open_starpower_hammer_sys_gem2d_open_starpower_hammer";
+constexpr GH3::QbKey OpenWhammyTextureKey =				"sys_whammy2d_open_sys_whammy2d_open";
+constexpr GH3::QbKey OpenWhammyStarTextureKey =			"sys_whammy2d_open_star_sys_whammy2d_open_star";
+constexpr GH3::QbKey OpenWhammyDeadTextureKey =			"sys_whammy2d_open_dead_sys_whammy2d_open_dead";
+constexpr GH3::QbKey OpenHitFx1TextureKey =				"sys_openfx1_sys_openfx1";
+constexpr GH3::QbKey OpenHitFx2TextureKey =				"sys_openfx2_sys_openfx2";
 
 constexpr GH3::QbKey YellowTextureKey =					"sys_gem2d_yellow_sys_gem2d_yellow";
 constexpr GH3::QbKey YellowHammerTextureKey =			"sys_gem2d_yellow_hammer_sys_gem2d_yellow_hammer";
@@ -95,6 +106,9 @@ constexpr GH3::QbKey YellowStarTextureKey =				"sys_star2d_yellow_sys_star2d_yel
 constexpr GH3::QbKey YellowStarHammerTextureKey =		"sys_star2d_yellow_hammer_sys_star2d_yellow_hammer";
 constexpr GH3::QbKey YellowStarpowerTextureKey =		"sys_gem2d_starpower_sys_gem2d_starpower";
 constexpr GH3::QbKey YellowStarpowerHammerTextureKey =	"sys_gem2d_starpower_hammer_sys_gem2d_starpower_hammer";
+constexpr GH3::QbKey YellowWhammyTextureKey =			"sys_whammy2d_yellow_sys_whammy2d_yellow";
+constexpr GH3::QbKey YellowWhammyStarTextureKey =		"sys_whammy2d_yellow_star_sys_whammy2d_yellow_star";
+constexpr GH3::QbKey YellowWhammyDeadTextureKey =		"sys_whammy2d_yellow_dead_sys_whammy2d_yellow_dead";
 
 extern GH3P::Patcher g_patcher;
 

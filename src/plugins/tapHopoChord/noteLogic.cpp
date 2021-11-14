@@ -1,6 +1,7 @@
 #include "core\Patcher.h"
 #include "gh3\GH3Keys.h"
 #include "gh3\GH3GlobalAddresses.h"
+#include "gh3\GH3Functions.h"
 #include "gh3\malloc.h"
 #include "tapHopoChord.h"
 
@@ -476,9 +477,11 @@ __declspec(naked) void noteHitEndNaked()
 	}
 }
 
+#if OPEN_NOTEFX
+using namespace GH3;
 
-
-
+QbStruct *nullParams;
+#endif
 
 //TryHitNote updates
 
@@ -496,8 +499,12 @@ void __declspec(naked) noteHitPatternFixNaked()
 		jnz		DONE;
 
 		mov     edi, (OPEN | GREEN | RED | YELLOW | BLUE | ORANGE);
-		mov		[esp + 5Ch], edi;
-
+		mov[esp + 5Ch], edi;
+	}
+#if OPEN_NOTEFX
+	ExecuteScript2(QbKey("Open_NoteFX"), nullParams, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
+#endif
+	__asm {
 	DONE:
 		//Displaced code
 		mov eax, KEY_PATTERN;
@@ -575,6 +582,10 @@ bool TryApplyNoteLogicPatches()
 {
 	uint8_t *jnz_to_CHORD_CHECK_FAILED = (uint8_t *)(0x00431E75); // test before was cmp hopo vs 1
 
+#if OPEN_NOTEFX
+	nullParams = (QbStruct *)qbMalloc(sizeof(QbStruct), 1);
+	memset(nullParams, 0, sizeof(QbStruct));
+#endif
 	return
 		(
 			g_patcher.WriteJmp(guitarInputLogicDetour1, &loadLastHitNaked) &&

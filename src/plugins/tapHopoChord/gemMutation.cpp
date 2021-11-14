@@ -49,11 +49,11 @@ void __fastcall buttonModelsInjector(GH3::QbStruct *buttonModels)
 	constexpr GH3::QbKey star_hammer_material_value = OpenStarHammerTextureKey;
 	constexpr GH3::QbKey battle_star_material_value = OpenStarTextureKey;
 	constexpr GH3::QbKey battle_star_hammer_material_value = OpenStarHammerTextureKey;
-	constexpr GH3::QbKey whammy_material_value = GH3::QbKey("sys_Whammy2D_Dead_sys_Whammy2D_Dead");
+	constexpr GH3::QbKey whammy_material_value = OpenWhammyTextureKey;
 	constexpr GH3::QbKey star_power_material_value = OpenStarpowerTextureKey;
 	constexpr GH3::QbKey star_power_hammer_material_value = OpenStarpowerHammerTextureKey;
-	constexpr GH3::QbKey star_power_whammy_material_value = GH3::QbKey("sys_Whammy2D_StarPower_sys_Whammy2D_StarPower");
-	constexpr GH3::QbKey dead_whammy_value = GH3::QbKey("sys_Whammy2D_Dead_sys_Whammy2D_Dead");
+	constexpr GH3::QbKey star_power_whammy_material_value = OpenWhammyStarTextureKey;
+	constexpr GH3::QbKey dead_whammy_value = OpenWhammyDeadTextureKey;
 	constexpr GH3::QbKey name_value = GH3::QbKey("button_z");
 
 	if (!buttonModels->ContainsItem(openKey))

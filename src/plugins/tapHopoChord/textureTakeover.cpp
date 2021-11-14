@@ -123,6 +123,13 @@ static constexpr GH3::QbKey g_rawKeys[] = {
 	RawOpenStarHammerTextureKey,
 	RawOpenStarpowerTextureKey,
 	RawOpenStarpowerHammerTextureKey,
+#if OPEN_NOTEFX
+	RawOpenWhammyTextureKey,
+	RawOpenWhammyStarTextureKey,
+	RawOpenWhammyDeadTextureKey,
+	RawOpenHitFx1TextureKey,
+	RawOpenHitFx2TextureKey,
+#endif
 };
 
 static constexpr GH3::QbKey g_textureKeys[] = {
@@ -132,6 +139,13 @@ static constexpr GH3::QbKey g_textureKeys[] = {
 	OpenStarHammerTextureKey,
 	OpenStarpowerTextureKey,
 	OpenStarpowerHammerTextureKey,
+#if OPEN_NOTEFX
+	OpenWhammyTextureKey,
+	OpenWhammyStarTextureKey,
+	OpenWhammyDeadTextureKey,
+	OpenHitFx1TextureKey,
+	OpenHitFx2TextureKey,
+#endif
 };
 
 
@@ -150,20 +164,37 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 	case static_cast<uint32_t>(OpenHammerTextureKey):
 		return YellowHammerTextureKey;
 
-	case static_cast<uint32_t>(OpenStarTextureKey):
+	case static_cast<uint32_t>(OpenStarTextureKey) :
 		return YellowStarTextureKey;
 
-	case static_cast<uint32_t>(OpenStarHammerTextureKey):
+	case static_cast<uint32_t>(OpenStarHammerTextureKey) :
 		return YellowStarHammerTextureKey;
 
-	case static_cast<uint32_t>(OpenStarpowerTextureKey):
+	case static_cast<uint32_t>(OpenStarpowerTextureKey) :
 		return YellowStarpowerTextureKey;
 
-	case static_cast<uint32_t>(OpenStarpowerHammerTextureKey):
+	case static_cast<uint32_t>(OpenStarpowerHammerTextureKey) :
 		return YellowStarpowerHammerTextureKey;
 
+#if OPEN_NOTEFX
+		// the magic trick
+		// used in function where textures are actually applied: frankerzFix
+	case static_cast<uint32_t>(OpenWhammyTextureKey) :
+		return YellowTextureKey;
+
+	case static_cast<uint32_t>(OpenWhammyStarTextureKey) :
+		return YellowTextureKey;
+
+	case static_cast<uint32_t>(OpenWhammyDeadTextureKey) :
+		return YellowTextureKey;
+
+	case static_cast<uint32_t>(OpenHitFx1TextureKey) :
+	case static_cast<uint32_t>(OpenHitFx2TextureKey) :
+		return GH3::QbKey("sys_Particle_lnzflare02_sys_Particle_lnzflare02");
+#endif
+
 	default:
-		return GH3::QbKey();
+		return GH3::QbKey(); // <---- probably explains blank texture
 	}
 }
 
@@ -174,9 +205,19 @@ bool constexpr isTextureKey(GH3::QbKey key)
 		key == OpenStarTextureKey ||
 		key == OpenStarHammerTextureKey ||
 		key == OpenStarpowerTextureKey ||
-		key == OpenStarpowerHammerTextureKey;
+		key == OpenStarpowerHammerTextureKey
+#if OPEN_NOTEFX
+		|| key == OpenWhammyTextureKey ||
+		key == OpenWhammyStarTextureKey ||
+		key == OpenWhammyDeadTextureKey ||
+		key == OpenHitFx1TextureKey ||
+		key == OpenHitFx2TextureKey
+#endif
+		;
 }
 
+// TODO: MAKE THIS AVAILABLE IN CORE STUFF
+// TODO: OR JUST USE THIS IN MUHZONES
 
 void CopyExistingWeirdStruct(WeirdTextureStruct *dest, const WeirdTextureStruct *src, GH3::QbKey newKey, GH3::TextureMetadata *newMetadata)
 {

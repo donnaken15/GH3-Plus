@@ -12,7 +12,7 @@ typedef int CFuncI2(int, int);
 typedef int CFuncQ(QbStruct*);
 typedef int CFuncQI(QbStruct*, int);
 typedef int CFuncQK(QbStruct*, QbKey);
-typedef int CFuncES2(QbKey, QbStruct *, int, QbStruct *, int, int, char, char, char, char);
+typedef int CFuncES2(QbKey scriptKey, QbStruct *params, QbKey callbackScript, QbStruct *callbackParams, int node, int id, char net, char permanent, char nonsessspecific, char pausewobj);
 typedef int PrintsubIthinkT(char*, size_t, int);
 typedef bool CXT_CreateFromImgFile(char*, size_t, int);
 

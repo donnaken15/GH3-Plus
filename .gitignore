@@ -21,3 +21,5 @@ Release/
 Debug
 
 *.opendb
+*.bak
+* - Copy*

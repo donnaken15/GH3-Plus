@@ -11,7 +11,8 @@ static char inipath[MAX_PATH],
 			dbgpath[MAX_PATH];
 BYTE l_CreateCon, l_WriteFile, l_FixKeys,
 l_PrintStruct, l_AllSuccess = 1,
-l_CreateConFail = 0, l_DbgLoaded = 0;
+l_CreateConFail = 0, l_DbgLoaded = 0,
+l_FmtTxtLkup;
 FILE * log, * CON;
 
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
@@ -34,7 +35,8 @@ __declspec(naked) void RedirectOutput()
 	}
 }
 
-#define MAX_KEYS 36000
+#define MAX_KEYS 50000
+// found that max amount of keys from dbg.pak deduped is 38.5k
 #define KEYSTRLEN 128
 UINT *dbgKeys;
 LPSTR dbgStr;
@@ -68,6 +70,10 @@ __declspec(naked) char* QbKeyPrintFix(UINT qbk)
 			keytmp = (dbgStr + (i*KEYSTRLEN));
 			break;
 		}
+		if (*keytmp2 == 0)
+		{
+			break;
+		}
 	}
 	__asm {
 		mov eax, keytmp;
@@ -95,34 +101,53 @@ enum QbStructWPT_types { // HIBYTE(type)
 	String = 6,
 	String2 = 7,
 	WString = 9,
+	Vector2 = 0xB,
+	Vector3 = 0xD,
 	Struct = 0x14,
+	Struct2 = 0x15,
 	QbKey_ = 0x1A,
 	QbKey2 = 0x1B
 };
 const char*qbstructOpen = "QbStruct {\n";
 QbStruct_weirdprintthing_header*a1;
-QbStructWPT_item*a2;
-char qbstrstr[0x400];
-int qbstrstr2;
+int qbstrindent = 0;
+void printStructStructIndent()
+{
+	//fprintf(CON, "%u", qbstrindent);
+	for (int i = 0; i < qbstrindent + 1; i++) {
+		if (l_CreateCon) {
+			fputs("    ", CON);
+		}
+		if (l_WriteFile) {
+			fputs("    ", log);
+		}
+	}
+}
 void printStructBase(QbStruct_weirdprintthing_header*qsh)
 {
-	if (l_CreateCon)
-		fputs(qbstructOpen, CON);
-	if (l_WriteFile)
-		fputs(qbstructOpen, log);
+	char qbstrstr[0x100];
+	int qbstrstr2;
+	if (!qbstrindent)
+	{
+		if (l_CreateCon)
+			fputs(qbstructOpen, CON);
+		if (l_WriteFile)
+			fputs(qbstructOpen, log);
+	}
 	QbStructWPT_item*qss;
 	qss = qsh->first;
 	while (qss)
 	{
+		printStructStructIndent();
 		if (l_DbgLoaded)
 		{
 			if (qss->key)
-				qbstrstr2 = sprintf(qbstrstr, "    %02X %-16s = ", HIBYTE(qss->type), QbKeyPrintFix(qss->key), qss->value);
+				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", HIBYTE(qss->type), QbKeyPrintFix(qss->key), qss->value);
 			else
-				qbstrstr2 = sprintf(qbstrstr, "    %02X %-16s = ", HIBYTE(qss->type), "0x00000000");
+				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", HIBYTE(qss->type), "0x00000000");
 		}
 		else
-			qbstrstr2 = sprintf(qbstrstr, "    %02X %08X = ", HIBYTE(qss->type), qss->key, qss->value);
+			qbstrstr2 = sprintf(qbstrstr, "%02X %08X = ", HIBYTE(qss->type), qss->key, qss->value);
 		if (l_DbgLoaded)
 			sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(qss->value));
 		else
@@ -131,7 +156,7 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 		{
 		case Int:
 		case Int2:
-			sprintf(qbstrstr + qbstrstr2, "%d\n", qss->value);
+			sprintf(qbstrstr + qbstrstr2, "%d\n", (signed int)qss->value);
 			break;
 		case Float:
 		case Float2:
@@ -139,30 +164,76 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 			break;
 		case String:
 		case String2:
-			sprintf(qbstrstr + qbstrstr2, "\"%s\"\n", qss->value);
+			sprintf(qbstrstr + qbstrstr2, "\"%s\"\n", (char*)qss->value);
 			break;
 		case WString:
-			sprintf(qbstrstr + qbstrstr2, "\"%ls\"\n", qss->value);
+			sprintf(qbstrstr + qbstrstr2, "\"%ls\"\n", (wchar_t*)qss->value);
 			break;
-		case Struct:
-			sprintf(qbstrstr + qbstrstr2, "QbStruct { 0x%p }\n", qss->value);
+		case Vector2:
+			sprintf(qbstrstr + qbstrstr2, "(%f, %f)\n",
+				*(float*)(&WTF(qss->value) + 1),
+				*(float*)(&WTF(qss->value) + 2));
 			break;
+		case Vector3:
+			sprintf(qbstrstr + qbstrstr2, "(%f, %f, %f)\n",
+				*(float*)(&(WTF(qss->value)) + 1),
+				*(float*)(&(WTF(qss->value)) + 2),
+				*(float*)(&(WTF(qss->value)) + 3));
+			break;
+		//case Struct:
+			//sprintf(qbstrstr + qbstrstr2, "QbStruct { 0x%p }\n", (void*)qss->value);
+			//break;
 		}
-		if (l_CreateCon) {
-			fputs(qbstrstr, CON);
+		if (HIBYTE(qss->type) != Struct && HIBYTE(qss->type) != Struct2) {
+			if (l_CreateCon) {
+				fputs(qbstrstr, CON);
+			}
+			if (l_WriteFile) {
+				fputs(qbstrstr, log);
+			}
 		}
-		if (l_WriteFile) {
-			fputs(qbstrstr, log);
+		else {
+			sprintf(qbstrstr + qbstrstr2, "\n");
+			if (l_CreateCon) {
+				fputs(qbstrstr, CON);
+			}
+			if (l_WriteFile) {
+				fputs(qbstrstr, log);
+			}
+			printStructStructIndent();
+			if (l_CreateCon) {
+				fputs(qbstructOpen, CON);
+			}
+			if (l_WriteFile) {
+				fputs(qbstructOpen, log);
+			}
+			qbstrindent++;
+			sprintf(qbstrstr, "");
+			//fprintf(CON, "%p\n", qsh->first);
+			printStructBase((QbStruct_weirdprintthing_header*)(qss->value));
+			qbstrindent--;
+			printStructStructIndent();
+			if (l_CreateCon) {
+				fputs(qbstrstr, CON);
+				fputs("}\n", CON);
+			}
+			if (l_WriteFile) {
+				fputs(qbstrstr, log);
+				fputs("}\n", log);
+			}
 		}
-		qbstrstr2 = 0;
+		//qbstrstr2 = 0;
 		if (!qss->next)
 			break;
 		qss = qss->next;
 	}
-	if (l_CreateCon)
-		fputs("}\n", CON);
-	if (l_WriteFile)
-		fputs("}\n", log);
+	if (!qbstrindent)
+	{
+		if (l_CreateCon)
+			fputs("}\n", CON);
+		if (l_WriteFile)
+			fputs("}\n", log);
+	}
 }
 static void *PrintStructDetour = (void *)0x00530970;
 __declspec(naked) void MyPrintStruct()
@@ -205,6 +276,43 @@ __declspec(naked) void* PrintGH3Plog()
 	}
 }
 
+
+DWORD kIndex = 0;
+static void *AddToLookupDetour = (void *)0x00DA22A4;
+__declspec(naked) void* AddToMyLookup()
+{
+	static const uint32_t returnAddress = 0x00DA22AE;
+	char*keyname;
+	DWORD checksum;
+	if (kIndex < MAX_KEYS)
+	{
+		__asm {
+			mov [keyname], edx;
+			mov checksum, esi;
+		}
+		for (uint16_t i = kIndex-1; i > 0; i--)
+		{
+			if (checksum == dbgKeys[i])
+			{
+				__asm {
+					jmp returnAddress;
+				}
+			}
+		}
+		memcpy(dbgStr + (kIndex * KEYSTRLEN), keyname, 128);
+		dbgKeys[kIndex] = checksum;
+		kIndex++;
+	}
+	else
+	{
+		if (l_CreateCon)
+			fputs("FormatText's AddToLookup failed. Exceeded amount of debug keys allowed.\n", CON);
+	}
+	__asm {
+		jmp returnAddress;
+	}
+}
+
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -216,6 +324,7 @@ void ApplyHack()
 	l_WriteFile = GetPrivateProfileIntA("Logger", "WriteFile", 1, inipath);
 	l_FixKeys = GetPrivateProfileIntA("Logger", "FixKeys", 1, inipath);
 	l_PrintStruct = GetPrivateProfileIntA("Logger", "PrintStruct", 1, inipath);
+	l_FmtTxtLkup = GetPrivateProfileIntA("Logger", "FmtTxtAddToLkup", 1, inipath);
 	if (l_CreateCon)
 	{
 		l_CreateCon = 0;
@@ -264,7 +373,9 @@ void ApplyHack()
 				char ftmp[0x40000], *chksmsSect = "[Checksums]"; // largest official debug file is 157491
 				unsigned char b0, b1, b2, b3;
 				DWORD checkIfNZ = 0, QFpos = 0, QFlen = 0, curFileCur = 0, keyNameLen = 0;
-				DWORD curChksm = 0, kIndex = 0;
+				DWORD curChksm = 0;
+				char scanDupe = 0;
+				char cpath = 0;
 				if (l_CreateCon)
 					fputs("Allocating memory for lookup.\n", CON);
 				dbgKeys = (UINT*)calloc(MAX_KEYS, sizeof(UINT));
@@ -291,15 +402,34 @@ void ApplyHack()
 					{
 						curFileCur++;
 					}
+					cpath = 0;
 					curFileCur += 13;
 					while (curFileCur < QFlen && kIndex < MAX_KEYS)
 					{
+						scanDupe = 0;
 						if (ftmp[curFileCur] == '0' &&
 							ftmp[curFileCur + 1] == 'x')
 						{
 							curFileCur += 2;
 							curChksm = strtoul(ftmp + curFileCur, 0, 16);
-							dbgKeys[kIndex] = curChksm;
+							for (uint16_t i = 0; i < kIndex; i++) // dupes happen around 13k keys in
+							{
+								if (curChksm == dbgKeys[i])
+								{
+									scanDupe = 1;
+									//fprintf(CON, "%u\n", i);
+									break;
+								}
+								if (!dbgKeys[i])
+								{
+									scanDupe = 1;
+									break;
+								}
+								// todo next time; if i > 13000 print current file
+								// reading to deduce in actual pak so this is faster
+							}
+							if (!scanDupe)
+								dbgKeys[kIndex] = curChksm;
 							curFileCur += 9;
 							keyNameLen = 0;
 							while (ftmp[curFileCur + keyNameLen] != 0x0D &&
@@ -307,15 +437,20 @@ void ApplyHack()
 							{
 								keyNameLen++;
 							}
-							memcpy(dbgStr + (kIndex * KEYSTRLEN), ftmp + curFileCur, keyNameLen);
-							curFileCur += keyNameLen;
-							//fprintf(log, "0x%08x %s\n", curChksm, dbgStr + (kIndex * KEYSTRLEN));
-							kIndex++;
+							if (!scanDupe)
+							{
+								memcpy(dbgStr + (kIndex * KEYSTRLEN), ftmp + curFileCur, keyNameLen);
+								curFileCur += keyNameLen;
+								kIndex++;
+							}
 						}
 						curFileCur++;
 					}
-
+					if (l_CreateCon)
+						fprintf(CON, "\rLoading debug keys. (%u)", kIndex);
 				} while (checkIfNZ);
+				if (l_CreateCon)
+					fputs("\n", CON);
 				l_DbgLoaded = 1;
 				if (g_patcher.WriteJmp(UnkKeyDetour, QbKeyPrintFix))
 				{
@@ -328,7 +463,21 @@ void ApplyHack()
 						fputs("Failed to patch debug key formatter.\n", CON);
 					if (l_WriteFile)
 						fputs("Failed to patch debug key formatter.\n", log);
+					l_AllSuccess = 0;
 				}
+				if (l_FmtTxtLkup)
+					if (g_patcher.WriteJmp(AddToLookupDetour, AddToMyLookup))
+					{
+						if (l_CreateCon)
+							fputs("Patched FormatText's AddToLookup code.\n", CON);
+					}
+					else {
+						if (l_CreateCon)
+							fputs("Failed to patch FormatText's AddToLookup code.\n", CON);
+						if (l_WriteFile)
+							fputs("Failed to patch FormatText's AddToLookup code.\n", log);
+						l_AllSuccess = 0;
+					}
 				fclose(dbgpak);
 			}
 			else {
@@ -336,6 +485,7 @@ void ApplyHack()
 					fputs("Failed to open debug pak.\nDoes it exist?\n", CON);
 				if (l_WriteFile)
 					fputs("Failed to open debug pak.\nDoes it exist?\n", log);
+				l_AllSuccess = 0;
 			}
 		}
 		if (l_PrintStruct) {
@@ -344,6 +494,13 @@ void ApplyHack()
 			{
 				if (l_CreateCon)
 					fputs("Patched PrintStruct.\n", CON);
+			}
+			else {
+				if (l_CreateCon)
+					fputs("Failed to patch PrintStruct.\n", CON);
+				if (l_WriteFile)
+					fputs("Failed to patch PrintStruct.\n", log);
+				l_AllSuccess = 0;
 			}
 		}
 		if (l_AllSuccess)
