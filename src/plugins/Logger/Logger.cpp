@@ -290,7 +290,7 @@ __declspec(naked) void* AddToMyLookup()
 			mov [keyname], edx;
 			mov checksum, esi;
 		}
-		for (uint16_t i = kIndex-1; i > 0; i--)
+		for (uint16_t i = 0; i < MAX_KEYS; i++)
 		{
 			if (checksum == dbgKeys[i])
 			{
@@ -382,7 +382,11 @@ void ApplyHack()
 				dbgStr = (char*)calloc(MAX_KEYS, KEYSTRLEN * 4);
 				do
 				{
+					//fprintf(CON, "%u\n", curFileCur);
 					fread((DWORD*)&checkIfNZ, 4, 1, dbgpak);
+					if (checkIfNZ != 0xCC669555)
+						break;
+					// BIG ENDIAN IS BASED
 					fread(&b3, sizeof b3, 1, dbgpak);
 					fread(&b2, sizeof b2, 1, dbgpak);
 					fread(&b1, sizeof b1, 1, dbgpak);
@@ -393,10 +397,12 @@ void ApplyHack()
 					fread(&b1, sizeof b1, 1, dbgpak);
 					fread(&b0, sizeof b0, 1, dbgpak);
 					QFlen = (((DWORD)b3) << 24) | (((DWORD)b2) << 16) | (((DWORD)b1) << 8) | b0;
+					//fprintf(CON, "\n%p\n%p\n%p\n%p\n", checkIfNZ, ftell(dbgpak), QFpos, QFlen); nice one wes
 					fseek(dbgpak, QFpos - 12, SEEK_CUR);
 					fread(ftmp, 1, QFlen, dbgpak);
 					fseek(dbgpak, (QFpos + QFlen)*-1, SEEK_CUR);
 					fseek(dbgpak, 0x20, SEEK_CUR);
+#define nodupes 0
 					curFileCur = 0;
 					while (strncmp(ftmp + curFileCur, chksmsSect, 11) != 0)
 					{
@@ -412,23 +418,25 @@ void ApplyHack()
 						{
 							curFileCur += 2;
 							curChksm = strtoul(ftmp + curFileCur, 0, 16);
-							for (uint16_t i = 0; i < kIndex; i++) // dupes happen around 13k keys in
-							{
-								if (curChksm == dbgKeys[i])
+#if !nodupes
+								for (uint16_t i = 0; i < kIndex; i++) // dupes happen around 13k keys in
 								{
-									scanDupe = 1;
-									//fprintf(CON, "%u\n", i);
-									break;
+									if (curChksm == dbgKeys[i])
+									{
+										scanDupe = 1;
+										//fprintf(CON, "%u\n", i);
+										break;
+									}
+									if (!dbgKeys[i])
+									{
+										scanDupe = 1;
+										break;
+									}
+									// todo next time; if i > 13000 print current file
+									// reading to deduce in actual pak so this is faster
 								}
-								if (!dbgKeys[i])
-								{
-									scanDupe = 1;
-									break;
-								}
-								// todo next time; if i > 13000 print current file
-								// reading to deduce in actual pak so this is faster
-							}
 							if (!scanDupe)
+#endif
 								dbgKeys[kIndex] = curChksm;
 							curFileCur += 9;
 							keyNameLen = 0;
@@ -437,7 +445,9 @@ void ApplyHack()
 							{
 								keyNameLen++;
 							}
+#if !nodupes
 							if (!scanDupe)
+#endif
 							{
 								memcpy(dbgStr + (kIndex * KEYSTRLEN), ftmp + curFileCur, keyNameLen);
 								curFileCur += keyNameLen;
