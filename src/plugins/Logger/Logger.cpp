@@ -290,7 +290,7 @@ __declspec(naked) void* AddToMyLookup()
 			mov [keyname], edx;
 			mov checksum, esi;
 		}
-		for (uint16_t i = 0; i < MAX_KEYS; i++)
+		for (uint16_t i = kIndex - 1; i > 0; i--)
 		{
 			if (checksum == dbgKeys[i])
 			{
