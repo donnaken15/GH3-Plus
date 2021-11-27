@@ -6,6 +6,18 @@
 #include <Windows.h>
 #include "gh3\GH3Functions.h"
 
+/// code by wesley and not zedek
+///
+///   #################################
+/// ##         ## # ####### ## # ######
+///             ## # ######  ## # #### 
+///              ## # ####    #######  
+///               #######              
+///
+/// https://donnaken15.tk/
+/// https://youtube.com/donnaken15
+/// https://github.com/donnaken15
+
 static char inipath[MAX_PATH],
 			logfile[MAX_PATH],
 			dbgpath[MAX_PATH];
@@ -180,9 +192,6 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 				*(float*)(&(WTF(qss->value)) + 2),
 				*(float*)(&(WTF(qss->value)) + 3));
 			break;
-		//case Struct:
-			//sprintf(qbstrstr + qbstrstr2, "QbStruct { 0x%p }\n", (void*)qss->value);
-			//break;
 		}
 		if (HIBYTE(qss->type) != Struct && HIBYTE(qss->type) != Struct2) {
 			if (l_CreateCon) {
@@ -222,7 +231,6 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 				fputs("}\n", log);
 			}
 		}
-		//qbstrstr2 = 0;
 		if (!qss->next)
 			break;
 		qss = qss->next;
