@@ -43,10 +43,8 @@ createscreenelement({
 	material: sys_openfx2_sys_openfx2
 });
 
-%time = (0.175 / (*current_speedfactor));
-//useless syncing with slomo
-//change a byte here to change multiply to division
-//33 33 33 3E 0C 0E 4B 16 C1 1B D9 16 0F
+%time = (0.175 * (*current_speedfactor));
+//multiply and divide operators in the compiler
 //thanks adituv
 
 %id = %id_1;

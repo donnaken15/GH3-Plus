@@ -247,10 +247,18 @@ static void *PrintStructDetour = (void *)0x00530970;
 __declspec(naked) void MyPrintStruct()
 {
 	static const uint32_t returnAddress = 0x00530975;
+	DWORD a, c;
 	__asm {
 		push ebp;
 		mov ebp, esp;
+		mov a, eax;
+		mov c, ecx;
 		mov[a1], ecx;
+	}
+	if (c >= 0xF0000000) // stupid thing
+	{
+		__asm mov eax, a;
+		__asm mov[a1], eax;
 	}
 	printStructBase(a1);
 	__asm {
