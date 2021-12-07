@@ -23,7 +23,7 @@ createscreenelement({
 	rgba: %open_color1,
 	just: [center, center],
 	z_priority: 20,
-    pos: (640.0, 623.0),
+	pos: (640.0, 623.0),
 	alpha: 1,
 	material: sys_openfx1_sys_openfx1
 });
@@ -38,13 +38,13 @@ createscreenelement({
 	rgba: %open_color2,
 	just: [center, center],
 	z_priority: 20,
-    pos: (640.0, 627.0),
+	pos: (640.0, 627.0),
 	alpha: 1,
 	material: sys_openfx2_sys_openfx2
 });
 
 %time = (0.175 * (*current_speedfactor));
-//multiply and divide operators in the compiler
+//multiply and divide operators are swapped in the compiler
 //thanks adituv
 
 %id = %id_1;
