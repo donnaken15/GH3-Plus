@@ -56,9 +56,10 @@ namespace GH3
 		uint16_t unk0;
 		uint8_t unk2; //might be a debug flag to not free or something
 		uint8_t unk3;
-		QbStructItem *first;
 
 	public:
+		QbStructItem *first; // IDGAF
+
 		QbStruct();
 		QbStruct(QbStructItem *itemChain); //Use with care
 		~QbStruct();

@@ -95,37 +95,21 @@ __declspec(naked) char* QbKeyPrintFix(UINT qbk)
 
 #define WTF(x) (*(UINT*)(x))
 
-struct QbStructWPT_item {
-	DWORD type; //???
-	QbKey key;
-	DWORD value;
-	QbStructWPT_item*next;
-};
-struct QbStruct_weirdprintthing_header {
-	DWORD unk;
-	QbStructWPT_item*first;
-};
-enum QbStructWPT_types { // HIBYTE(type)
-	Int = 2,
-	Int2 = 3, // why is it like this
-	Float = 4,
-	Float2 = 5,
-	String = 6,
-	String2 = 7,
-	WString = 9,
-	Vector2 = 0xB,
-	Vector3 = 0xD,
-	Struct = 0x14,
-	Struct2 = 0x15,
-	QbKey_ = 0x1A,
-	QbKey2 = 0x1B
+enum QbStructItemSHR1 { // type >> 1
+	Int = 1,
+	Float = 2,
+	String = 3,
+	WString = 4,
+	Vector2 = 5,
+	Vector3 = 6,
+	Struct = 0xA,
+	Array = 0xC,
+	QbKey_ = 0xD,
 };
 const char*qbstructOpen = "QbStruct {\n";
-QbStruct_weirdprintthing_header*a1;
 int qbstrindent = 0;
 void printStructStructIndent()
 {
-	//fprintf(CON, "%u", qbstrindent);
 	for (int i = 0; i < qbstrindent + 1; i++) {
 		if (l_CreateCon) {
 			fputs("    ", CON);
@@ -135,7 +119,7 @@ void printStructStructIndent()
 		}
 	}
 }
-void printStructBase(QbStruct_weirdprintthing_header*qsh)
+void printStructBase(QbStruct*qs)
 {
 	char qbstrstr[0x100];
 	int qbstrstr2;
@@ -146,60 +130,180 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 		if (l_WriteFile)
 			fputs(qbstructOpen, log);
 	}
-	QbStructWPT_item*qss;
-	qss = qsh->first;
-	while (qss)
+	QbStructItem*qsi;
+	qsi = qs->first;
+	while (qsi)
 	{
+		BYTE type = qsi->Type();
 		printStructStructIndent();
 		if (l_DbgLoaded)
 		{
-			if (qss->key)
-				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", HIBYTE(qss->type), QbKeyPrintFix(qss->key), qss->value);
+			if (qsi->key)
+				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, QbKeyPrintFix(qsi->key), qsi->value);
 			else
-				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", HIBYTE(qss->type), "0x00000000");
+				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, "0x00000000");
 		}
 		else
-			qbstrstr2 = sprintf(qbstrstr, "%02X %08X = ", HIBYTE(qss->type), qss->key, qss->value);
+			qbstrstr2 = sprintf(qbstrstr, "%02X %08X = ", type, qsi->key, qsi->value);
+		// fallback thing, if no later type matches, print as qbkey
 		if (l_DbgLoaded)
-			sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(qss->value));
+			sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(qsi->value));
 		else
-			sprintf(qbstrstr + qbstrstr2, "%08X\n", qss->value);
-		switch (HIBYTE(qss->type)) // FLOOR(TYPE/2) >:(
+			sprintf(qbstrstr + qbstrstr2, "%08X\n", qsi->value);
+		switch (type)
 		{
 		case Int:
-		case Int2:
-			sprintf(qbstrstr + qbstrstr2, "%d\n", (signed int)qss->value);
+			sprintf(qbstrstr + qbstrstr2, "%d\n", (signed int)qsi->value);
 			break;
 		case Float:
-		case Float2:
-			sprintf(qbstrstr + qbstrstr2, "%f\n", (*(FLOAT*)&(qss->value)));
+			sprintf(qbstrstr + qbstrstr2, "%f\n", (*(FLOAT*)&(qsi->value)));
 			break;
 		case String:
-		case String2:
-			sprintf(qbstrstr + qbstrstr2, "\"%s\"\n", (char*)qss->value);
+			sprintf(qbstrstr + qbstrstr2, "'%s'\n", (char*)qsi->value);
 			break;
 		case WString:
-			sprintf(qbstrstr + qbstrstr2, "\"%ls\"\n", (wchar_t*)qss->value);
+			sprintf(qbstrstr + qbstrstr2, "\"%ls\"\n", (wchar_t*)qsi->value);
 			break;
 		case Vector2:
 			sprintf(qbstrstr + qbstrstr2, "(%f, %f)\n",
-				*(float*)(&WTF(qss->value) + 1),
-				*(float*)(&WTF(qss->value) + 2));
+				*(float*)(&WTF(qsi->value) + 1),
+				*(float*)(&WTF(qsi->value) + 2));
 			break;
 		case Vector3:
 			sprintf(qbstrstr + qbstrstr2, "(%f, %f, %f)\n",
-				*(float*)(&(WTF(qss->value)) + 1),
-				*(float*)(&(WTF(qss->value)) + 2),
-				*(float*)(&(WTF(qss->value)) + 3));
+				*(float*)(&(WTF(qsi->value)) + 1),
+				*(float*)(&(WTF(qsi->value)) + 2),
+				*(float*)(&(WTF(qsi->value)) + 3));
 			break;
 		}
-		if (HIBYTE(qss->type) != Struct && HIBYTE(qss->type) != Struct2) {
+		if (type != Struct && type != Array) {
 			if (l_CreateCon) {
 				fputs(qbstrstr, CON);
 			}
 			if (l_WriteFile) {
 				fputs(qbstrstr, log);
 			}
+		}
+		else if (type == Array) {
+			sprintf(qbstrstr + qbstrstr2, "\n");
+			if (l_CreateCon) {
+				fputs(qbstrstr, CON);
+			}
+			if (l_WriteFile) {
+				fputs(qbstrstr, log);
+			}
+			qbstrindent++;
+			printStructStructIndent();
+			sprintf(qbstrstr, "");
+			QbArray*qa = (QbArray*)qsi->value;
+			if (l_CreateCon)
+				fprintf(CON, "%02X QbArray [", qa->Type());
+			if (l_WriteFile)
+				fprintf(log, "%02X QbArray [", qa->Type());
+			DWORD weird;
+			for (int i = 0; i < qa->Length(); i++)
+			{
+				switch (qa->Type())
+				{
+				case Int:
+					if (l_CreateCon)
+						fprintf(CON, "%d", (signed int)qa->Get(i));
+					if (l_WriteFile)
+						fprintf(log, "%d", (signed int)qa->Get(i));
+					break;
+				case Float:
+					weird = qa->Get(i);
+					if (l_CreateCon)
+						fprintf(CON, "%f", (*(FLOAT*)&weird));
+					if (l_WriteFile)
+						fprintf(log, "%f", (*(FLOAT*)&weird));
+					break;
+				case String:
+					if (l_CreateCon)
+						fprintf(CON, "\"%s\"", (char*)qa->Get(i));
+					if (l_WriteFile)
+						fprintf(log, "\"%s\"", (char*)qa->Get(i));
+					break;
+				case WString:
+					if (l_CreateCon)
+						fprintf(CON, "\"%ls\"", (wchar_t*)qa->Get(i));
+					if (l_WriteFile)
+						fprintf(log, "\"%ls\"", (wchar_t*)qa->Get(i));
+					break;
+				case QbKey_:
+					if (l_DbgLoaded) {
+						if (l_CreateCon) {
+							fprintf(CON, "%s", QbKeyPrintFix(qa->Get(i)));
+						}
+						if (l_WriteFile) {
+							fprintf(log, "%s", QbKeyPrintFix(qa->Get(i)));
+						}
+					}
+					else {
+						if (l_CreateCon) {
+							fprintf(CON, "%08X", qa->Get(i));
+						}
+						if (l_WriteFile) {
+							fprintf(log, "%08X", qa->Get(i));
+						}
+					}
+					break;
+				case Struct:
+					if (l_CreateCon) {
+						fputs("\n", CON);
+					}
+					if (l_WriteFile) {
+						fputs("\n", log);
+					}
+					qbstrindent++;
+					printStructStructIndent();
+					if (l_CreateCon) {
+						fputs(qbstructOpen, CON);
+					}
+					if (l_WriteFile) {
+						fputs(qbstructOpen, log);
+					}
+					qbstrindent++;
+					printStructBase((QbStruct*)(qa->Get(i)));
+					qbstrindent--;
+					printStructStructIndent();
+					if (i != qa->Length() - 1) {
+						if (l_CreateCon)
+							fputs("}", CON);
+						if (l_WriteFile)
+							fputs("}", log);
+					}
+					else
+					{
+						qbstrindent--;
+						if (l_CreateCon)
+							fputs("}\n", CON);
+						if (l_WriteFile)
+							fputs("}\n", log);
+						printStructStructIndent();
+						qbstrindent++;
+					}
+					qbstrindent--;
+					break;
+				}
+				if (i != qa->Length() - 1) {
+					if (l_CreateCon) {
+						fputs(", ", CON);
+					}
+					if (l_WriteFile) {
+						fputs(", ", log);
+					}
+				}
+			}
+			if (l_CreateCon) {
+				fputs(qbstrstr, CON);
+				fputs("]\n", CON);
+			}
+			if (l_WriteFile) {
+				fputs(qbstrstr, log);
+				fputs("]\n", log);
+			}
+			qbstrindent--;
 		}
 		else {
 			sprintf(qbstrstr + qbstrstr2, "\n");
@@ -218,22 +322,18 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 			}
 			qbstrindent++;
 			sprintf(qbstrstr, "");
-			//fprintf(CON, "%p\n", qsh->first);
-			printStructBase((QbStruct_weirdprintthing_header*)(qss->value));
+			//fprintf(CON, "%p\n", qs->first);
+			printStructBase((QbStruct*)(qsi->value));
 			qbstrindent--;
 			printStructStructIndent();
-			if (l_CreateCon) {
-				fputs(qbstrstr, CON);
+			if (l_CreateCon)
 				fputs("}\n", CON);
-			}
-			if (l_WriteFile) {
-				fputs(qbstrstr, log);
+			if (l_WriteFile)
 				fputs("}\n", log);
-			}
 		}
-		if (!qss->next)
+		if (!qsi->next)
 			break;
-		qss = qss->next;
+		qsi = qsi->next;
 	}
 	if (!qbstrindent)
 	{
@@ -243,6 +343,7 @@ void printStructBase(QbStruct_weirdprintthing_header*qsh)
 			fputs("}\n", log);
 	}
 }
+QbStruct*a1;
 static void *PrintStructDetour = (void *)0x00530970;
 __declspec(naked) void MyPrintStruct()
 {
@@ -262,6 +363,9 @@ __declspec(naked) void MyPrintStruct()
 	}
 	printStructBase(a1);
 	__asm {
+		mov al, 1;	// zedek told me to put this
+					// game still works without it lol
+					// apparently required in cfuncs
 		pop ebp;
 		ret;
 	}
@@ -448,8 +552,8 @@ void ApplyHack()
 										scanDupe = 1;
 										break;
 									}
-									// todo next time; if i > 13000 print current file
-									// reading to deduce in actual pak so this is faster
+									// reduced dbg.pak (for faster key loading):
+									// https://donnaken15.tk/FastGH3/dbg.pak.xen
 								}
 							if (!scanDupe)
 #endif
