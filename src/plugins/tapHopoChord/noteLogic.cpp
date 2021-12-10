@@ -492,6 +492,9 @@ static void * const noteHitPatternDetour = (void *)0x00430985;
 void __declspec(naked) noteHitPatternFixNaked()
 {
 	static const void * const returnAddress = (void *)0x0043098E;
+#if OPEN_NOTEFX
+	int player;
+#endif
 	__asm
 	{
 		mov     edi, [esp + 5Ch];
@@ -500,8 +503,13 @@ void __declspec(naked) noteHitPatternFixNaked()
 
 		mov     edi, (OPEN | GREEN | RED | YELLOW | BLUE | ORANGE);
 		mov[esp + 5Ch], edi;
+#if OPEN_NOTEFX
+		//mov  edx, [esp + 8h]; // figure this out for multiplayer
+		//mov  player, edx; // despite also not stretching to highway properly
+#endif
 	}
 #if OPEN_NOTEFX
+	nullParams->first->value = 1;// player;
 	ExecuteScript2(QbKey("Open_NoteFX"), nullParams, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
 #endif
 	__asm {
@@ -585,6 +593,7 @@ bool TryApplyNoteLogicPatches()
 #if OPEN_NOTEFX
 	nullParams = (QbStruct *)qbMalloc(sizeof(QbStruct), 1);
 	memset(nullParams, 0, sizeof(QbStruct));
+	nullParams->InsertIntItem(QbKey("player"), 2);
 #endif
 	return
 		(

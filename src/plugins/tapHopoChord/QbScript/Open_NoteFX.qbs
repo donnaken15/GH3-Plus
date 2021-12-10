@@ -2,23 +2,27 @@ script({
 	int player = 1;
 }) {
 
+FormatText(checksumName=player_status, 'player%d_status', d = %player);
+
 Wait(*button_sink_time,Seconds);
 GetSongTimeMs();
 
-%open_color1 = [240,199,255,255];
-%open_color2 = [212,  0,255,255];
-//%open_color1 = [199,252,255,255];
-//%open_color2 = [0, 247, 255];
-// TODO: get starpower color working ^
+open_color1 = [240,199,255,255];
+open_color2 = [212,  0,255,255];
 
-FormatText(checksum=%container_id, 'gem_container%p', p = *(player1_status.text));
-FormatText(checksum=%id, 'open_particle1_%t', t = %time);
-%id_1 = %id;
-createscreenelement({
+if (*%player_status.star_power_used == 1)
+{
+	open_color1 = [199,252,255,255];
+	open_color2 = [0, 247, 255];
+}
+
+FormatText(checksumName=container_id, 'gem_container%p', p = (*%player_status.text));
+FormatText(checksumName=id, 'open_particle1_%t', t = %time);
+id_1 = %id;
+createscreenelement({ // fret overlay
 	type: SpriteElement,
-	parent: gem_containerp1,
+	parent: %container_id,
 	id: %id,
-	font: fontgrid_title_gh3,
 	scale: 1,
 	rgba: %open_color1,
 	just: [center, center],
@@ -27,14 +31,13 @@ createscreenelement({
 	alpha: 1,
 	material: sys_openfx1_sys_openfx1
 });
-FormatText(checksum=%id, 'open_particle2_%t', t = %time);
-%id_2 = %id;
-createscreenelement({
+FormatText(checksumName=id, 'open_particle2_%t', t = %time);
+id_2 = %id;
+createscreenelement({ // open shape
 	type: SpriteElement,
-	parent: gem_containerp1,
+	parent: %container_id,
 	id: %id,
-	font: fontgrid_title_gh3,
-	scale: 2,
+	scale: 2.1,
 	rgba: %open_color2,
 	just: [center, center],
 	z_priority: 20,
@@ -43,34 +46,32 @@ createscreenelement({
 	material: sys_openfx2_sys_openfx2
 });
 
-%time = (0.175 * (*current_speedfactor));
+time = (0.12 * (*current_speedfactor));
 //multiply and divide operators are swapped in the compiler
 //thanks adituv
 
-%id = %id_1;
+id = %id_1;
 DoScreenElementMorph(
 	id=%id,
 	time=%time,
-	alpha=0,
-	scale=2,
-	relative_scale
+	alpha=0
 );
-%id = %id_2; // why is this not animating or hiding right
+id = %id_2;
 DoScreenElementMorph(
 	id=%id,
 	time=%time,
 	alpha=0,
-	scale=2,
+	scale=1.5,
 	relative_scale
 );
 
 Wait(%time,Seconds);
 
-%id = %id_1;
+id = %id_1;
 if (screenelementexists({id: %id})) {
     destroyscreenelement({id: %id});
 }
-%id = %id_2;
+id = %id_2;
 if (screenelementexists({id: %id})) {
     destroyscreenelement({id: %id});
 }
