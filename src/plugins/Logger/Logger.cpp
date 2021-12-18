@@ -1,4 +1,6 @@
 #include "gh3\GH3Keys.h"
+#include "gh3\GlobalMap.h"
+#include "gh3\QbValueType.h"
 #include "core\Patcher.h"
 #include "Logger.h"
 #include <stdint.h>
@@ -60,7 +62,7 @@ FILE*dbgpak;
 
 char*FML(UINT i) // why wont this work in specific uses
 {
-	sprintf(keyfault+10, "%08x", i);
+	sprintf(keyfault + 10, "%08x", i);
 	keyfault[18] = ')';
 	return keyfault;
 }
@@ -95,17 +97,6 @@ __declspec(naked) char* QbKeyPrintFix(UINT qbk)
 
 #define WTF(x) (*(UINT*)(x))
 
-enum QbStructItemSHR1 { // type >> 1
-	Int = 1,
-	Float = 2,
-	String = 3,
-	WString = 4,
-	Vector2 = 5,
-	Vector3 = 6,
-	Struct = 0xA,
-	Array = 0xC,
-	QbKey_ = 0xD,
-};
 const char*qbstructOpen = "QbStruct {\n";
 int qbstrindent = 0;
 void printStructStructIndent()
@@ -119,10 +110,9 @@ void printStructStructIndent()
 		}
 	}
 }
+void printStructItem(QbKey key, DWORD value, QbValueType type);
 void printStructBase(QbStruct*qs)
 {
-	char qbstrstr[0x100];
-	int qbstrstr2;
 	if (!qbstrindent)
 	{
 		if (l_CreateCon)
@@ -134,209 +124,290 @@ void printStructBase(QbStruct*qs)
 	qsi = qs->first;
 	while (qsi)
 	{
-		BYTE type = qsi->Type();
 		printStructStructIndent();
-		if (l_DbgLoaded)
-		{
-			if (qsi->key)
-				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, QbKeyPrintFix(qsi->key), qsi->value);
-			else
-				qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, "0x00000000");
-		}
-		else
-			qbstrstr2 = sprintf(qbstrstr, "%02X %08X = ", type, qsi->key, qsi->value);
-		// fallback thing, if no later type matches, print as qbkey
-		if (l_DbgLoaded)
-			sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(qsi->value));
-		else
-			sprintf(qbstrstr + qbstrstr2, "%08X\n", qsi->value);
-		switch (type)
-		{
-		case Int:
-			sprintf(qbstrstr + qbstrstr2, "%d\n", (signed int)qsi->value);
-			break;
-		case Float:
-			sprintf(qbstrstr + qbstrstr2, "%f\n", (*(FLOAT*)&(qsi->value)));
-			break;
-		case String:
-			sprintf(qbstrstr + qbstrstr2, "'%s'\n", (char*)qsi->value);
-			break;
-		case WString:
-			sprintf(qbstrstr + qbstrstr2, "\"%ls\"\n", (wchar_t*)qsi->value);
-			break;
-		case Vector2:
-			sprintf(qbstrstr + qbstrstr2, "(%f, %f)\n",
-				*(float*)(&WTF(qsi->value) + 1),
-				*(float*)(&WTF(qsi->value) + 2));
-			break;
-		case Vector3:
-			sprintf(qbstrstr + qbstrstr2, "(%f, %f, %f)\n",
-				*(float*)(&(WTF(qsi->value)) + 1),
-				*(float*)(&(WTF(qsi->value)) + 2),
-				*(float*)(&(WTF(qsi->value)) + 3));
-			break;
-		}
-		if (type != Struct && type != Array) {
-			if (l_CreateCon) {
-				fputs(qbstrstr, CON);
-			}
-			if (l_WriteFile) {
-				fputs(qbstrstr, log);
-			}
-		}
-		else if (type == Array) {
-			sprintf(qbstrstr + qbstrstr2, "\n");
-			if (l_CreateCon) {
-				fputs(qbstrstr, CON);
-			}
-			if (l_WriteFile) {
-				fputs(qbstrstr, log);
-			}
-			qbstrindent++;
-			printStructStructIndent();
-			sprintf(qbstrstr, "");
-			QbArray*qa = (QbArray*)qsi->value;
-			if (l_CreateCon)
-				fprintf(CON, "%02X QbArray [", qa->Type());
-			if (l_WriteFile)
-				fprintf(log, "%02X QbArray [", qa->Type());
-			DWORD weird;
-			for (int i = 0; i < qa->Length(); i++)
-			{
-				switch (qa->Type())
-				{
-				case Int:
-					if (l_CreateCon)
-						fprintf(CON, "%d", (signed int)qa->Get(i));
-					if (l_WriteFile)
-						fprintf(log, "%d", (signed int)qa->Get(i));
-					break;
-				case Float:
-					weird = qa->Get(i);
-					if (l_CreateCon)
-						fprintf(CON, "%f", (*(FLOAT*)&weird));
-					if (l_WriteFile)
-						fprintf(log, "%f", (*(FLOAT*)&weird));
-					break;
-				case String:
-					if (l_CreateCon)
-						fprintf(CON, "\"%s\"", (char*)qa->Get(i));
-					if (l_WriteFile)
-						fprintf(log, "\"%s\"", (char*)qa->Get(i));
-					break;
-				case WString:
-					if (l_CreateCon)
-						fprintf(CON, "\"%ls\"", (wchar_t*)qa->Get(i));
-					if (l_WriteFile)
-						fprintf(log, "\"%ls\"", (wchar_t*)qa->Get(i));
-					break;
-				case QbKey_:
-					if (l_DbgLoaded) {
-						if (l_CreateCon) {
-							fprintf(CON, "%s", QbKeyPrintFix(qa->Get(i)));
-						}
-						if (l_WriteFile) {
-							fprintf(log, "%s", QbKeyPrintFix(qa->Get(i)));
-						}
-					}
-					else {
-						if (l_CreateCon) {
-							fprintf(CON, "%08X", qa->Get(i));
-						}
-						if (l_WriteFile) {
-							fprintf(log, "%08X", qa->Get(i));
-						}
-					}
-					break;
-				case Struct:
-					if (l_CreateCon) {
-						fputs("\n", CON);
-					}
-					if (l_WriteFile) {
-						fputs("\n", log);
-					}
-					qbstrindent++;
-					printStructStructIndent();
-					if (l_CreateCon) {
-						fputs(qbstructOpen, CON);
-					}
-					if (l_WriteFile) {
-						fputs(qbstructOpen, log);
-					}
-					qbstrindent++;
-					printStructBase((QbStruct*)(qa->Get(i)));
-					qbstrindent--;
-					printStructStructIndent();
-					if (i != qa->Length() - 1) {
-						if (l_CreateCon)
-							fputs("}", CON);
-						if (l_WriteFile)
-							fputs("}", log);
-					}
-					else
-					{
-						qbstrindent--;
-						if (l_CreateCon)
-							fputs("}\n", CON);
-						if (l_WriteFile)
-							fputs("}\n", log);
-						printStructStructIndent();
-						qbstrindent++;
-					}
-					qbstrindent--;
-					break;
-				}
-				if (i != qa->Length() - 1) {
-					if (l_CreateCon) {
-						fputs(", ", CON);
-					}
-					if (l_WriteFile) {
-						fputs(", ", log);
-					}
-				}
-			}
-			if (l_CreateCon) {
-				fputs(qbstrstr, CON);
-				fputs("]\n", CON);
-			}
-			if (l_WriteFile) {
-				fputs(qbstrstr, log);
-				fputs("]\n", log);
-			}
-			qbstrindent--;
-		}
-		else {
-			sprintf(qbstrstr + qbstrstr2, "\n");
-			if (l_CreateCon) {
-				fputs(qbstrstr, CON);
-			}
-			if (l_WriteFile) {
-				fputs(qbstrstr, log);
-			}
-			printStructStructIndent();
-			if (l_CreateCon) {
-				fputs(qbstructOpen, CON);
-			}
-			if (l_WriteFile) {
-				fputs(qbstructOpen, log);
-			}
-			qbstrindent++;
-			sprintf(qbstrstr, "");
-			//fprintf(CON, "%p\n", qs->first);
-			printStructBase((QbStruct*)(qsi->value));
-			qbstrindent--;
-			printStructStructIndent();
-			if (l_CreateCon)
-				fputs("}\n", CON);
-			if (l_WriteFile)
-				fputs("}\n", log);
-		}
+		printStructItem(qsi->key, qsi->value, qsi->Type());
 		if (!qsi->next)
 			break;
 		qsi = qsi->next;
 	}
 	if (!qbstrindent)
 	{
+		if (l_CreateCon)
+			fputs("}\n", CON);
+		if (l_WriteFile)
+			fputs("}\n", log);
+	}
+}
+void printStructItem(QbKey key, DWORD value, QbValueType type)
+{
+	char qbstrstr[0x80];
+	int qbstrstr2;
+	if (l_DbgLoaded)
+	{
+		if (key)
+			qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, QbKeyPrintFix(key));
+		else
+			qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, "0x00000000");
+	}
+	else
+		qbstrstr2 = sprintf(qbstrstr, "%02X %08X = ", type, (int)key);
+	// fallback thing, if no later type matches, print as qbkey
+	if (l_DbgLoaded)
+		sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(value));
+	else
+		sprintf(qbstrstr + qbstrstr2, "%08X\n", value);
+	switch (type)
+	{
+	case TypeInt:
+		sprintf(qbstrstr + qbstrstr2, "%d\n", (signed int)value);
+		break;
+	case TypeFloat:
+		sprintf(qbstrstr + qbstrstr2, "%f\n", (*(FLOAT*)&(value)));
+		break;
+	case TypeCString:
+	case TypeWString:
+		sprintf(qbstrstr + qbstrstr2, "");
+		break;
+	case TypePair:
+		sprintf(qbstrstr + qbstrstr2, "(%f, %f)\n",
+			*(float*)(&WTF(value) + 1),
+			*(float*)(&WTF(value) + 2));
+		break;
+	case TypeVector:
+		sprintf(qbstrstr + qbstrstr2, "(%f, %f, %f)\n",
+			*(float*)(&(WTF(value)) + 1),
+			*(float*)(&(WTF(value)) + 2),
+			*(float*)(&(WTF(value)) + 3));
+		break;
+	case TypeScript:
+	case TypeCFunc:
+	case TypeUnk9:
+	case TypeUnk20:
+	case TypeUnk21:
+	case TypeBinaryTree1:
+	case TypeBinaryTree2:
+	case TypeQbMap:
+	case TypeQbKeyStringQs:
+		break;
+		sprintf(qbstrstr + qbstrstr2, "WHAT IS THIS: 0x%p: %08X %08X %08X %08X\n",
+			(DWORD*)(value),
+			*(DWORD*)(value), *(DWORD*)(value + 4),
+			*(DWORD*)(value + 8), *(DWORD*)(value + 12));
+		break;
+	}
+	if (type != TypeStringPointer &&
+		type != TypeCString &&
+		type != TypeWString &&
+		type != TypeQbStruct &&
+		type != TypeQbArray)
+		{
+		if (l_CreateCon) {
+			fputs(qbstrstr, CON);
+		}
+		if (l_WriteFile) {
+			fputs(qbstrstr, log);
+		}
+	}
+	else if (type == TypeCString) {
+		if (l_CreateCon) {
+			fputs(qbstrstr, CON);
+			fprintf(CON, "'%s'\n", (char*)value);
+		}
+		if (l_WriteFile) {
+			fputs(qbstrstr, log);
+			fprintf(log, "'%s'\n", (char*)value);
+		}
+	}
+	else if (type == TypeWString) {
+		if (l_CreateCon) {
+			fputs(qbstrstr, CON);
+			fprintf(CON, "\"%ls\"\n", (wchar_t*)value);
+		}
+		if (l_WriteFile) {
+			fputs(qbstrstr, log);
+			fprintf(log, "\"%ls\"\n", (wchar_t*)value);
+		}
+	}
+	else if (type == TypeQbArray) {
+		sprintf(qbstrstr + qbstrstr2, "\n");
+		if (l_CreateCon) {
+			fputs(qbstrstr, CON);
+		}
+		if (l_WriteFile) {
+			fputs(qbstrstr, log);
+		}
+		qbstrindent++;
+		printStructStructIndent();
+		sprintf(qbstrstr, "");
+		QbArray*qa = (QbArray*)value;
+		if (l_CreateCon)
+			fprintf(CON, "%02X QbArray [", qa->Type());
+		if (l_WriteFile)
+			fprintf(log, "%02X QbArray [", qa->Type());
+		DWORD weird;
+		QbValueType qatype = qa->Type();
+		// try to collapse items into multiple lines when there's a lot in the array
+		DWORD qal = qa->Length();
+		DWORD qalnl = 0;
+		if (qal > 16)
+		{
+			if (l_CreateCon) {
+				fputs("\n", CON);
+			}
+			if (l_WriteFile) {
+				fputs("\n", log);
+			}
+			qbstrindent++;
+			printStructStructIndent();
+			qalnl = 8;
+			if (qal > 128)
+			{
+				qalnl = 1;
+			}
+		}
+		for (UINT i = 0; i < qal; i++)
+		{
+			switch (qatype)
+			{
+			case TypeInt:
+				if (l_CreateCon)
+					fprintf(CON, "%d", (signed int)qa->Get(i));
+				if (l_WriteFile)
+					fprintf(log, "%d", (signed int)qa->Get(i));
+				break;
+			case TypeFloat:
+				weird = qa->Get(i);
+				if (l_CreateCon)
+					fprintf(CON, "%f", (*(FLOAT*)&weird));
+				if (l_WriteFile)
+					fprintf(log, "%f", (*(FLOAT*)&weird));
+				break;
+			case TypeCString:
+				if (l_CreateCon)
+					fprintf(CON, "\"%s\"", (char*)qa->Get(i));
+				if (l_WriteFile)
+					fprintf(log, "\"%s\"", (char*)qa->Get(i));
+				break;
+			case TypeWString:
+				if (l_CreateCon)
+					fprintf(CON, "\"%ls\"", (wchar_t*)qa->Get(i));
+				if (l_WriteFile)
+					fprintf(log, "\"%ls\"", (wchar_t*)qa->Get(i));
+				break;
+			case TypeQbKey:
+				if (l_DbgLoaded) {
+					if (l_CreateCon) {
+						fprintf(CON, "%s", QbKeyPrintFix(qa->Get(i)));
+					}
+					if (l_WriteFile) {
+						fprintf(log, "%s", QbKeyPrintFix(qa->Get(i)));
+					}
+				}
+				else {
+					if (l_CreateCon) {
+						fprintf(CON, "%08X", qa->Get(i));
+					}
+					if (l_WriteFile) {
+						fprintf(log, "%08X", qa->Get(i));
+					}
+				}
+				break;
+			case TypeQbStruct:
+				if (l_CreateCon) {
+					fputs("\n", CON);
+				}
+				if (l_WriteFile) {
+					fputs("\n", log);
+				}
+				qbstrindent++;
+				printStructStructIndent();
+				if (l_CreateCon) {
+					fputs(qbstructOpen, CON);
+				}
+				if (l_WriteFile) {
+					fputs(qbstructOpen, log);
+				}
+				qbstrindent++;
+				printStructBase((QbStruct*)(qa->Get(i)));
+				qbstrindent--;
+				printStructStructIndent();
+				if (i != qa->Length() - 1) {
+					if (l_CreateCon)
+						fputs("}", CON);
+					if (l_WriteFile)
+						fputs("}", log);
+				}
+				else
+				{
+					qbstrindent--;
+					if (l_CreateCon)
+						fputs("}\n", CON);
+					if (l_WriteFile)
+						fputs("}\n", log);
+					printStructStructIndent();
+					qbstrindent++;
+				}
+				qbstrindent--;
+				break;
+			}
+			if (i != qa->Length() - 1) {
+				if (l_CreateCon) {
+					fputs(", ", CON);
+				}
+				if (l_WriteFile) {
+					fputs(", ", log);
+				}
+			}
+			else if (i == qa->Length() - 1)
+			{
+				if (qal > 8)
+				{
+					qbstrindent--;
+				}
+			}
+			if (qalnl > 0)
+				if (i % qalnl == qalnl - 1 && qatype != TypeQbStruct)
+				{
+					if (l_CreateCon)
+						fputs("\n", CON);
+					if (l_WriteFile)
+						fputs("\n", log);
+					printStructStructIndent();
+				}
+		}
+		if (l_CreateCon) {
+			fputs(qbstrstr, CON);
+			fputs("]\n", CON);
+		}
+		if (l_WriteFile) {
+			fputs(qbstrstr, log);
+			fputs("]\n", log);
+		}
+		if (qal <= 8)
+		{
+			qbstrindent--;
+		}
+	}
+	else {
+		sprintf(qbstrstr + qbstrstr2, "\n");
+		if (l_CreateCon) {
+			fputs(qbstrstr, CON);
+		}
+		if (l_WriteFile) {
+			fputs(qbstrstr, log);
+		}
+		printStructStructIndent();
+		if (l_CreateCon) {
+			fputs(qbstructOpen, CON);
+		}
+		if (l_WriteFile) {
+			fputs(qbstructOpen, log);
+		}
+		sprintf(qbstrstr, "");
+		qbstrindent++;
+		printStructBase((QbStruct*)(value));
+		qbstrindent--;
+		printStructStructIndent();
 		if (l_CreateCon)
 			fputs("}\n", CON);
 		if (l_WriteFile)
@@ -407,10 +478,10 @@ __declspec(naked) void* AddToMyLookup()
 	if (kIndex < MAX_KEYS)
 	{
 		__asm {
-			mov [keyname], edx;
+			mov[keyname], edx;
 			mov checksum, esi;
 		}
-		for (uint16_t i = kIndex - 1; i > 0; i--)
+		for (DWORD i = kIndex - 1; i > 0; i--)
 		{
 			if (checksum == dbgKeys[i])
 			{
@@ -539,22 +610,22 @@ void ApplyHack()
 							curFileCur += 2;
 							curChksm = strtoul(ftmp + curFileCur, 0, 16);
 #if !nodupes
-								for (uint16_t i = 0; i < kIndex; i++) // dupes happen around 13k keys in
+							for (uint16_t i = 0; i < kIndex; i++) // dupes happen around 13k keys in
+							{
+								if (curChksm == dbgKeys[i])
 								{
-									if (curChksm == dbgKeys[i])
-									{
-										scanDupe = 1;
-										//fprintf(CON, "%u\n", i);
-										break;
-									}
-									if (!dbgKeys[i])
-									{
-										scanDupe = 1;
-										break;
-									}
-									// reduced dbg.pak (for faster key loading):
-									// https://donnaken15.tk/FastGH3/dbg.pak.xen
+									scanDupe = 1;
+									//fprintf(CON, "%u\n", i);
+									break;
 								}
+								if (!dbgKeys[i])
+								{
+									scanDupe = 1;
+									break;
+								}
+								// reduced dbg.pak (for faster key loading):
+								// https://donnaken15.tk/dbg.pak.xen
+							}
 							if (!scanDupe)
 #endif
 								dbgKeys[kIndex] = curChksm;
@@ -608,7 +679,7 @@ void ApplyHack()
 							fputs("Failed to patch FormatText's AddToLookup code.\n", log);
 						l_AllSuccess = 0;
 					}
-				fclose(dbgpak);
+					fclose(dbgpak);
 			}
 			else {
 				if (l_CreateCon)
