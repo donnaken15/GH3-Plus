@@ -486,8 +486,7 @@ QbStruct *nullParams;
 //TryHitNote updates
 
 //If an open note is being hit, make the pattern 0x33333 so that all the frets pop up!
-//Here, try to implement animation for hitting open notes (flame like sprites)
-//Somehow scripts can't be executed in plugins though
+//Also animate open note effects
 static void * const noteHitPatternDetour = (void *)0x00430985;
 void __declspec(naked) noteHitPatternFixNaked()
 {
