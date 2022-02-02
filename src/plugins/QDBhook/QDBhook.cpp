@@ -55,7 +55,7 @@ enum GameState : byte // byte 0 of MMF
 //static DWORD *currentScriptPointer = (DWORD*)0x00B54524;
 QbScript*_test;
 
-// FUNCS SUPER BIG ULTRA WEIIIIIIIIRDDDDDDDDDDDDDDDDDDD
+// FUNCS SUPER BIG ULTRA WEIIIIIIIIRDDDDDDDDDDDDDDDDDDDD
 // but it jus werx
 
 int  MapStructDepth = 0;
@@ -85,9 +85,13 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 	case TypeQbKey:
 	case TypeStringPointer:
 		*(DWORD*)(DebugData + *entryAddr + 4) = qsi->value;
+		(*(DWORD*)(DebugData + *countAddr))++;
+		*entryAddr += 0x10;
 		break;
 	default:
 		*(DWORD*)(DebugData + *entryAddr + 4) = qsi->Type();
+		(*(DWORD*)(DebugData + *countAddr))++;
+		*entryAddr += 0x10;
 		break;
 	case TypeQbStruct:
 		*(DWORD*)(DebugData + *entryAddr + 4) = 0;
@@ -114,7 +118,8 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 			*(BYTE *)(DebugData + *entryAddr + 8) = arr->Type();
 			*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 			(*(DWORD*)(DebugData + *countAddr))++;
-			*entryAddr += 0x10;
+			//if (i != arr->Length())
+				*entryAddr += 0x10;
 		}
 		MapStructDepth--;
 		break;
@@ -125,6 +130,8 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		*(WORD *)(DebugData + *entryAddr + 6) = *dynavalAddr;
 		memcpy(DebugData + *dynavalAddr, str, strl);
 		*dynavalAddr += strl;
+		(*(DWORD*)(DebugData + *countAddr))++;
+		*entryAddr += 0x10;
 		break;
 	case TypeWString:
 		strw = (LPCWSTR)qsi->value;
@@ -133,6 +140,8 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		*(WORD *)(DebugData + *entryAddr + 6) = *dynavalAddr;
 		memcpy(DebugData + *dynavalAddr, strw, strl);
 		*dynavalAddr += strl;
+		(*(DWORD*)(DebugData + *countAddr))++;
+		*entryAddr += 0x10;
 		break;
 	case TypePair:
 		pair = (float*)qsi->value;
@@ -142,38 +151,47 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		(*(DWORD*)(DebugData + *countAddr))++;
 		*entryAddr += 0x10;
 		MapStructDepth++;
+		*(DWORD*)(DebugData + *entryAddr) = 0;
 		*(DWORD*)(DebugData + *entryAddr + 4) = pair[0];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
 		*entryAddr += 0x10;
+		*(DWORD*)(DebugData + *entryAddr) = 1;
 		*(DWORD*)(DebugData + *entryAddr + 4) = pair[1];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
+		(*(DWORD*)(DebugData + *countAddr))++;
 		MapStructDepth--;
+		*entryAddr += 0x10;
 		break;
 	case TypeVector:
-		pair = (float*)qsi->value;
+		vec = (float*)qsi->value;
 		*(DWORD*)(DebugData + *entryAddr + 4) = 0;
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeQbArray;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
 		*entryAddr += 0x10;
 		MapStructDepth++;
-		*(DWORD*)(DebugData + *entryAddr + 4) = pair[0];
+		*(DWORD*)(DebugData + *entryAddr) = 0;
+		*(DWORD*)(DebugData + *entryAddr + 4) = vec[0];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
 		*entryAddr += 0x10;
-		*(DWORD*)(DebugData + *entryAddr + 4) = pair[1];
+		*(DWORD*)(DebugData + *entryAddr) = 1;
+		*(DWORD*)(DebugData + *entryAddr + 4) = vec[1];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
 		*entryAddr += 0x10;
-		*(DWORD*)(DebugData + *entryAddr + 4) = pair[2];
+		*(DWORD*)(DebugData + *entryAddr) = 2;
+		*(DWORD*)(DebugData + *entryAddr + 4) = vec[2];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
+		(*(DWORD*)(DebugData + *countAddr))++;
 		MapStructDepth--;
+		*entryAddr += 0x10;
 		break;
 	}
 }
@@ -199,8 +217,8 @@ void MapStruct(QbStruct*qs, DWORD*entryAddr, DWORD*countAddr, DWORD*dynavalAddr 
 					if (!qsi->next) // <--- ??? put in while ??? didnt work i think
 						break;
 					MapStructItem(qsi, entryAddr, countAddr, dynavalAddr);
-					(*(DWORD*)(DebugData + *countAddr))++;
-					*entryAddr += 0x10;
+					//(*(DWORD*)(DebugData + *countAddr))++;
+					//*entryAddr += 0x10;
 					qsi = qsi->next;
 				}
 				MapStructDepth--;
@@ -209,18 +227,23 @@ void MapStruct(QbStruct*qs, DWORD*entryAddr, DWORD*countAddr, DWORD*dynavalAddr 
 	}
 }
 
+DWORD _dynaval;
+DWORD _14entry;
+DWORD _1Centry;
+DWORD _14count;
+DWORD _1Ccount;
+
 void WriteCSD() // fake x86dbg CPU display like usage whatever
 {
 	*(DWORD*)(DebugData + 0x10) = CurrentScript->type;
 	*(DWORD*)(DebugData + 0x14) = (int)CurrentScript->instructionPointer - (int)CurrentScriptBase;
-	DWORD _14dynaval = 0x800;
-	DWORD _1Cdynaval = 0x2800;
-	DWORD _14entry = 0x20;
-	DWORD _1Centry = 0x2000;
-	DWORD _14count = 0x1C;
-	DWORD _1Ccount = 0x1FFC;
-	MapStruct(CurrentScript->qbStruct14, &_14entry, &_14count, &_14dynaval);
-	MapStruct(CurrentScript->qbStruct1C, &_1Centry, &_1Ccount, &_1Cdynaval);
+	_dynaval = 0x2800;
+	_14entry = 0x20;
+	_1Centry = 0x2000;
+	_14count = 0x1C;
+	_1Ccount = 0x1FFC;
+	MapStruct(CurrentScript->qbStruct14, &_14entry, &_14count, &_dynaval);
+	MapStruct(CurrentScript->qbStruct1C, &_1Centry, &_1Ccount, &_dynaval);
 	*(DWORD*)(DebugData + 0xA000 - 4) = ScriptStackCursor;
 	*(DWORD*)(DebugData + 0x500) = CurrentScript->dword18; // OPTIMIZE????
 	*(DWORD*)(DebugData + 0x504) = CurrentScript->dwordA0;
@@ -292,16 +315,18 @@ __declspec(naked) void* DebugScriptStart()
 		mov[_test], esi;
 	};
 	ScriptStack_Push(_test);
-	for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0xC000 - 4) - 1; IIIIIIIIIIIIIIIIIIIIIIII++)
+	WriteCSD();
+	for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0xC000 - 4); IIIIIIIIIIIIIIIIIIIIIIII++)
 	{
 		if (_test->type == *(DWORD*)(DebugData + 0xC000 + (IIIIIIIIIIIIIIIIIIIIIIII * 4)))
 		{
-			WriteCSD();
+			//WriteCSD();
 			DebugData[1] = 1;
 			DebugData[0] = Pause;
 			break;
 		}
 	}
+	//BreakCond();
 
 	__asm {
 		mov esi, [_test];
@@ -364,8 +389,18 @@ __declspec(naked) void* DebugScriptStop2()
 
 void ApplyHack()
 {
-	DebugDataF = OpenFileMappingA(FILE_MAP_ALL_ACCESS, 1, "GH3_QDebug_DTA");
-	DebugData  = (BYTE*)MapViewOfFile(DebugDataF, FILE_MAP_WRITE | FILE_MAP_READ, 0, 0, MMFsz);
+	DebugDataF = OpenFileMappingA(FILE_MAP_ALL_ACCESS | FILE_MAP_READ | FILE_MAP_WRITE, 1, "GH3_QDebug_DTA");
+	if (DebugDataF == INVALID_HANDLE_VALUE || !DebugDataF)
+	{
+		MessageBoxA(0, "Cannot be hooked to debugger.", "QDB Hook", MB_ICONWARNING);
+		return;
+	}
+	DebugData = (BYTE*)MapViewOfFile(DebugDataF, FILE_MAP_WRITE | FILE_MAP_READ | FILE_MAP_ALL_ACCESS, 0, 0, MMFsz);
+	if (!DebugData)
+	{
+		MessageBoxA(0, "Unable to access debug data.", "QDB Hook", MB_ICONWARNING);
+		return;
+	}
 
 	ScriptStack = (QbScript**)&DebugData[0xA000];
 	ScriptBaseStack = (DWORD*)&DebugData[0xB000];
@@ -377,5 +412,4 @@ void ApplyHack()
 
 	nullParams = (QbStruct *)qbMalloc(sizeof(QbStruct), 1);
 	memset(nullParams, 0, sizeof(QbStruct));
-	//nullParams->InsertIntItem(QbKey("player"), 2);
 }
