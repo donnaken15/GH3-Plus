@@ -2,82 +2,1273 @@
 <CheatTable CheatEngineTableVersion="24">
   <CheatEntries>
     <CheatEntry>
-      <ID>4</ID>
-      <Description>"Score"</Description>
-      <VariableType>2 Bytes</VariableType>
-      <Address>gh3.exe+612B00</Address>
+      <ID>17</ID>
+      <Description>"Song stuff"</Description>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>2</ID>
+          <Description>"+pts per beat"</Description>
+          <VariableType>Float</VariableType>
+          <Address>gh3.exe+612B70</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>1</ID>
+          <Description>"+pts per note"</Description>
+          <VariableType>Float</VariableType>
+          <Address>gh3.exe+612B78</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>6</ID>
+          <Description>"Health"</Description>
+          <VariableType>Float</VariableType>
+          <Address>gh3.exe+612AF0</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>12</ID>
+          <Description>"Health Intensity"</Description>
+          <VariableType>Float</VariableType>
+          <Address>0x00A13128</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>7</ID>
+          <Description>"Maximum Health"</Description>
+          <VariableType>Float</VariableType>
+          <Address>0x00A13130</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>8</ID>
+          <Description>"No Fail (viewer mode)"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>0x00A1312C</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>4</ID>
+          <Description>"Score"</Description>
+          <VariableType>2 Bytes</VariableType>
+          <Address>gh3.exe+612B00</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>3</ID>
+          <Description>"Song Speed"</Description>
+          <VariableType>Float</VariableType>
+          <Address>0x00A12C44</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>14</ID>
+          <Description>"Song paused"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>B4E320</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>11</ID>
+          <Description>"Starpower"</Description>
+          <VariableType>Float</VariableType>
+          <Address>gh3.exe+612AF8</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>10</ID>
+          <Description>"Streak"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>gh3.exe+612AE8</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>5</ID>
+          <Description>"Time (seconds)"</Description>
+          <VariableType>Float</VariableType>
+          <Address>0x00A12C50</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>15</ID>
+          <Description>"is playing song"</Description>
+          <ShowAsSigned>1</ShowAsSigned>
+          <VariableType>4 Bytes</VariableType>
+          <Address>B4EB21</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>16</ID>
+          <Description>"dblGemTimeRelated (song time)"</Description>
+          <VariableType>Double</VariableType>
+          <Address>C489E0</Address>
+        </CheatEntry>
+      </CheatEntries>
     </CheatEntry>
     <CheatEntry>
-      <ID>10</ID>
-      <Description>"Streak"</Description>
+      <ID>18</ID>
+      <Description>"Script related"</Description>
+      <LastState Value="" RealAddress="00000000"/>
+      <GroupHeader>1</GroupHeader>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>19</ID>
+          <Description>"CFuncs"</Description>
+          <ShowAsHex>1</ShowAsHex>
+          <VariableType>4 Bytes</VariableType>
+          <Address>9551B8</Address>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>13</ID>
+          <Description>"Current script"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>B54524</Address>
+          <Offsets>
+            <Offset>0</Offset>
+          </Offsets>
+        </CheatEntry>
+        <CheatEntry>
+          <ID>9</ID>
+          <Description>"Script Assembly"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>0x00B54538</Address>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>22</ID>
+      <Description>"KeyboardBinds"</Description>
       <VariableType>4 Bytes</VariableType>
-      <Address>gh3.exe+612AE8</Address>
+      <Address>95DC98</Address>
     </CheatEntry>
     <CheatEntry>
-      <ID>6</ID>
-      <Description>"Health"</Description>
+      <ID>20</ID>
+      <Description>"g_gameSpeed1 (cant change)"</Description>
       <VariableType>Float</VariableType>
-      <Address>gh3.exe+612AF0</Address>
+      <Address>9596B4</Address>
     </CheatEntry>
     <CheatEntry>
-      <ID>11</ID>
-      <Description>"Starpower"</Description>
+      <ID>21</ID>
+      <Description>"g_gameSpeed2"</Description>
       <VariableType>Float</VariableType>
-      <Address>gh3.exe+612AF8</Address>
+      <Address>9596B8</Address>
     </CheatEntry>
     <CheatEntry>
-      <ID>12</ID>
-      <Description>"Health Intensity"</Description>
-      <LastState Value="0.8500000238" RealAddress="00A13128"/>
-      <VariableType>Float</VariableType>
-      <Address>0x00A13128</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>7</ID>
-      <Description>"Maximum Health"</Description>
-      <LastState Value="2" RealAddress="00A13130"/>
-      <VariableType>Float</VariableType>
-      <Address>0x00A13130</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>8</ID>
-      <Description>"No Fail (viewer mode)"</Description>
-      <LastState Value="0" RealAddress="00A1312C"/>
+      <ID>23</ID>
+      <Description>"g_renderInstances"</Description>
       <VariableType>4 Bytes</VariableType>
-      <Address>0x00A1312C</Address>
+      <Address>95fda8</Address>
     </CheatEntry>
     <CheatEntry>
-      <ID>1</ID>
-      <Description>"+pts per note"</Description>
-      <VariableType>Float</VariableType>
-      <Address>gh3.exe+612B78</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>2</ID>
-      <Description>"+pts per beat"</Description>
-      <VariableType>Float</VariableType>
-      <Address>gh3.exe+612B70</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>3</ID>
-      <Description>"Song Speed"</Description>
-      <LastState Value="116" RealAddress="00A12C44"/>
-      <VariableType>Float</VariableType>
-      <Address>0x00A12C44</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>5</ID>
-      <Description>"Time (seconds)"</Description>
-      <LastState Value="89.87012482" RealAddress="00A12C50"/>
-      <VariableType>Float</VariableType>
-      <Address>0x00A12C50</Address>
-    </CheatEntry>
-    <CheatEntry>
-      <ID>9</ID>
-      <Description>"Script Assembly"</Description>
-      <LastState Value="0" RealAddress="00B54538"/>
+      <ID>24</ID>
+      <Description>"g_renderGeoms"</Description>
       <VariableType>4 Bytes</VariableType>
-      <Address>0x00B54538</Address>
+      <Address>0095FDAC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>25</ID>
+      <Description>"g_renderZoneMode"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0095FDB0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>26</ID>
+      <Description>"g_renderPrims"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0095FDB4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>27</ID>
+      <Description>"g_renderPrims3D"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0095FDB8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>28</ID>
+      <Description>"g_render2D"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0095FDBC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>29</ID>
+      <Description>"g_renderSkins"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0095FDC0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>30</ID>
+      <Description>"g_renderParticles"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0095FDC4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>31</ID>
+      <Description>"g_onlyRenderMeshID"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>95fdc8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>32</ID>
+      <Description>"g_renderLockFramerate"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>95fdcc</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>33</ID>
+      <Description>"g_renderLockFramerate"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>95fdd0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>34</ID>
+      <Description>"g_renderScreenFx"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>95fdd4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>35</ID>
+      <Description>"g_noteOrControllerRelated"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>9e6d10</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>36</ID>
+      <Description>"possible_controller_related"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>9e6d5c</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>37</ID>
+      <Description>"id"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>9E6DA8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>38</ID>
+      <Description>"g_pulseEventRelated2"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009EA730</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>39</ID>
+      <Description>"g_pulseEventRelated4"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009EA734</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>40</ID>
+      <Description>"g_pulseEventRelated6"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009EA738</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>41</ID>
+      <Description>"g_pulseEventRelated8"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009EA73C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>42</ID>
+      <Description>"g_pulseEventRelated10"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009EA740</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>43</ID>
+      <Description>"g_sustainOrPtRelated"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009ECFD0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>44</ID>
+      <Description>"g_notePosition"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009ECFD8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>45</ID>
+      <Description>"g_fcSongPoints"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009F4CD8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>46</ID>
+      <Description>"g_sustainPoints"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>009FC9D8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>47</ID>
+      <Description>"g_highwayRelated_A046D8"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A046D8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>48</ID>
+      <Description>"g_HighwayScreenElements"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A11AD8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>49</ID>
+      <Description>"NoteStreakCounterVisible"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12AD8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>50</ID>
+      <Description>"g_scoreMultiplier"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12AE0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>51</ID>
+      <Description>"g_NoteStreak"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12AE8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>52</ID>
+      <Description>"g_StarPower2?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12AF0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>53</ID>
+      <Description>"g_StarPower"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12AF8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>54</ID>
+      <Description>"g_Score"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12B00</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>55</ID>
+      <Description>"g_relativeNoteIndex"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12B68</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>62</ID>
+      <Description>"g_currentNote"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BA0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>56</ID>
+      <Description>"g_pointsPerNotePerBeat"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12B70</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>57</ID>
+      <Description>"g_pointsPerNote"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12B78</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>58</ID>
+      <Description>"g_timeStart"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12B80</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>59</ID>
+      <Description>"g_timeEnd"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12B88</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>60</ID>
+      <Description>"g_scrollTime"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12B90</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>61</ID>
+      <Description>"g_firstBeatLength"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12B98</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>63</ID>
+      <Description>"g_arrayEntry?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BA4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>64</ID>
+      <Description>"g_SongArraySize"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BA8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>65</ID>
+      <Description>"g_splitLatePercent"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BB0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>66</ID>
+      <Description>"g_unkGuitarInputLogic_A12BB4"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BB4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>67</ID>
+      <Description>"g_devilFinish"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BB8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>68</ID>
+      <Description>"g_IsNetworkGame"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BBC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>69</ID>
+      <Description>"g_bossBattle"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BC0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>70</ID>
+      <Description>"g_isAttractMode"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BC4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>71</ID>
+      <Description>"g_bossPlay"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BC8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>72</ID>
+      <Description>"g_WhammyUnitsPerSecond"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BCC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>73</ID>
+      <Description>"g_whammyShorten"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BD0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>74</ID>
+      <Description>"g_starPowerSequenceBonus"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BD4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>75</ID>
+      <Description>"g_playerTwoXOffset"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BD8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>76</ID>
+      <Description>"g_formBeforeStrumming"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BDC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>77</ID>
+      <Description>"g_strumBeforeForming"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12BE0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>78</ID>
+      <Description>"g_pressedStrum"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BE4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>79</ID>
+      <Description>"g_hitNoNotes"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BEC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>80</ID>
+      <Description>"g_pressedFrets"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BF4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>81</ID>
+      <Description>"g_hammerDeltaTime"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12BFC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>82</ID>
+      <Description>"g_lastHitHopo"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12C04</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>83</ID>
+      <Description>"g_strummedBeforeForming"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12C0C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>84</ID>
+      <Description>"g_strummedPattern"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12C14</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>85</ID>
+      <Description>"g_hammerTimeLate"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12C1C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>86</ID>
+      <Description>"g_hammerTimeEarly"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12C24</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>87</ID>
+      <Description>"g_checkTimeLate"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12C2C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>88</ID>
+      <Description>"g_checkTimeEarly"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12C34</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>89</ID>
+      <Description>"g_playerController"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12C3C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>90</ID>
+      <Description>"g_timeOffset"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12C44</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>91</ID>
+      <Description>"g_floatSum1?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12C48</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>92</ID>
+      <Description>"g_songCurSeconds"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12C50</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>93</ID>
+      <Description>"g_fretMaskOfSomeSort"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12CD0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>94</ID>
+      <Description>"time_related_qword_A12D08"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12D08</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>95</ID>
+      <Description>"g_btnUpPixels"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12D64</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>96</ID>
+      <Description>"g_byteSyncRelated"</Description>
+      <VariableType>Byte</VariableType>
+      <Address>00A12F69</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>97</ID>
+      <Description>"g_PlayingOnline"</Description>
+      <VariableType>Byte</VariableType>
+      <Address>00A12F6A</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>98</ID>
+      <Description>"g_whammyManiaFlag"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F6B</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>99</ID>
+      <Description>".1sectimer"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F6C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>100</ID>
+      <Description>"dblTimeError?"</Description>
+      <VariableType>Double</VariableType>
+      <Address>00A12F70</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>101</ID>
+      <Description>"g_songSkew"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12F78</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>102</ID>
+      <Description>"g_playerStatus_n1"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F7C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>103</ID>
+      <Description>"g_playerStatus"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F80</Address>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>112</ID>
+          <Description>"*"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>CD2DA80</Address>
+          <Offsets>
+            <Offset>0</Offset>
+          </Offsets>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>104</ID>
+      <Description>"g_playerPtr?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F84</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>105</ID>
+      <Description>"g_fretbarArray"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F88</Address>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>111</ID>
+          <Description>"*"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>A12F88</Address>
+          <Offsets>
+            <Offset>0</Offset>
+          </Offsets>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>106</ID>
+      <Description>"g_unkGuitarInputLogic_A12F90"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F90</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>107</ID>
+      <Description>"g_unkGuitarInputLogic_A12F94"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F94</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>108</ID>
+      <Description>"g_endCredits"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F98</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>109</ID>
+      <Description>"g_inputArray"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12F9C</Address>
+      <CheatEntries>
+        <CheatEntry>
+          <ID>110</ID>
+          <Description>"*"</Description>
+          <VariableType>4 Bytes</VariableType>
+          <Address>ADBE074</Address>
+          <Offsets>
+            <Offset>0</Offset>
+          </Offsets>
+        </CheatEntry>
+      </CheatEntries>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>113</ID>
+      <Description>"g_QbArray_A12FA0"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>A12FA0</Address>
+      <Offsets>
+        <Offset>0</Offset>
+      </Offsets>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>114</ID>
+      <Description>"g_currentDetailedStatsArray"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FA4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>115</ID>
+      <Description>"g_currentDetailedStatsMaxArray"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FAC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>116</ID>
+      <Description>"g_sustainRelated_A12FB4"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FB4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>117</ID>
+      <Description>"g_gHighwayTiling"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12FB8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>118</ID>
+      <Description>"g_highwayStartFade"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12FBC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>119</ID>
+      <Description>"g_highwayEndFade"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12FC0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>120</ID>
+      <Description>"g_destroyTime"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12FC4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>121</ID>
+      <Description>"g_whammyOffsetTweak"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A12FC8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>122</ID>
+      <Description>"g_spAndHp?"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FCC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>123</ID>
+      <Description>"g_scoreObject"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FD0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>124</ID>
+      <Description>"g_currHighwayScreenElementIndex"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FD8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>125</ID>
+      <Description>"g_wildCardSearchString?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FDC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>126</ID>
+      <Description>"g_NoteRelated"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FE4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>127</ID>
+      <Description>"g_starRelatedFlags_A12FE8"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FE8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>128</ID>
+      <Description>"g_currentStarpowerPhrase"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FF0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>129</ID>
+      <Description>"g_starArray"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A12FF8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>130</ID>
+      <Description>"g_gemLeftStartPosX"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13000</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>131</ID>
+      <Description>"g_gemLeftStartPosY"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13014</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>132</ID>
+      <Description>"g_gemSomething0"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13024</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>133</ID>
+      <Description>"g_gemLeftEndPosX"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13028</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>134</ID>
+      <Description>"g_gemSomething1"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13038</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>135</ID>
+      <Description>"g_gemLeftEndPosY"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1303C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>136</ID>
+      <Description>"g_gemStartPosX"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13050</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>137</ID>
+      <Description>"g_gemStartPosY"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13064</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>138</ID>
+      <Description>"g_gemEndPosX"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13078</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>139</ID>
+      <Description>"g_gemEndPosY"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1308C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>140</ID>
+      <Description>"g_gemLeftAngle"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1309C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>141</ID>
+      <Description>"g_gemStartScale"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A130C8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>142</ID>
+      <Description>"g_gemEndScale"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A130CC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>143</ID>
+      <Description>"g_gemStarScale"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A130D0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>144</ID>
+      <Description>"g_gemYJust"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A130D4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>145</ID>
+      <Description>"g_startYJust"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A130D8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>146</ID>
+      <Description>"g_crowdModelCams"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A130DC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>147</ID>
+      <Description>"g_NoteMappingRelated"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A130E0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>148</ID>
+      <Description>"particlesCount"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13104</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>149</ID>
+      <Description>"g_healthInvincibleMinimum"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1310C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>150</ID>
+      <Description>"g_crowdDebugMode"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13110</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>151</ID>
+      <Description>"g_crowdPoorMedium"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A1311C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>152</ID>
+      <Description>"g_crowdMediumGood"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13120</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>153</ID>
+      <Description>"g_healthChangeRedMulti"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13124</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>154</ID>
+      <Description>"g_healthChangeGreenMulti"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13128</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>155</ID>
+      <Description>"g_viewercamNOFAIL"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1312C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>156</ID>
+      <Description>"g_healthScale"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13130</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>157</ID>
+      <Description>"g_noteFxNoteIndex"</Description>
+      <VariableType>Byte</VariableType>
+      <Address>00A13134</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>158</ID>
+      <Description>"g_holdPattern"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13138</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>159</ID>
+      <Description>"g_arrayEntry"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13140</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>160</ID>
+      <Description>"g_currentHoldStart"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13148</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>161</ID>
+      <Description>"g_currentHoldNow"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13150</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>162</ID>
+      <Description>"g_currentHoldTicksFloat"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13158</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>163</ID>
+      <Description>"g_currentHoldTicks"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13160</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>164</ID>
+      <Description>"g_currentHoldRemaining"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13168</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>165</ID>
+      <Description>"g_currentHoldLength"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13170</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>166</ID>
+      <Description>"g_controller"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13178</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>167</ID>
+      <Description>"g_btnUpPixelArrays"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13180</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>168</ID>
+      <Description>"g_whammyMinHoldMuteMS"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13188</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>169</ID>
+      <Description>"g_whammyMinHoldPctShort"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A1318C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>170</ID>
+      <Description>"g_whammyMinHoldPct"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13190</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>171</ID>
+      <Description>"noteBeingHit?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13194</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>172</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1319C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>173</ID>
+      <Description>"g_UnknownQBKey"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A131A0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>174</ID>
+      <Description>"g_hitParticleParams"</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13220</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>175</ID>
+      <Description>""</Description>
+      <VariableType>Float</VariableType>
+      <Address>00A13224</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>176</ID>
+      <Description>"g_gameMode"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13310</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>177</ID>
+      <Description>"g_currentSong"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13314</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>178</ID>
+      <Description>"g_inputArrayKey"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13318</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>179</ID>
+      <Description>"g_song?"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A1331C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>180</ID>
+      <Description>"qbKey"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00A13320</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>183</ID>
+      <Description>"highwayRelated_A14860"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>Array of byte</VariableType>
+      <ByteLength>16</ByteLength>
+      <Address>00A15860</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>182</ID>
+      <Description>"g_currentHighwayElements"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>Array of byte</VariableType>
+      <ByteLength>16</ByteLength>
+      <Address>00A15860</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>181</ID>
+      <Description>"g_currentGemsOnScreen"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>Array of byte</VariableType>
+      <ByteLength>16</ByteLength>
+      <Address>00A16860</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>184</ID>
+      <Description>"particlesArray"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>Array of byte</VariableType>
+      <ByteLength>16</ByteLength>
+      <Address>00A255C8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>185</ID>
+      <Description>"No description"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B46334</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>186</ID>
+      <Description>"screen element amount related probably"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B54530</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>187</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B5452C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>189</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B544C8</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>188</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B54534</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>190</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B544AC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>191</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B544B3</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>192</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B54420</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>193</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B54440</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>195</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B544BB</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>196</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00B591F4</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>197</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C5EF8C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>198</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C5F0EC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>199</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C5F0F0</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>200</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C627AC</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>201</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C6291C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>202</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C62920</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>203</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C62E3C</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>204</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>00C62E38</Address>
     </CheatEntry>
   </CheatEntries>
   <UserdefinedSymbols>
@@ -120,6 +1311,91 @@
         <Element Offset="28" Vartype="Pointer" Bytesize="4" Description="textures" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
         <Element Offset="32" Vartype="4 Bytes" Bytesize="4" Description="StartIndex" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
         <Element Offset="36" Vartype="Pointer" Bytesize="4" Description="texFile2" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+    <Structure Name="QbStruct" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="2 Bytes" Bytesize="2" Description="unk0" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="2" Vartype="Byte" Bytesize="1" Description="unk2" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="3" Vartype="Byte" Bytesize="1" Description="unk3" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="4" Vartype="Pointer" Bytesize="4" ChildStruct="QbStructItem" Description="first" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+    <Structure Name="QbStructItem" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="Byte" Bytesize="1" Description="unkFlag0" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="1" Vartype="Byte" Bytesize="1" Description="flags" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="2" Vartype="2 Bytes" Bytesize="2" Description="word2" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="4" Vartype="4 Bytes" Bytesize="4" Description="key" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="Float" Bytesize="4" Description="value(float)" DisplayMethod="Signed Integer" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" Description="value(ptr)" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="4 Bytes" Bytesize="4" Description="value(hex)" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="4 Bytes" Bytesize="4" Description="value" DisplayMethod="Signed Integer" BackgroundColor="80000005"/>
+        <Element Offset="12" Vartype="Pointer" Bytesize="4" ChildStruct="QbStructItem" Description="next" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+    <Structure Name="QbScript" AutoFill="0" AutoCreate="0" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="4" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="12" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="16" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" Description="IP" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="20" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="24" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="28" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="32" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="36" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="40" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="44" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="48" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="52" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="56" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="60" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="64" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="68" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="72" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="76" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="80" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="84" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="88" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="92" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="96" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="100" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="104" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="108" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="112" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="116" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="120" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="124" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="128" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="132" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="136" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="140" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="144" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="148" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="152" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="156" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="160" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="164" Vartype="Pointer" Bytesize="4" ChildStruct="byte array why" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="168" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="172" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="176" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="180" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="184" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="188" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="192" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="196" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="200" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="204" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="208" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="212" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="216" Vartype="4 Bytes" Bytesize="4" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+      </Elements>
+    </Structure>
+    <Structure Name="byte array why" AutoFill="0" AutoCreate="1" DefaultHex="0" AutoDestroy="0" DoNotSaveLocal="0" AutoCreateStructsize="4096">
+      <Elements>
+        <Element Offset="0" Vartype="Array of byte" Bytesize="8192" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
       </Elements>
     </Structure>
   </Structures>

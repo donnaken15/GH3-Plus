@@ -53,7 +53,7 @@ namespace GH3
 	{
 
 	private:
-		uint16_t unk0;
+		uint16_t unk0; // increments with position in item chain
 		uint8_t unk2; //might be a debug flag to not free or something
 		uint8_t unk3;
 

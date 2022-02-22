@@ -236,7 +236,7 @@ DWORD _1Ccount;
 void WriteCSD() // fake x86dbg CPU display like usage whatever
 {
 	*(DWORD*)(DebugData + 0x10) = CurrentScript->type;
-	*(DWORD*)(DebugData + 0x14) = (int)CurrentScript->instructionPointer - (int)CurrentScriptBase;
+	*(DWORD*)(DebugData + 0x14) = (int)CurrentScript->instructionPointer;// -(int)CurrentScriptBase;
 	_dynaval = 0x2800;
 	_14entry = 0x20;
 	_1Centry = 0x2000;
@@ -245,26 +245,33 @@ void WriteCSD() // fake x86dbg CPU display like usage whatever
 	MapStruct(CurrentScript->qbStruct14, &_14entry, &_14count, &_dynaval);
 	MapStruct(CurrentScript->qbStruct1C, &_1Centry, &_1Ccount, &_dynaval);
 	*(DWORD*)(DebugData + 0xA000 - 4) = ScriptStackCursor;
-	*(DWORD*)(DebugData + 0x500) = CurrentScript->dword18; // OPTIMIZE????
-	*(DWORD*)(DebugData + 0x504) = CurrentScript->dwordA0;
-	*(DWORD*)(DebugData + 0x508) = CurrentScript->dwordA4;
-	*(DWORD*)(DebugData + 0x50C) = CurrentScript->unkStructPtrA8;
-	*(DWORD*)(DebugData + 0x510) = CurrentScript->dwordAC;
-	*(DWORD*)(DebugData + 0x514) = CurrentScript->dwordB4;
-	*(DWORD*)(DebugData + 0x518) = CurrentScript->dwordB8;
-	*(DWORD*)(DebugData + 0x51C) = CurrentScript->dwordC8;
-	*(DWORD*)(DebugData + 0x520) = CurrentScript->dwordCC;
-	*(DWORD*)(DebugData + 0x524) = CurrentScript->dwordD0;
-	*(DWORD*)(DebugData + 0x528) = CurrentScript->dwordD4;
-	*(DWORD*)(DebugData + 0x52C) = CurrentScript->unkB0;
-	*(DWORD*)(DebugData + 0x530) = CurrentScript->unkBC;
-	*(DWORD*)(DebugData + 0x534) = CurrentScript->unkBD;
-	*(DWORD*)(DebugData + 0x538) = CurrentScript->unkBE;
-	*(DWORD*)(DebugData + 0x53C) = CurrentScript->unkBF;
-	*(DWORD*)(DebugData + 0x540) = CurrentScript->unkC4;
-	*(DWORD*)(DebugData + 0x544) = CurrentScript->unkC5;
-	*(DWORD*)(DebugData + 0x548) = CurrentScript->unkC6;
-	*(DWORD*)(DebugData + 0x54C) = CurrentScript->unkC7;
+	memcpy(DebugData + 0x500, &CurrentScript->gap, 16); // OPTIMIZE????
+	*(DWORD*)(DebugData + 0x518) = CurrentScript->dword18;
+	memcpy(DebugData + 0x520, &CurrentScript->unk20, 16 * 8);
+	*(DWORD*)(DebugData + 0x5A0) = CurrentScript->dwordA0;
+	*(DWORD*)(DebugData + 0x5A4) = CurrentScript->dwordA4;
+	*(DWORD*)(DebugData + 0x5A8) = CurrentScript->unkStructPtrA8;
+	*(DWORD*)(DebugData + 0x5AC) = CurrentScript->dwordAC;
+	*(DWORD*)(DebugData + 0x5B0) = CurrentScript->unkB0;
+	*(DWORD*)(DebugData + 0x5B4) = CurrentScript->dwordB4;
+	*(DWORD*)(DebugData + 0x5B8) = CurrentScript->dwordB8;
+	*(BYTE *)(DebugData + 0x5BC) = CurrentScript->unkBC; // related with a function named GameFrame?
+	*(BYTE *)(DebugData + 0x5BD) = CurrentScript->unkBD;
+	*(BYTE *)(DebugData + 0x5BE) = CurrentScript->unkBE;
+	*(BYTE *)(DebugData + 0x5BF) = CurrentScript->unkBF;
+	*(DWORD*)(DebugData + 0x5C0) = (int)CurrentScript->nextIP;
+	*(BYTE *)(DebugData + 0x5C4) = CurrentScript->unkC4;
+	*(BYTE *)(DebugData + 0x5C5) = CurrentScript->unkC5;
+	*(BYTE *)(DebugData + 0x5C6) = CurrentScript->unkC6;
+	*(BYTE *)(DebugData + 0x5C7) = CurrentScript->unkC7;
+	*(DWORD*)(DebugData + 0x5C8) = CurrentScript->dwordC8;
+	*(DWORD*)(DebugData + 0x5CC) = CurrentScript->dwordCC;
+	*(DWORD*)(DebugData + 0x5D0) = CurrentScript->dwordD0;
+	*(DWORD*)(DebugData + 0x5D4) = CurrentScript->dwordD4;
+	// is there any data in gaps
+	// as if i should wonder about that
+	// but also what about data that would
+	// match up in thug1 code
 }
 
 using namespace GH3;
@@ -333,6 +340,13 @@ __declspec(naked) void* DebugScriptStart()
 		jmp returnAddress;
 	}
 }
+ WORD ACEsoff;
+QbKey ACEpkey;
+QbStruct *ACEargs;
+BYTE  ACEptype;
+QbKey nullKey = QbKey((uint32_t)0);
+QbStructItem*ACEcurItem;
+char _itoatmp[11];
 static void *QBRunDetour2 = (void *)0x00495AC0;
 __declspec(naked) void* DebugScript()
 {
@@ -346,8 +360,36 @@ __declspec(naked) void* DebugScript()
 		// lol
 		if (DebugData[0xE9FB])
 		{
-			ExecuteScript2(*(DWORD*)(DebugData + 0xE9FC), nullParams, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
 			DebugData[0xE9FB] = 0;
+			memset(ACEargs, 0, sizeof(QbStruct));
+			//_itoa_s(*(DWORD*)(DebugData + 0xE9F7), _itoatmp, 11, 10);
+			//MessageBoxA(0, _itoatmp, "", 0);
+			ACEsoff = 0xEA00;
+			//ACEcurItem = (QbStructItem*)qbItemMalloc(sizeof(QbStructItem), 1);
+			//ACEargs->first = ACEcurItem;
+			if (*(DWORD*)(DebugData + 0xE9F7) > 0) // ????
+			for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0xE9F7); IIIIIIIIIIIIIIIIIIIIIIII++)
+			{
+				ACEpkey = *(DWORD*)(DebugData + ACEsoff);
+				ACEptype = *(DWORD*)(DebugData + ACEsoff + 8);
+				// TAHNKS NUDE FUNCTION
+				if (ACEptype == TypeInt)
+				{
+					ACEargs->InsertIntItem  (ACEpkey, *(int  *)(DebugData + ACEsoff + 4));
+				}
+				else if (ACEptype == TypeFloat)
+				{
+					ACEargs->InsertFloatItem(ACEpkey, *(float*)(DebugData + ACEsoff + 4));
+				}
+				else if (ACEptype == TypeQbKey)
+				{
+					ACEargs->InsertQbKeyItem(ACEpkey, *(DWORD*)(DebugData + ACEsoff + 4));
+				}
+				//case TypeCString:
+				//case TypeWString:
+				ACEsoff += 0x10;
+			}
+			ExecuteScript2(*(DWORD*)(DebugData + 0xE9FC), ACEargs, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
 		}
 	}
 	__asm {
@@ -392,7 +434,7 @@ void ApplyHack()
 	DebugDataF = OpenFileMappingA(FILE_MAP_ALL_ACCESS | FILE_MAP_READ | FILE_MAP_WRITE, 1, "GH3_QDebug_DTA");
 	if (DebugDataF == INVALID_HANDLE_VALUE || !DebugDataF)
 	{
-		MessageBoxA(0, "Cannot be hooked to debugger.", "QDB Hook", MB_ICONWARNING);
+		MessageBoxA(0, "Cannot be hooked to debugger. Close this game and delete QDBhook.dll if you're not using the debugger.", "QDB Hook", MB_ICONWARNING);
 		return;
 	}
 	DebugData = (BYTE*)MapViewOfFile(DebugDataF, FILE_MAP_WRITE | FILE_MAP_READ | FILE_MAP_ALL_ACCESS, 0, 0, MMFsz);
@@ -405,11 +447,18 @@ void ApplyHack()
 	ScriptStack = (QbScript**)&DebugData[0xA000];
 	ScriptBaseStack = (DWORD*)&DebugData[0xB000];
 
-	g_patcher.WriteJmp(QBRunDetour1, DebugScriptStart);
-	g_patcher.WriteJmp(QBRunDetour2, DebugScript);
-	g_patcher.WriteJmp(QBRunDetour3, DebugScriptStop);
-	g_patcher.WriteJmp(QBRunDetour4, DebugScriptStop2);
+	if (!g_patcher.WriteJmp(QBRunDetour1, DebugScriptStart) ||
+		!g_patcher.WriteJmp(QBRunDetour2, DebugScript) ||
+		!g_patcher.WriteJmp(QBRunDetour3, DebugScriptStop) ||
+		!g_patcher.WriteJmp(QBRunDetour4, DebugScriptStop2))
+	{
+		MessageBoxA(0, "Failed to successfully patch script execution code.", "QDB Hook", MB_ICONWARNING);
+		return;
+	}
 
 	nullParams = (QbStruct *)qbMalloc(sizeof(QbStruct), 1);
 	memset(nullParams, 0, sizeof(QbStruct));
+
+	ACEargs = (QbStruct *)qbMalloc(sizeof(QbStruct), 1);
+	memset(ACEargs, 0, sizeof(QbStruct));
 }

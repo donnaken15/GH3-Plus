@@ -2,13 +2,17 @@
 #pragma once
 
 #include "QbStruct.h"
+#include "QbScript.h"
 #include "QbArray.h"
 #include <Windows.h>
 
 using namespace GH3;
 
-typedef int CFunc();
+// needs cleanup i think
+
+typedef int CFunc(QbStruct* str, QbScript* scr);
 typedef int CFuncI(int);
+typedef int CFuncF(float);
 typedef int CFuncI2(int, int);
 typedef int CFuncQ(QbStruct*);
 typedef int CFuncQI(QbStruct*, int);
@@ -33,6 +37,7 @@ CFuncQK * ExecuteScriptNoCallback			= (CFuncQK *)(0x00423E80);
 CFuncES2 * ExecuteScript2					= (CFuncES2*)(0x00495DC0);
 CXT_CreateFromImgFile * CreateFromImgFile	= (CXT_CreateFromImgFile *)(0x005F7CE0);
 CFuncI  * GlobalMapGetInt					= (CFuncI  *)(0x004A5960);
+CFuncF  * GlobalMapGetFloat					= (CFuncF  *)(0x004A5960);
 CFuncQAI* GlobalMapGetQbArray				= (CFuncQAI*)(0x004A5E00);
 CFuncQSI* GlobalMapGetQbStruct				= (CFuncQSI*)(0x004A5D70);
 CFuncLPDLPDI* GetKeyValue					= (CFuncLPDLPDI*)(0x004A5A00); // WHAT IS THIS
