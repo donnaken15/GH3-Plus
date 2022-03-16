@@ -25,12 +25,62 @@ uint32_t g_gemMatHammerStar[6] = { 0 };
 uint32_t g_gemMatNormal[6] = { 0 };
 uint32_t g_gemMatHammer[6] = { 0 };
 
+uint32_t g_gemMatTap[6] = {
+	GreenTapTextureKey,
+	RedTapTextureKey,
+	YellowTapTextureKey,
+	BlueTapTextureKey,
+	OrangeTapTextureKey,
+	StarpowerTapTextureKey
+}; // open tap?? trollface
+uint32_t g_gemMatTapSp[6] = {
+	GreenTapStarTextureKey,
+	RedTapStarTextureKey,
+	YellowTapStarTextureKey,
+	BlueTapStarTextureKey,
+	OrangeTapStarTextureKey,
+	StarpowerTapTextureKey
+};
+
 uint32_t g_gemMatSp[6] = { 0 };
 uint32_t g_gemMatHammerSp[6] = { 0 };
 
 uint32_t g_gemMatWhammy[6] = { 0 };
 uint32_t g_gemMatSpWhammy[6] = { 0 };
 
+
+
+#ifdef RAINBOW
+uint32_t g_gemMatRainbow[6] = {
+	Rainbow1TextureKey,
+	Rainbow2TextureKey,
+	Rainbow3TextureKey,
+	Rainbow4TextureKey,
+	Rainbow5TextureKey,
+};
+uint32_t g_gemMatRainbowHammer[6] = {
+	Rainbow1HammerTextureKey,
+	Rainbow2HammerTextureKey,
+	Rainbow3HammerTextureKey,
+	Rainbow4HammerTextureKey,
+	Rainbow5HammerTextureKey,
+};
+
+uint32_t g_gemMatRainbowStar[6] = {
+	Rainbow1StarTextureKey,
+	Rainbow2StarTextureKey,
+	Rainbow3StarTextureKey,
+	Rainbow4StarTextureKey,
+	Rainbow5StarTextureKey,
+};
+uint32_t g_gemMatRainbowHammerStar[6] = {
+	Rainbow1StarHammerTextureKey,
+	Rainbow2StarHammerTextureKey,
+	Rainbow3StarHammerTextureKey,
+	Rainbow4StarHammerTextureKey,
+	Rainbow5StarHammerTextureKey,
+};
+#endif
 
 
 void __declspec(naked) setupOpenNote()
@@ -60,9 +110,22 @@ void __declspec(naked) setupOpenNote()
 	g_gemMatWhammy[5] = g_gemMatWhammy[2];
 	g_gemMatSpWhammy[5] = g_gemMatSpWhammy[2];
 
+#ifdef RAINBOW
+	for (int i = 0; i < 4; i++)
+	{
+		g_gemMatNormal[i] = g_gemMatRainbow[i];
+		g_gemMatHammer[i] = g_gemMatRainbowHammer[i];
+	}
+	// GAME CRASHES IF A TEX HAS OVER 128 TEXTURES
+	//g_gemMatNormal[0] = g_gemMatRainbow[0];
+	//std::memcpy(g_gemMatNormal, g_gemMatRainbow, sizeof(g_gemMatRainbow));
+#endif
+
 	__asm popad;
 	__asm retn;
 }
+
+#include <cstring>
 
 static void * const gemConstantFixingDetour = (void *)0x0041BB91;
 void __declspec(naked) gemConstantFixingNaked()
@@ -120,7 +183,6 @@ void __declspec(naked) gemConstantFixingNaked()
 		jmp		loopAddress;
 	}
 }
-
 
 
 

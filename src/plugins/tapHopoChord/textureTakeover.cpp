@@ -69,7 +69,7 @@ struct WeirdTextureStruct
 	void * unkA4_boolCountOrStruct;
 
 	uint32_t unkA8_2;
-	float * unkAC_PTR;
+	float * unkAC_PTR; // animation data is here i think
 
 	uint32_t unkB0_1;
 	float * unkB4_PTR;
@@ -110,8 +110,6 @@ struct WeirdTextureStruct
 
 
 
-
-
 static std::map<uint32_t, GH3::QbImage *> g_imageMap;
 static std::map<uint32_t, GH3::TextureMetadata *> g_metadataMap;
 static std::map<uint32_t, WeirdTextureStruct> g_weirdMap;
@@ -130,6 +128,39 @@ static constexpr GH3::QbKey g_rawKeys[] = {
 	RawOpenHitFx1TextureKey,
 	RawOpenHitFx2TextureKey,
 #endif
+	RawGreenTapTextureKey,
+	RawRedTapTextureKey,
+	RawYellowTapTextureKey,
+	RawBlueTapTextureKey,
+	RawOrangeTapTextureKey,
+	RawGreenTapStarTextureKey,
+	RawRedTapStarTextureKey,
+	RawYellowTapStarTextureKey,
+	RawBlueTapStarTextureKey,
+	RawOrangeTapStarTextureKey,
+	RawStarpowerTapTextureKey,
+#ifdef RAINBOW
+	RawRainbow1TextureKey,
+	RawRainbow2TextureKey,
+	RawRainbow3TextureKey,
+	RawRainbow4TextureKey,
+	RawRainbow5TextureKey,
+	RawRainbow1HammerTextureKey,
+	RawRainbow2HammerTextureKey,
+	RawRainbow3HammerTextureKey,
+	RawRainbow4HammerTextureKey,
+	RawRainbow5HammerTextureKey,
+	RawRainbow1StarTextureKey,
+	RawRainbow2StarTextureKey,
+	RawRainbow3StarTextureKey,
+	RawRainbow4StarTextureKey,
+	RawRainbow5StarTextureKey,
+	RawRainbow1StarHammerTextureKey,
+	RawRainbow2StarHammerTextureKey,
+	RawRainbow3StarHammerTextureKey,
+	RawRainbow4StarHammerTextureKey,
+	RawRainbow5StarHammerTextureKey
+#endif
 };
 
 static constexpr GH3::QbKey g_textureKeys[] = {
@@ -146,6 +177,39 @@ static constexpr GH3::QbKey g_textureKeys[] = {
 	OpenHitFx1TextureKey,
 	OpenHitFx2TextureKey,
 #endif
+	GreenTapTextureKey,
+	RedTapTextureKey,
+	YellowTapTextureKey,
+	BlueTapTextureKey,
+	OrangeTapTextureKey,
+	GreenTapStarTextureKey,
+	RedTapStarTextureKey,
+	YellowTapStarTextureKey,
+	BlueTapStarTextureKey,
+	OrangeTapStarTextureKey,
+	StarpowerTapTextureKey,
+#ifdef RAINBOW
+	Rainbow1TextureKey,
+	Rainbow2TextureKey,
+	Rainbow3TextureKey,
+	Rainbow4TextureKey,
+	Rainbow5TextureKey,
+	Rainbow1HammerTextureKey,
+	Rainbow2HammerTextureKey,
+	Rainbow3HammerTextureKey,
+	Rainbow4HammerTextureKey,
+	Rainbow5HammerTextureKey,
+	Rainbow1StarTextureKey,
+	Rainbow2StarTextureKey,
+	Rainbow3StarTextureKey,
+	Rainbow4StarTextureKey,
+	Rainbow5StarTextureKey,
+	Rainbow1StarHammerTextureKey,
+	Rainbow2StarHammerTextureKey,
+	Rainbow3StarHammerTextureKey,
+	Rainbow4StarHammerTextureKey,
+	Rainbow5StarHammerTextureKey
+#endif
 };
 
 
@@ -153,18 +217,50 @@ static constexpr GH3::QbKey g_textureKeys[] = {
 // Retrieve our textures //
 ///////////////////////////
 
-
 static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 {
 	switch (openKey)
 	{
-	case static_cast<uint32_t>(OpenTextureKey):
+	case static_cast<uint32_t>(OpenTextureKey) :
+	case static_cast<uint32_t>(GreenTapTextureKey) :
+	case static_cast<uint32_t>(RedTapTextureKey) :
+	case static_cast<uint32_t>(YellowTapTextureKey) :
+	case static_cast<uint32_t>(BlueTapTextureKey) :
+	case static_cast<uint32_t>(OrangeTapTextureKey) :
+	case static_cast<uint32_t>(StarpowerTapTextureKey) :
 		return YellowTextureKey;
 
 	case static_cast<uint32_t>(OpenHammerTextureKey):
 		return YellowHammerTextureKey;
 
 	case static_cast<uint32_t>(OpenStarTextureKey) :
+	case static_cast<uint32_t>(GreenTapStarTextureKey) :
+	case static_cast<uint32_t>(RedTapStarTextureKey) :
+	case static_cast<uint32_t>(YellowTapStarTextureKey) :
+	case static_cast<uint32_t>(BlueTapStarTextureKey) :
+	case static_cast<uint32_t>(OrangeTapStarTextureKey) :
+#ifdef RAINBOW
+	case static_cast<uint32_t>(Rainbow1TextureKey) :
+	case static_cast<uint32_t>(Rainbow2TextureKey) :
+	case static_cast<uint32_t>(Rainbow3TextureKey) :
+	case static_cast<uint32_t>(Rainbow4TextureKey) :
+	case static_cast<uint32_t>(Rainbow5TextureKey) :
+	case static_cast<uint32_t>(Rainbow1HammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow2HammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow3HammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow4HammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow5HammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow1StarTextureKey) :
+	case static_cast<uint32_t>(Rainbow2StarTextureKey) :
+	case static_cast<uint32_t>(Rainbow3StarTextureKey) :
+	case static_cast<uint32_t>(Rainbow4StarTextureKey) :
+	case static_cast<uint32_t>(Rainbow5StarTextureKey) :
+	case static_cast<uint32_t>(Rainbow1StarHammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow2StarHammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow3StarHammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow4StarHammerTextureKey) :
+	case static_cast<uint32_t>(Rainbow5StarHammerTextureKey) :
+#endif
 		return YellowStarTextureKey;
 
 	case static_cast<uint32_t>(OpenStarHammerTextureKey) :
@@ -190,7 +286,7 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 
 	case static_cast<uint32_t>(OpenHitFx1TextureKey) :
 	case static_cast<uint32_t>(OpenHitFx2TextureKey) :
-		return GH3::QbKey("sys_Particle_lnzflare02_sys_Particle_lnzflare02");
+		return GH3::QbKey(SYSTEX("sys_Particle_lnzflare02")); // additive texture
 #endif
 
 	default:
@@ -212,6 +308,40 @@ bool constexpr isTextureKey(GH3::QbKey key)
 		key == OpenWhammyDeadTextureKey ||
 		key == OpenHitFx1TextureKey ||
 		key == OpenHitFx2TextureKey
+#endif
+		
+		|| key == GreenTapTextureKey ||
+		key == RedTapTextureKey ||
+		key == YellowTapTextureKey ||
+		key == BlueTapTextureKey ||
+		key == OrangeTapTextureKey ||
+		key == GreenTapStarTextureKey ||
+		key == RedTapStarTextureKey ||
+		key == YellowTapStarTextureKey ||
+		key == BlueTapStarTextureKey ||
+		key == OrangeTapStarTextureKey ||
+		key == StarpowerTapTextureKey
+#ifdef RAINBOW
+		|| key == Rainbow1TextureKey ||
+		key == Rainbow2TextureKey ||
+		key == Rainbow3TextureKey ||
+		key == Rainbow4TextureKey ||
+		key == Rainbow5TextureKey ||
+		key == Rainbow1HammerTextureKey ||
+		key == Rainbow2HammerTextureKey ||
+		key == Rainbow3HammerTextureKey ||
+		key == Rainbow4HammerTextureKey ||
+		key == Rainbow5HammerTextureKey ||
+		key == Rainbow1StarTextureKey ||
+		key == Rainbow2StarTextureKey ||
+		key == Rainbow3StarTextureKey ||
+		key == Rainbow4StarTextureKey ||
+		key == Rainbow5StarTextureKey ||
+		key == Rainbow1StarHammerTextureKey ||
+		key == Rainbow2StarHammerTextureKey ||
+		key == Rainbow3StarHammerTextureKey ||
+		key == Rainbow4StarHammerTextureKey ||
+		key == Rainbow5StarHammerTextureKey
 #endif
 		;
 }

@@ -128,7 +128,7 @@ _declspec(naked) void gemMutationSPActivationBranchNaked()
 
 		//Tap Notes
 		mov		eax, SP_TAP_NOTE_GEM_INDEX;
-		mov     eax, [g_gemMatBattle + eax * 4]; // g_gemMatHammerSp2[eax * 4]
+		mov     eax, [g_gemMatTap + eax * 4]; // g_gemMatHammerSp2[eax * 4]
 		mov     ecx, [ADDR_someStruct + esi * 4];	//this
 		push    eax;	//textureKey
 		jmp     gemMutationSPActivationBranch_Tap;
@@ -159,7 +159,7 @@ _declspec(naked) void gemMutationSPDeactivationBranchNaked()
 		jz		HAMMER;
 
 	//TAP:
-		mov     eax, KEY_BATTLE_STAR_MATERIAL;
+		mov     eax, KEY_BATTLE_STAR_MATERIAL; // rip
 		jmp     gemMutationSPDeactivationBranch_HammerOrTap;
 
 	NO_HAMMER:
@@ -244,7 +244,7 @@ _declspec(naked) void gemMutationStarOverlapBranchNaked()
 
 		//Tap Notes
 		mov		eax, SP_TAP_NOTE_GEM_INDEX;
-		mov     eax, [g_gemMatBattle + eax * 4]; // g_gemMatHammerSp2[eax * 4]
+		mov     eax, [g_gemMatTap + eax * 4]; // g_gemMatHammerSp2[eax * 4]
 
 	HAMMER:
 		jmp		gemMutationStarOverlapBranch_Exit;
