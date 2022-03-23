@@ -90,7 +90,7 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 static void *gameFrameDetour = (void *)0x0048452C;
 void DiscordCallbacks()
 {
-	app.core->run_callbacks(app.core);
+	app.core->run_callbacks(app.core); // do i need to do this every frame
 }
 
 void ApplyHack()
@@ -118,5 +118,12 @@ void ApplyHack()
 	app.lobbies = app.core->get_lobby_manager(app.core);
 
 	g_patcher.WriteCall(gameFrameDetour, DiscordCallbacks);
-	g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
+	//g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
+	g_patcher.WritePointer((void*)0x00957094, UpdatePresence);
+	
+}
+
+void Shutdown()
+{
+	app.activities->clear_activity(app.activities, 0, 0);
 }

@@ -49,11 +49,13 @@ __declspec(naked) void hWndHack()
 static char inipath[MAX_PATH];
 static char test[10];
 static int*presint = (int*)0x00C5B934;
+static char*CD = (char*)0x00B45A11;
 
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
 	strcat_s(inipath, MAX_PATH, "\\settings.ini");
+	g_patcher.WriteInt8(CD, GetPrivateProfileIntA("ActionReplay", "CD", 1, inipath));
 	vsync = GetPrivateProfileIntA("Misc", "VSync", 1, inipath);
 	borderless = GetPrivateProfileIntA("Misc", "Borderless", 0, inipath);
 	//(*d3ddev)->

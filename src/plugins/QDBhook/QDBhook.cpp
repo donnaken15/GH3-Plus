@@ -29,7 +29,7 @@ DWORD ScriptStackCursor = 0;
 
 HANDLE DebugDataF;
 BYTE*  DebugData;
-#define MMFsz 0x10000
+#define MMFsz 0x8000
 
 void ScriptStack_Push(QbScript*scr)
 {
@@ -226,52 +226,88 @@ void MapStruct(QbStruct*qs, DWORD*entryAddr, DWORD*countAddr, DWORD*dynavalAddr 
 		}
 	}
 }
+DWORD IIIIIIIIIIIIIIIIIIIIIIII;
 
 DWORD _dynaval;
 DWORD _14entry;
 DWORD _1Centry;
+DWORD _18entry;
+DWORD _40entry;
+DWORD _74entry;
 DWORD _14count;
 DWORD _1Ccount;
+DWORD _18count;
+DWORD _40count;
+DWORD _74count;
+
+DWORD curScriptOffset = 0x2000;
+DWORD watchListOffset = 0x6800;
+
+#include <time.h>
 
 void WriteCSD() // fake x86dbg CPU display like usage whatever
 {
 	*(DWORD*)(DebugData + 0x10) = CurrentScript->type;
 	*(DWORD*)(DebugData + 0x14) = (int)CurrentScript->instructionPointer;// -(int)CurrentScriptBase;
-	_dynaval = 0x2800;
+	_dynaval = 0x2100;
 	_14entry = 0x20;
-	_1Centry = 0x2000;
+	_1Centry = 0x1000;
+	_18entry = 0x3000;
+	_40entry = 0x4000;
+	_74entry = 0x5000;
 	_14count = 0x1C;
-	_1Ccount = 0x1FFC;
+	_1Ccount = 0x0FFC;
+	_18count = 0x2FFC;
+	_40count = 0x3FFC;
+	_74count = 0x4FFC;
 	MapStruct(CurrentScript->qbStruct14, &_14entry, &_14count, &_dynaval);
 	MapStruct(CurrentScript->qbStruct1C, &_1Centry, &_1Ccount, &_dynaval);
-	*(DWORD*)(DebugData + 0xA000 - 4) = ScriptStackCursor;
-	memcpy(DebugData + 0x500, &CurrentScript->gap, 16); // OPTIMIZE????
-	*(DWORD*)(DebugData + 0x518) = CurrentScript->dword18;
-	memcpy(DebugData + 0x520, &CurrentScript->unk20, 16 * 8);
-	*(DWORD*)(DebugData + 0x5A0) = CurrentScript->dwordA0;
-	*(DWORD*)(DebugData + 0x5A4) = CurrentScript->dwordA4;
-	*(DWORD*)(DebugData + 0x5A8) = CurrentScript->unkStructPtrA8;
-	*(DWORD*)(DebugData + 0x5AC) = CurrentScript->dwordAC;
-	*(DWORD*)(DebugData + 0x5B0) = CurrentScript->unkB0;
-	*(DWORD*)(DebugData + 0x5B4) = CurrentScript->dwordB4;
-	*(DWORD*)(DebugData + 0x5B8) = CurrentScript->dwordB8;
-	*(BYTE *)(DebugData + 0x5BC) = CurrentScript->unkBC; // related with a function named GameFrame?
-	*(BYTE *)(DebugData + 0x5BD) = CurrentScript->unkBD;
-	*(BYTE *)(DebugData + 0x5BE) = CurrentScript->unkBE;
-	*(BYTE *)(DebugData + 0x5BF) = CurrentScript->unkBF;
-	*(DWORD*)(DebugData + 0x5C0) = (int)CurrentScript->nextIP;
-	*(BYTE *)(DebugData + 0x5C4) = CurrentScript->unkC4;
-	*(BYTE *)(DebugData + 0x5C5) = CurrentScript->unkC5;
-	*(BYTE *)(DebugData + 0x5C6) = CurrentScript->unkC6;
-	*(BYTE *)(DebugData + 0x5C7) = CurrentScript->unkC7;
-	*(DWORD*)(DebugData + 0x5C8) = CurrentScript->dwordC8;
-	*(DWORD*)(DebugData + 0x5CC) = CurrentScript->dwordCC;
-	*(DWORD*)(DebugData + 0x5D0) = CurrentScript->dwordD0;
-	*(DWORD*)(DebugData + 0x5D4) = CurrentScript->dwordD4;
+	MapStruct(CurrentScript->qbStruct18, &_18entry, &_18count, &_dynaval);
+	MapStruct(CurrentScript->qbStruct40, &_40entry, &_40count, &_dynaval);
+	MapStruct(CurrentScript->qbStruct74, &_74entry, &_74count, &_dynaval);
+	*(DWORD*)(DebugData + 0x33FC - 4) = ScriptStackCursor;
+	memcpy(DebugData + curScriptOffset, &CurrentScript->gap, 16); // OPTIMIZE????
+	*(DWORD*)(DebugData + curScriptOffset + 0x18) = (int)CurrentScript->qbStruct18;
+	memcpy(DebugData + curScriptOffset + 0x20, &CurrentScript->unk20, 16 * 8);
+	*(DWORD*)(DebugData + curScriptOffset + 0xA0) = CurrentScript->dwordA0;
+	*(DWORD*)(DebugData + curScriptOffset + 0xA4) = CurrentScript->dwordA4;
+	*(DWORD*)(DebugData + curScriptOffset + 0xA8) = CurrentScript->unkStructPtrA8;
+	*(DWORD*)(DebugData + curScriptOffset + 0xAC) = CurrentScript->dwordAC;
+	*(DWORD*)(DebugData + curScriptOffset + 0xB0) = CurrentScript->unkB0;
+	*(DWORD*)(DebugData + curScriptOffset + 0xB4) = CurrentScript->dwordB4;
+	*(DWORD*)(DebugData + curScriptOffset + 0xB8) = CurrentScript->dwordB8;
+	*(BYTE *)(DebugData + curScriptOffset + 0xBC) = CurrentScript->unkBC; // related with a function named GameFrame?
+	*(BYTE *)(DebugData + curScriptOffset + 0xBD) = CurrentScript->unkBD;
+	*(BYTE *)(DebugData + curScriptOffset + 0xBE) = CurrentScript->unkBE;
+	*(BYTE *)(DebugData + curScriptOffset + 0xBF) = CurrentScript->unkBF;
+	*(DWORD*)(DebugData + curScriptOffset + 0xC0) = (int)CurrentScript->nextIP;
+	*(BYTE *)(DebugData + curScriptOffset + 0xC4) = CurrentScript->unkC4;
+	*(BYTE *)(DebugData + curScriptOffset + 0xC5) = CurrentScript->unkC5;
+	*(BYTE *)(DebugData + curScriptOffset + 0xC6) = CurrentScript->unkC6;
+	*(BYTE *)(DebugData + curScriptOffset + 0xC7) = CurrentScript->unkC7;
+	*(DWORD*)(DebugData + curScriptOffset + 0xC8) = CurrentScript->node;
+	*(DWORD*)(DebugData + curScriptOffset + 0xCC) = CurrentScript->dwordCC;
+	*(DWORD*)(DebugData + curScriptOffset + 0xD0) = CurrentScript->dwordD0;
+	*(DWORD*)(DebugData + curScriptOffset + 0xD4) = CurrentScript->dwordD4;
 	// is there any data in gaps
 	// as if i should wonder about that
 	// but also what about data that would
 	// match up in thug1 code
+}
+void WriteWatch()
+{
+	/*
+	for (IIIIIIIIIIIIIIIIIIIIIIII = 0;
+	     IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0x6800 - 4);
+		 IIIIIIIIIIIIIIIIIIIIIIII++);
+	{
+		*(DWORD*)(DebugData + 0x7000 + (IIIIIIIIIIIIIIIIIIIIIIII * 4)) =
+			*(DWORD*)(DebugData + 0x6800 + (IIIIIIIIIIIIIIIIIIIIIIII * 4));
+	}
+	*(DWORD*)(DebugData + 0x7000) =
+		//time(0) +
+		*(DWORD*)(DebugData + 0x6800 - 4);
+	*/
 }
 
 using namespace GH3;
@@ -312,7 +348,6 @@ void BreakCond()
 	// LAZY
 }
 
-DWORD IIIIIIIIIIIIIIIIIIIIIIII;
 static void *QBRunDetour1 = (void *)0x00495A9A;
 __declspec(naked) void* DebugScriptStart()
 {
@@ -322,10 +357,11 @@ __declspec(naked) void* DebugScriptStart()
 		mov[_test], esi;
 	};
 	ScriptStack_Push(_test);
+	WriteWatch();
 	WriteCSD();
-	for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0xC000 - 4); IIIIIIIIIIIIIIIIIIIIIIII++)
+	for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0x6000 - 4); IIIIIIIIIIIIIIIIIIIIIIII++)
 	{
-		if (_test->type == *(DWORD*)(DebugData + 0xC000 + (IIIIIIIIIIIIIIIIIIIIIIII * 4)))
+		if (_test->type == *(DWORD*)(DebugData + 0x6000 + (IIIIIIIIIIIIIIIIIIIIIIII * 4)))
 		{
 			//WriteCSD();
 			DebugData[1] = 1;
@@ -358,21 +394,23 @@ __declspec(naked) void* DebugScript()
 	BreakCond();
 	{
 		// lol
-		if (DebugData[0xE9FB])
+		if (DebugData[0x29FB])
 		{
-			DebugData[0xE9FB] = 0;
+			DebugData[0x29FB] = 0;
 			memset(ACEargs, 0, sizeof(QbStruct));
 			//_itoa_s(*(DWORD*)(DebugData + 0xE9F7), _itoatmp, 11, 10);
 			//MessageBoxA(0, _itoatmp, "", 0);
-			ACEsoff = 0xEA00;
+			ACEsoff = 0x2A00;
 			//ACEcurItem = (QbStructItem*)qbItemMalloc(sizeof(QbStructItem), 1);
 			//ACEargs->first = ACEcurItem;
-			if (*(DWORD*)(DebugData + 0xE9F7) > 0) // ????
-			for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0xE9F7); IIIIIIIIIIIIIIIIIIIIIIII++)
+			if (*(DWORD*)(DebugData + 0x29F7) > 0) // ????
+			for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0x29F7); IIIIIIIIIIIIIIIIIIIIIIII++)
 			{
 				ACEpkey = *(DWORD*)(DebugData + ACEsoff);
 				ACEptype = *(DWORD*)(DebugData + ACEsoff + 8);
 				// TAHNKS NUDE FUNCTION
+				// elseif by force of habit
+				// who would've thought
 				if (ACEptype == TypeInt)
 				{
 					ACEargs->InsertIntItem  (ACEpkey, *(int  *)(DebugData + ACEsoff + 4));
@@ -389,7 +427,7 @@ __declspec(naked) void* DebugScript()
 				//case TypeWString:
 				ACEsoff += 0x10;
 			}
-			ExecuteScript2(*(DWORD*)(DebugData + 0xE9FC), ACEargs, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
+			ExecuteScript2(*(DWORD*)(DebugData + 0x29FC), ACEargs, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
 		}
 	}
 	__asm {
@@ -444,8 +482,8 @@ void ApplyHack()
 		return;
 	}
 
-	ScriptStack = (QbScript**)&DebugData[0xA000];
-	ScriptBaseStack = (DWORD*)&DebugData[0xB000];
+	ScriptStack = (QbScript**)&DebugData[0x3400];
+	ScriptBaseStack = (DWORD*)&DebugData[0x3800];
 
 	if (!g_patcher.WriteJmp(QBRunDetour1, DebugScriptStart) ||
 		!g_patcher.WriteJmp(QBRunDetour2, DebugScript) ||

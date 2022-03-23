@@ -2,6 +2,8 @@ script() {
 
 // scripts\discord\activity.qb
 
+change(rp_song_active=1);
+
 mode = *game_mode;
 song = *current_song;
 get_song_title (song=%song);

@@ -1,8 +1,8 @@
 script() {
 
-KillSpawnedScript({
-	qbkey name = richpres_update_song;
-});
+KillSpawnedScript(name=richpres_update_song);
 richpres_timeoff();
+SetRichPresenceMode(smlimage='');
+change(rp_song_active=0);
 
 }

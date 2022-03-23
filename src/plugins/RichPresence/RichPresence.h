@@ -2,5 +2,6 @@
 
 
 void ApplyHack();
+void Shutdown();
 
 
