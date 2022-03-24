@@ -118,8 +118,9 @@ void ApplyHack()
 	app.lobbies = app.core->get_lobby_manager(app.core);
 
 	g_patcher.WriteCall(gameFrameDetour, DiscordCallbacks);
-	//g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
-	g_patcher.WritePointer((void*)0x00957094, UpdatePresence);
+	g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
+	//g_patcher.WritePointer((void*)0x00957094, UpdatePresence);
+	// ^ use if i can get ahead of cfunc init without breaking something
 	
 }
 
