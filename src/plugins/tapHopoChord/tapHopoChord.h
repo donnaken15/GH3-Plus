@@ -85,15 +85,22 @@ FretMask __fastcall GetFretmaskFromNoteQbArray(GH3::QbArray *noteArr);
 
 constexpr GH3::QbKey RawOpenTextureKey =				"images\\highway\\gem2d_open.img";
 constexpr GH3::QbKey RawOpenHammerTextureKey =			"images\\highway\\gem2d_open_hammer.img";
+constexpr GH3::QbKey RawOpenTapTextureKey =					"images\\highway\\gem2d_open_tap.img";
+constexpr GH3::QbKey RawOpenAnimTextureKey =				"images\\highway\\gem2d_open_anim.img";
+constexpr GH3::QbKey RawOpenAnimHammerTextureKey =			"images\\highway\\gem2d_open_hammer_anim.img";
 constexpr GH3::QbKey RawOpenStarTextureKey =			"images\\highway\\star2d_open.img";
 constexpr GH3::QbKey RawOpenStarHammerTextureKey =		"images\\highway\\star2d_open_hammer.img";
+constexpr GH3::QbKey RawOpenStarTapTextureKey =				"images\\highway\\star2d_open_tap.img";
 constexpr GH3::QbKey RawOpenStarpowerTextureKey =		"images\\highway\\gem2d_open_starpower.img";
 constexpr GH3::QbKey RawOpenStarpowerHammerTextureKey = "images\\highway\\gem2d_open_hammer_starpower.img";
+constexpr GH3::QbKey RawOpenStarpowerTapTextureKey =		"images\\highway\\gem2d_open_tap_starpower.img";
 constexpr GH3::QbKey RawOpenWhammyTextureKey =			"images\\highway\\whammy2d_open.img";
 constexpr GH3::QbKey RawOpenWhammyStarTextureKey =		"images\\highway\\whammy2d_open_star.img";
 constexpr GH3::QbKey RawOpenWhammyDeadTextureKey =		"images\\highway\\whammy2d_open_dead.img";
 constexpr GH3::QbKey RawOpenHitFx1TextureKey =			"images\\highway\\openfx1.img";
 constexpr GH3::QbKey RawOpenHitFx2TextureKey =			"images\\highway\\openfx2.img";
+constexpr GH3::QbKey RawOpenAnimStarpowerTextureKey =		"images\\highway\\gem2d_open_starpower_anim.img";
+constexpr GH3::QbKey RawOpenAnimStarpowerHammerTextureKey = "images\\highway\\gem2d_open_hammer_starpower_anim.img";
 
 constexpr GH3::QbKey OpenTextureKey =					SYSTEX("sys_gem2d_open");
 constexpr GH3::QbKey OpenHammerTextureKey =				SYSTEX("sys_gem2d_open_hammer");
@@ -107,6 +114,16 @@ constexpr GH3::QbKey OpenWhammyDeadTextureKey =			SYSTEX("sys_whammy2d_open_dead
 constexpr GH3::QbKey OpenHitFx1TextureKey =				SYSTEX("sys_openfx1");
 constexpr GH3::QbKey OpenHitFx2TextureKey =				SYSTEX("sys_openfx2");
 
+constexpr GH3::QbKey OpenTapTextureKey =				SYSTEX("sys_gem2d_open_tap");
+constexpr GH3::QbKey OpenAnimTextureKey =				SYSTEX("sys_gem2d_open_anim");
+constexpr GH3::QbKey OpenAnimHammerTextureKey =			SYSTEX("sys_gem2d_open_hammer_anim");
+
+constexpr GH3::QbKey OpenStarTapTextureKey =			SYSTEX("sys_star2d_open_tap");
+
+constexpr GH3::QbKey OpenStarpowerTapTextureKey =		SYSTEX("sys_gem2d_open_starpower_tap");
+constexpr GH3::QbKey OpenAnimStarpowerTextureKey =		SYSTEX("sys_gem2d_open_starpower_anim");
+constexpr GH3::QbKey OpenAnimStarpowerHammerTextureKey = SYSTEX("sys_gem2d_open_starpower_hammer_anim");
+
 constexpr GH3::QbKey YellowTextureKey =					SYSTEX("sys_gem2d_yellow");
 constexpr GH3::QbKey YellowHammerTextureKey =			SYSTEX("sys_gem2d_yellow_hammer");
 constexpr GH3::QbKey YellowStarTextureKey =				SYSTEX("sys_star2d_yellow");
@@ -116,6 +133,46 @@ constexpr GH3::QbKey YellowStarpowerHammerTextureKey =	SYSTEX("sys_gem2d_starpow
 constexpr GH3::QbKey YellowWhammyTextureKey =			SYSTEX("sys_whammy2d_yellow");
 constexpr GH3::QbKey YellowWhammyStarTextureKey =		SYSTEX("sys_whammy2d_yellow_star");
 constexpr GH3::QbKey YellowWhammyDeadTextureKey =		SYSTEX("sys_whammy2d_yellow_dead");
+
+constexpr GH3::QbKey RawGreenAnimTextureKey =			"images\\highway\\gem2d_green_anim.img";
+constexpr GH3::QbKey RawGreenHammerAnimTextureKey =		"images\\highway\\gem2d_green_hammer_anim.img";
+constexpr GH3::QbKey RawRedAnimTextureKey =				"images\\highway\\gem2d_red_anim.img";
+constexpr GH3::QbKey RawRedHammerAnimTextureKey =		"images\\highway\\gem2d_red_hammer_anim.img";
+constexpr GH3::QbKey RawYellowAnimTextureKey =			"images\\highway\\gem2d_yellow_anim.img";
+constexpr GH3::QbKey RawYellowHammerAnimTextureKey =	"images\\highway\\gem2d_yellow_hammer_anim.img";
+constexpr GH3::QbKey RawBlueAnimTextureKey =			"images\\highway\\gem2d_blue_anim.img";
+constexpr GH3::QbKey RawBlueHammerAnimTextureKey =		"images\\highway\\gem2d_blue_hammer_anim.img";
+constexpr GH3::QbKey RawOrangeAnimTextureKey =			"images\\highway\\gem2d_orange_anim.img";
+constexpr GH3::QbKey RawOrangeHammerAnimTextureKey =	"images\\highway\\gem2d_orange_hammer_anim.img";
+constexpr GH3::QbKey RawStarpowerAnimTextureKey =		"images\\highway\\gem2d_starpower_anim.img";
+constexpr GH3::QbKey RawStarpowerHammerAnimTextureKey = "images\\highway\\gem2d_starpower_hammer_anim.img";
+
+constexpr GH3::QbKey GreenTextureKey =					SYSTEX("sys_gem2d_green");
+constexpr GH3::QbKey RedTextureKey =					SYSTEX("sys_gem2d_red");
+//constexpr GH3::QbKey YellowTextureKey =					SYSTEX("sys_gem2d_yellow");
+constexpr GH3::QbKey BlueTextureKey =					SYSTEX("sys_gem2d_yellow");
+constexpr GH3::QbKey OrangeTextureKey =					SYSTEX("sys_gem2d_green");
+constexpr GH3::QbKey StarpowerTextureKey =				SYSTEX("sys_gem2d_starpower");
+
+constexpr GH3::QbKey GreenHammerTextureKey =			SYSTEX("sys_gem2d_green_hammer");
+constexpr GH3::QbKey RedHammerTextureKey =				SYSTEX("sys_gem2d_red_hammer");
+////constexpr GH3::QbKey YellowHammerTextureKey =			SYSTEX("sys_gem2d_yellow_hammer");
+constexpr GH3::QbKey BlueHammerTextureKey =				SYSTEX("sys_gem2d_blue_hammer");
+constexpr GH3::QbKey OrangeHammerTextureKey =			SYSTEX("sys_gem2d_orange_hammer");
+constexpr GH3::QbKey StarpowerHammerTextureKey =		SYSTEX("sys_gem2d_starpower_hammer");
+
+constexpr GH3::QbKey GreenAnimTextureKey =				SYSTEX("sys_Gem2D_green_anim");
+constexpr GH3::QbKey GreenHammerAnimTextureKey =		SYSTEX("sys_Gem2D_green_hammer_anim");
+constexpr GH3::QbKey RedAnimTextureKey =				SYSTEX("sys_Gem2D_red_anim");
+constexpr GH3::QbKey RedHammerAnimTextureKey =			SYSTEX("sys_Gem2D_red_hammer_anim");
+constexpr GH3::QbKey YellowAnimTextureKey =				SYSTEX("sys_Gem2D_yellow_anim");
+constexpr GH3::QbKey YellowHammerAnimTextureKey =		SYSTEX("sys_Gem2D_yellow_hammer_anim");
+constexpr GH3::QbKey BlueAnimTextureKey =				SYSTEX("sys_Gem2D_blue_anim");
+constexpr GH3::QbKey BlueHammerAnimTextureKey =			SYSTEX("sys_Gem2D_blue_hammer_anim");
+constexpr GH3::QbKey OrangeAnimTextureKey =				SYSTEX("sys_Gem2D_orange_anim");
+constexpr GH3::QbKey OrangeHammerAnimTextureKey =		SYSTEX("sys_Gem2D_orange_hammer_anim");
+constexpr GH3::QbKey StarpowerAnimTextureKey =			SYSTEX("sys_Gem2D_starpower_anim");
+constexpr GH3::QbKey StarpowerHammerAnimTextureKey =	SYSTEX("sys_Gem2D_starpower_hammer_anim");
 
 // what's the naming convention of the original global.tex note/fret textures
 /*
@@ -345,12 +402,17 @@ extern uint32_t g_gemMatHammerSp[6];
 extern uint32_t g_gemMatWhammy[6];
 extern uint32_t g_gemMatSpWhammy[6];
 
+extern uint32_t g_gemMatTapStar[6];
+
 
 extern uint32_t g_gemMatRainbow[6];
 extern uint32_t g_gemMatRainbowHammer[6];
 
 extern uint32_t g_gemMatRainbowStar[6];
 extern uint32_t g_gemMatRainbowHammerStar[6];
+
+extern bool animNotesEnabled;
+extern bool openTapsEnabled;
 
 
 void ApplyHack();

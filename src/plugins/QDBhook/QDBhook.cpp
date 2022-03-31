@@ -20,6 +20,7 @@ static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
 char testInd[10];
 // implement this to log what's called in what order
+// most likely won't work with async scripts
 QbScript**ScriptStack;
 DWORD*ScriptBaseStack;
 DWORD ScriptStackCursor = 0;
@@ -30,6 +31,7 @@ DWORD ScriptStackCursor = 0;
 HANDLE DebugDataF;
 BYTE*  DebugData;
 #define MMFsz 0x8000
+DWORD entryAlign = 0xC;
 
 void ScriptStack_Push(QbScript*scr)
 {
@@ -86,19 +88,19 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 	case TypeStringPointer:
 		*(DWORD*)(DebugData + *entryAddr + 4) = qsi->value;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	default:
 		*(DWORD*)(DebugData + *entryAddr + 4) = qsi->Type();
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	case TypeQbStruct:
 		*(DWORD*)(DebugData + *entryAddr + 4) = 0;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		MapStruct((QbStruct*)qsi->value, entryAddr, countAddr, dynavalAddr);
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	case TypeQbArray:
 		arr = (QbArray*)qsi->value;
@@ -106,7 +108,7 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		*(BYTE *)(DebugData + *entryAddr + 10) = arr->Type();
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		*(DWORD*)(DebugData + *entryAddr + 4) = arr->Length();
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		*(BYTE *)(DebugData + *entryAddr + 10) = arr->Type();
@@ -119,7 +121,7 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 			*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 			(*(DWORD*)(DebugData + *countAddr))++;
 			//if (i != arr->Length())
-				*entryAddr += 0x10;
+				*entryAddr += entryAlign;
 		}
 		MapStructDepth--;
 		break;
@@ -131,7 +133,7 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		memcpy(DebugData + *dynavalAddr, str, strl);
 		*dynavalAddr += strl;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	case TypeWString:
 		strw = (LPCWSTR)qsi->value;
@@ -141,7 +143,7 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		memcpy(DebugData + *dynavalAddr, strw, strl);
 		*dynavalAddr += strl;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	case TypePair:
 		pair = (float*)qsi->value;
@@ -149,21 +151,21 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeQbArray;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		MapStructDepth++;
 		*(DWORD*)(DebugData + *entryAddr) = 0;
 		*(DWORD*)(DebugData + *entryAddr + 4) = pair[0];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		*(DWORD*)(DebugData + *entryAddr) = 1;
 		*(DWORD*)(DebugData + *entryAddr + 4) = pair[1];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
 		MapStructDepth--;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	case TypeVector:
 		vec = (float*)qsi->value;
@@ -171,27 +173,27 @@ void MapStructItem(QbStructItem*qsi, DWORD*entryAddr, DWORD*countAddr, DWORD*dyn
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeQbArray;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		MapStructDepth++;
 		*(DWORD*)(DebugData + *entryAddr) = 0;
 		*(DWORD*)(DebugData + *entryAddr + 4) = vec[0];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		*(DWORD*)(DebugData + *entryAddr) = 1;
 		*(DWORD*)(DebugData + *entryAddr + 4) = vec[1];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		*(DWORD*)(DebugData + *entryAddr) = 2;
 		*(DWORD*)(DebugData + *entryAddr + 4) = vec[2];
 		*(BYTE *)(DebugData + *entryAddr + 8) = TypeFloat;
 		*(BYTE *)(DebugData + *entryAddr + 9) = MapStructDepth;
 		(*(DWORD*)(DebugData + *countAddr))++;
 		MapStructDepth--;
-		*entryAddr += 0x10;
+		*entryAddr += entryAlign;
 		break;
 	}
 }
@@ -229,16 +231,31 @@ void MapStruct(QbStruct*qs, DWORD*entryAddr, DWORD*countAddr, DWORD*dynavalAddr 
 DWORD IIIIIIIIIIIIIIIIIIIIIIII;
 
 DWORD _dynaval;
+DWORD _4entry;
 DWORD _14entry;
 DWORD _1Centry;
 DWORD _18entry;
 DWORD _40entry;
 DWORD _74entry;
+DWORD _4count;
 DWORD _14count;
 DWORD _1Ccount;
 DWORD _18count;
 DWORD _40count;
 DWORD _74count;
+
+/*const BYTE CSDstrIds[] = {
+	0x14, 0x1C, 0x18, 0x40, 0x74
+};
+const DWORD CSDstrEntries[sizeof(CSDstrIds)] = {
+	0x20,
+	0x1000,
+	0x3000,
+	0x4000,
+	0x5000
+}; // might as well subtract 4 for counter anyway/*
+DWORD CSDstrAddrs[sizeof(CSDstrIds)];
+DWORD CSDstrCounters[sizeof(CSDstrIds)];*/
 
 DWORD curScriptOffset = 0x2000;
 DWORD watchListOffset = 0x6800;
@@ -250,20 +267,34 @@ void WriteCSD() // fake x86dbg CPU display like usage whatever
 	*(DWORD*)(DebugData + 0x10) = CurrentScript->type;
 	*(DWORD*)(DebugData + 0x14) = (int)CurrentScript->instructionPointer;// -(int)CurrentScriptBase;
 	_dynaval = 0x2100;
+	/*memcpy(CSDstrAddrs, CSDstrEntries, sizeof(CSDstrIds) << 2);
+	memcpy(CSDstrCounters, CSDstrEntries, sizeof(CSDstrIds) << 2);
+	for (int i = 0; i < sizeof(CSDstrIds); i++)
+	{
+		CSDstrCounters[i] -= 4;
+		MapStruct(*(QbStruct**)(&CurrentScript + CSDstrIds[i]),
+			&CSDstrAddrs[i],
+			&CSDstrCounters[i],
+			&_dynaval);
+	}*/
+	//_4entry = 0x800;
 	_14entry = 0x20;
 	_1Centry = 0x1000;
 	_18entry = 0x3000;
-	_40entry = 0x4000;
+	//_40entry = 0x4000;
 	_74entry = 0x5000;
-	_14count = 0x1C;
-	_1Ccount = 0x0FFC;
-	_18count = 0x2FFC;
-	_40count = 0x3FFC;
-	_74count = 0x4FFC;
+	//_4count = 0x7FC;
+	_14count = _14entry - 4;
+	_1Ccount = _1Centry - 4;
+	_18count = _18entry - 4;
+	//_40count = _40entry - 4;
+	_74count = _74entry - 4;
+	//MapStruct(CurrentScript->qbStruct4, &_4entry, &_4count, &_dynaval);
+	// make array l:/
 	MapStruct(CurrentScript->qbStruct14, &_14entry, &_14count, &_dynaval);
 	MapStruct(CurrentScript->qbStruct1C, &_1Centry, &_1Ccount, &_dynaval);
 	MapStruct(CurrentScript->qbStruct18, &_18entry, &_18count, &_dynaval);
-	MapStruct(CurrentScript->qbStruct40, &_40entry, &_40count, &_dynaval);
+	//MapStruct(CurrentScript->qbStruct40, &_40entry, &_40count, &_dynaval);
 	MapStruct(CurrentScript->qbStruct74, &_74entry, &_74count, &_dynaval);
 	*(DWORD*)(DebugData + 0x33FC - 4) = ScriptStackCursor;
 	memcpy(DebugData + curScriptOffset, &CurrentScript->gap, 16); // OPTIMIZE????
@@ -322,6 +353,8 @@ void BreakCond()
 		DebugData[1] = 1; // ping debugger
 						  // ping the booger
 		// try using this so game doesn't have to catch up with song somehow
+		// doesn't appear to happen with a chart without audio when pausing for a long time
+		// pause music, and then unpause and pause for 16ms trololol
 		/*if (DebugData[2] == 1)
 		{
 			//ExecuteScript2(QbKey("pausegh3"), nullParams, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);

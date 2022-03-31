@@ -26,6 +26,7 @@ namespace GH3
 		QTypeQbStruct = 0x14,
 		QTypeQbArray = 0x18,
 		QTypeQbKey = 0x1A,
+		QTypeQbKeyRef = 0x1B,
 		QTypeUnk20 = 0x28,
 		QTypeUnk21 = 0x2A,
 		QTypeBinaryTree1 = 0x2C,
