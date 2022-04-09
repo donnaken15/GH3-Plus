@@ -93,6 +93,9 @@ void DiscordCallbacks()
 	app.core->run_callbacks(app.core); // do i need to do this every frame
 }
 
+#define RPC_FASTGH3 true
+constexpr unsigned long long RPC_ID = RPC_FASTGH3 ? 385161862586695686 : 940793683144507492;
+
 void ApplyHack()
 {
 
@@ -103,7 +106,7 @@ void ApplyHack()
 	memset(&relationships_events, 0, sizeof(relationships_events));
 
 	DiscordCreateParamsSetDefault(&params);
-	params.client_id = 940793683144507492UL;
+	params.client_id = RPC_ID;
 	params.flags = DiscordCreateFlags_NoRequireDiscord;
 	params.event_data = &app;
 	params.activity_events = &activities_events;
