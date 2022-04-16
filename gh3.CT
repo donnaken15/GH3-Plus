@@ -10,42 +10,36 @@
         <CheatEntry>
           <ID>2</ID>
           <Description>"+pts per beat"</Description>
-          <LastState Value="25" RealAddress="00A12B70"/>
           <VariableType>Float</VariableType>
           <Address>A12B70</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>1</ID>
           <Description>"+pts per note"</Description>
-          <LastState Value="50" RealAddress="00A12B78"/>
           <VariableType>Float</VariableType>
           <Address>A12B78</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>6</ID>
           <Description>"Health"</Description>
-          <LastState Value="1" RealAddress="00A12AF0"/>
           <VariableType>Float</VariableType>
           <Address>A12AF0</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>12</ID>
           <Description>"Health Intensity"</Description>
-          <LastState Value="0.8500000238" RealAddress="00A13128"/>
           <VariableType>Float</VariableType>
           <Address>0x00A13128</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>7</ID>
           <Description>"Maximum Health"</Description>
-          <LastState Value="2" RealAddress="00A13130"/>
           <VariableType>Float</VariableType>
           <Address>0x00A13130</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>8</ID>
           <Description>"No Fail (viewer mode)"</Description>
-          <LastState Value="0" RealAddress="00A1312C"/>
           <VariableType>4 Bytes</VariableType>
           <Address>0x00A1312C</Address>
         </CheatEntry>
@@ -58,14 +52,12 @@
         <CheatEntry>
           <ID>3</ID>
           <Description>"Song Speed"</Description>
-          <LastState Value="116" RealAddress="00A12C44"/>
           <VariableType>Float</VariableType>
           <Address>0x00A12C44</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>14</ID>
           <Description>"Song paused"</Description>
-          <LastState Value="1" RealAddress="00B4E320"/>
           <VariableType>4 Bytes</VariableType>
           <Address>B4E320</Address>
         </CheatEntry>
@@ -84,14 +76,12 @@
         <CheatEntry>
           <ID>5</ID>
           <Description>"Time (seconds)"</Description>
-          <LastState Value="-0.2389999628" RealAddress="00A12C50"/>
           <VariableType>Float</VariableType>
           <Address>0x00A12C50</Address>
         </CheatEntry>
         <CheatEntry>
           <ID>15</ID>
           <Description>"is playing song"</Description>
-          <LastState Value="1" RealAddress="00B4EB21"/>
           <ShowAsSigned>1</ShowAsSigned>
           <VariableType>Byte</VariableType>
           <Address>B4EB21</Address>
@@ -99,7 +89,6 @@
         <CheatEntry>
           <ID>16</ID>
           <Description>"dblGemTimeRelated (song time)"</Description>
-          <LastState Value="-0.238999965135008" RealAddress="00C489E0"/>
           <VariableType>Double</VariableType>
           <Address>C489E0</Address>
         </CheatEntry>
@@ -114,7 +103,6 @@
         <CheatEntry>
           <ID>19</ID>
           <Description>"CFuncs"</Description>
-          <LastState Value="008A6B7C" RealAddress="009551B8"/>
           <ShowAsHex>1</ShowAsHex>
           <VariableType>4 Bytes</VariableType>
           <Address>9551B8</Address>
@@ -133,7 +121,6 @@
         <CheatEntry>
           <ID>9</ID>
           <Description>"Script Assembly"</Description>
-          <LastState Value="0" RealAddress="00B54538"/>
           <VariableType>4 Bytes</VariableType>
           <Address>0x00B54538</Address>
         </CheatEntry>
@@ -142,112 +129,96 @@
     <CheatEntry>
       <ID>22</ID>
       <Description>"KeyboardBinds"</Description>
-      <LastState Value="998" RealAddress="0095DC98"/>
       <VariableType>4 Bytes</VariableType>
       <Address>95DC98</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>20</ID>
       <Description>"g_gameSpeed1 (cant change)"</Description>
-      <LastState Value="1" RealAddress="009596B4"/>
       <VariableType>Float</VariableType>
       <Address>9596B4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>21</ID>
       <Description>"g_gameSpeed2"</Description>
-      <LastState Value="1" RealAddress="009596B8"/>
       <VariableType>Float</VariableType>
       <Address>9596B8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>23</ID>
       <Description>"g_renderInstances"</Description>
-      <LastState Value="0" RealAddress="0095FDA8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>95fda8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>24</ID>
       <Description>"g_renderGeoms"</Description>
-      <LastState Value="0" RealAddress="0095FDAC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDAC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>25</ID>
       <Description>"g_renderZoneMode"</Description>
-      <LastState Value="0" RealAddress="0095FDB0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDB0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>26</ID>
       <Description>"g_renderPrims"</Description>
-      <LastState Value="0" RealAddress="0095FDB4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDB4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>27</ID>
       <Description>"g_renderPrims3D"</Description>
-      <LastState Value="0" RealAddress="0095FDB8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDB8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>28</ID>
       <Description>"g_render2D"</Description>
-      <LastState Value="1" RealAddress="0095FDBC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDBC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>29</ID>
       <Description>"g_renderSkins"</Description>
-      <LastState Value="0" RealAddress="0095FDC0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDC0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>30</ID>
       <Description>"g_renderParticles"</Description>
-      <LastState Value="0" RealAddress="0095FDC4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>0095FDC4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>31</ID>
       <Description>"g_onlyRenderMeshID"</Description>
-      <LastState Value="4294967295" RealAddress="0095FDC8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>95fdc8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>32</ID>
       <Description>"g_renderLockFramerate"</Description>
-      <LastState Value="1" RealAddress="0095FDCC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>95fdcc</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>33</ID>
       <Description>"g_renderLockFramerate"</Description>
-      <LastState Value="0" RealAddress="0095FDD0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>95fdd0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>34</ID>
       <Description>"g_renderScreenFx"</Description>
-      <LastState Value="0" RealAddress="0095FDD4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>95fdd4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>35</ID>
       <Description>"g_noteOrControllerRelated"</Description>
-      <LastState Value="0AE18FD0" RealAddress="009E6D10"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>9e6d10</Address>
@@ -255,91 +226,78 @@
     <CheatEntry>
       <ID>36</ID>
       <Description>"possible_controller_related"</Description>
-      <LastState Value="1" RealAddress="009E6D5C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>9e6d5c</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>37</ID>
       <Description>"id"</Description>
-      <LastState Value="0" RealAddress="009E6DA8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>9E6DA8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>38</ID>
       <Description>"g_pulseEventRelated2"</Description>
-      <LastState Value="0" RealAddress="009EA730"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009EA730</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>39</ID>
       <Description>"g_pulseEventRelated4"</Description>
-      <LastState Value="0" RealAddress="009EA734"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009EA734</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>40</ID>
       <Description>"g_pulseEventRelated6"</Description>
-      <LastState Value="0" RealAddress="009EA738"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009EA738</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>41</ID>
       <Description>"g_pulseEventRelated8"</Description>
-      <LastState Value="0" RealAddress="009EA73C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009EA73C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>42</ID>
       <Description>"g_pulseEventRelated10"</Description>
-      <LastState Value="0" RealAddress="009EA740"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009EA740</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>43</ID>
       <Description>"g_sustainOrPtRelated"</Description>
-      <LastState Value="1" RealAddress="009ECFD0"/>
       <VariableType>Float</VariableType>
       <Address>009ECFD0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>44</ID>
       <Description>"g_notePosition"</Description>
-      <LastState Value="0" RealAddress="009ECFD8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009ECFD8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>45</ID>
       <Description>"g_fcSongPoints"</Description>
-      <LastState Value="0" RealAddress="009F4CD8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009F4CD8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>46</ID>
       <Description>"g_sustainPoints"</Description>
-      <LastState Value="0" RealAddress="009FC9D8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>009FC9D8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>47</ID>
       <Description>"g_highwayRelated_A046D8"</Description>
-      <LastState Value="0" RealAddress="00A046D8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A046D8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>48</ID>
       <Description>"g_HighwayScreenElements"</Description>
-      <LastState Value="0CEC6DDC" RealAddress="00A11AD8"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A11AD8</Address>
@@ -347,385 +305,330 @@
     <CheatEntry>
       <ID>49</ID>
       <Description>"NoteStreakCounterVisible"</Description>
-      <LastState Value="0" RealAddress="00A12AD8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12AD8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>50</ID>
       <Description>"g_scoreMultiplier"</Description>
-      <LastState Value="1" RealAddress="00A12AE0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12AE0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>51</ID>
       <Description>"g_NoteStreak"</Description>
-      <LastState Value="0" RealAddress="00A12AE8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12AE8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>52</ID>
       <Description>"g_StarPower2?"</Description>
-      <LastState Value="1" RealAddress="00A12AF0"/>
       <VariableType>Float</VariableType>
       <Address>00A12AF0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>53</ID>
       <Description>"g_StarPower"</Description>
-      <LastState Value="0" RealAddress="00A12AF8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12AF8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>54</ID>
       <Description>"g_Score"</Description>
-      <LastState Value="0" RealAddress="00A12B00"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12B00</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>55</ID>
       <Description>"g_relativeNoteIndex"</Description>
-      <LastState Value="4294967295" RealAddress="00A12B68"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12B68</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>62</ID>
       <Description>"g_currentNote"</Description>
-      <LastState Value="0" RealAddress="00A12BA0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BA0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>56</ID>
       <Description>"g_pointsPerNotePerBeat"</Description>
-      <LastState Value="25" RealAddress="00A12B70"/>
       <VariableType>Float</VariableType>
       <Address>00A12B70</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>57</ID>
       <Description>"g_pointsPerNote"</Description>
-      <LastState Value="50" RealAddress="00A12B78"/>
       <VariableType>Float</VariableType>
       <Address>00A12B78</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>58</ID>
       <Description>"g_timeStart"</Description>
-      <LastState Value="-282.9999695" RealAddress="00A12B80"/>
       <VariableType>Float</VariableType>
       <Address>00A12B80</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>59</ID>
       <Description>"g_timeEnd"</Description>
-      <LastState Value="37.00003052" RealAddress="00A12B88"/>
       <VariableType>Float</VariableType>
       <Address>00A12B88</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>60</ID>
       <Description>"g_scrollTime"</Description>
-      <LastState Value="1.824999928" RealAddress="00A12B90"/>
       <VariableType>Float</VariableType>
       <Address>00A12B90</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>61</ID>
       <Description>"g_firstBeatLength"</Description>
-      <LastState Value="353" RealAddress="00A12B98"/>
       <VariableType>Float</VariableType>
       <Address>00A12B98</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>63</ID>
       <Description>"g_arrayEntry?"</Description>
-      <LastState Value="0" RealAddress="00A12BA4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BA4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>64</ID>
       <Description>"g_SongArraySize"</Description>
-      <LastState Value="1048576" RealAddress="00A12BA8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BA8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>65</ID>
       <Description>"g_splitLatePercent"</Description>
-      <LastState Value="0.5" RealAddress="00A12BB0"/>
       <VariableType>Float</VariableType>
       <Address>00A12BB0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>66</ID>
       <Description>"g_unkGuitarInputLogic_A12BB4"</Description>
-      <LastState Value="0" RealAddress="00A12BB4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BB4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>67</ID>
       <Description>"g_devilFinish"</Description>
-      <LastState Value="0" RealAddress="00A12BB8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BB8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>68</ID>
       <Description>"g_IsNetworkGame"</Description>
-      <LastState Value="0" RealAddress="00A12BBC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BBC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>69</ID>
       <Description>"g_bossBattle"</Description>
-      <LastState Value="0" RealAddress="00A12BC0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BC0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>70</ID>
       <Description>"g_isAttractMode"</Description>
-      <LastState Value="0" RealAddress="00A12BC4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BC4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>71</ID>
       <Description>"g_bossPlay"</Description>
-      <LastState Value="0" RealAddress="00A12BC8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BC8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>72</ID>
       <Description>"g_WhammyUnitsPerSecond"</Description>
-      <LastState Value="6.350000381" RealAddress="00A12BCC"/>
       <VariableType>Float</VariableType>
       <Address>00A12BCC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>73</ID>
       <Description>"g_whammyShorten"</Description>
-      <LastState Value="0.25" RealAddress="00A12BD0"/>
       <VariableType>Float</VariableType>
       <Address>00A12BD0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>74</ID>
       <Description>"g_starPowerSequenceBonus"</Description>
-      <LastState Value="25" RealAddress="00A12BD4"/>
       <VariableType>Float</VariableType>
       <Address>00A12BD4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>75</ID>
       <Description>"g_playerTwoXOffset"</Description>
-      <LastState Value="200" RealAddress="00A12BD8"/>
       <VariableType>Float</VariableType>
       <Address>00A12BD8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>76</ID>
       <Description>"g_formBeforeStrumming"</Description>
-      <LastState Value="0.02500000037" RealAddress="00A12BDC"/>
       <VariableType>Float</VariableType>
       <Address>00A12BDC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>77</ID>
       <Description>"g_strumBeforeForming"</Description>
-      <LastState Value="0.03399999812" RealAddress="00A12BE0"/>
       <VariableType>Float</VariableType>
       <Address>00A12BE0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>78</ID>
       <Description>"g_pressedStrum"</Description>
-      <LastState Value="0" RealAddress="00A12BE4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BE4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>79</ID>
       <Description>"g_hitNoNotes"</Description>
-      <LastState Value="1" RealAddress="00A12BEC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BEC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>80</ID>
       <Description>"g_pressedFrets"</Description>
-      <LastState Value="139810" RealAddress="00A12BF4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BF4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>81</ID>
       <Description>"g_hammerDeltaTime"</Description>
-      <LastState Value="3298945707" RealAddress="00A12BFC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12BFC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>82</ID>
       <Description>"g_lastHitHopo"</Description>
-      <LastState Value="0" RealAddress="00A12C04"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12C04</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>83</ID>
       <Description>"g_strummedBeforeForming"</Description>
-      <LastState Value="3298945707" RealAddress="00A12C0C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12C0C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>84</ID>
       <Description>"g_strummedPattern"</Description>
-      <LastState Value="0" RealAddress="00A12C14"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12C14</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>85</ID>
       <Description>"g_hammerTimeLate"</Description>
-      <LastState Value="0.08299999684" RealAddress="00A12C1C"/>
       <VariableType>Float</VariableType>
       <Address>00A12C1C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>86</ID>
       <Description>"g_hammerTimeEarly"</Description>
-      <LastState Value="0.08299999684" RealAddress="00A12C24"/>
       <VariableType>Float</VariableType>
       <Address>00A12C24</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>87</ID>
       <Description>"g_checkTimeLate"</Description>
-      <LastState Value="0.1000000015" RealAddress="00A12C2C"/>
       <VariableType>Float</VariableType>
       <Address>00A12C2C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>88</ID>
       <Description>"g_checkTimeEarly"</Description>
-      <LastState Value="0.1159999967" RealAddress="00A12C34"/>
       <VariableType>Float</VariableType>
       <Address>00A12C34</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>89</ID>
       <Description>"g_playerController"</Description>
-      <LastState Value="0" RealAddress="00A12C3C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12C3C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>90</ID>
       <Description>"g_timeOffset"</Description>
-      <LastState Value="116" RealAddress="00A12C44"/>
       <VariableType>Float</VariableType>
       <Address>00A12C44</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>91</ID>
       <Description>"g_floatSum1?"</Description>
-      <LastState Value="0" RealAddress="00A12C48"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12C48</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>92</ID>
       <Description>"g_songCurSeconds"</Description>
-      <LastState Value="-0.2389999628" RealAddress="00A12C50"/>
       <VariableType>Float</VariableType>
       <Address>00A12C50</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>93</ID>
       <Description>"g_fretMaskOfSomeSort"</Description>
-      <LastState Value="139810" RealAddress="00A12CD0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12CD0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>94</ID>
       <Description>"time_related_qword_A12D08"</Description>
-      <LastState Value="139810" RealAddress="00A12D08"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12D08</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>95</ID>
       <Description>"g_btnUpPixels"</Description>
-      <LastState Value="20" RealAddress="00A12D64"/>
       <VariableType>Float</VariableType>
       <Address>00A12D64</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>96</ID>
       <Description>"g_byteSyncRelated"</Description>
-      <LastState Value="0" RealAddress="00A12F69"/>
       <VariableType>Byte</VariableType>
       <Address>00A12F69</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>97</ID>
       <Description>"g_PlayingOnline"</Description>
-      <LastState Value="0" RealAddress="00A12F6A"/>
       <VariableType>Byte</VariableType>
       <Address>00A12F6A</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>98</ID>
       <Description>"g_whammyManiaFlag"</Description>
-      <LastState Value="280245504" RealAddress="00A12F6B"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F6B</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>99</ID>
       <Description>".1sectimer"</Description>
-      <LastState Value="1074836533" RealAddress="00A12F6C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F6C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>100</ID>
       <Description>"dblTimeError?"</Description>
-      <LastState Value="0" RealAddress="00A12F70"/>
       <VariableType>Double</VariableType>
       <Address>00A12F70</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>101</ID>
       <Description>"g_songSkew"</Description>
-      <LastState Value="-0.200000003" RealAddress="00A12F78"/>
       <VariableType>Float</VariableType>
       <Address>00A12F78</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>102</ID>
       <Description>"g_playerStatus_n1"</Description>
-      <LastState Value="1" RealAddress="00A12F7C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F7C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>103</ID>
       <Description>"g_playerStatus"</Description>
-      <LastState Value="0CCDD220" RealAddress="00A12F80"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F80</Address>
@@ -744,14 +647,12 @@
     <CheatEntry>
       <ID>104</ID>
       <Description>"g_playerPtr?"</Description>
-      <LastState Value="0" RealAddress="00A12F84"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F84</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>105</ID>
       <Description>"g_fretbarArray"</Description>
-      <LastState Value="1AFA4C54" RealAddress="00A12F88"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F88</Address>
@@ -759,7 +660,6 @@
         <CheatEntry>
           <ID>111</ID>
           <Description>"*"</Description>
-          <LastState Value="65792" RealAddress="1AFA4C54"/>
           <VariableType>4 Bytes</VariableType>
           <Address>A12F88</Address>
           <Offsets>
@@ -771,28 +671,24 @@
     <CheatEntry>
       <ID>106</ID>
       <Description>"g_unkGuitarInputLogic_A12F90"</Description>
-      <LastState Value="0" RealAddress="00A12F90"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F90</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>107</ID>
       <Description>"g_unkGuitarInputLogic_A12F94"</Description>
-      <LastState Value="0" RealAddress="00A12F94"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F94</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>108</ID>
       <Description>"g_endCredits"</Description>
-      <LastState Value="0" RealAddress="00A12F98"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F98</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>109</ID>
       <Description>"g_inputArray"</Description>
-      <LastState Value="0AD7E074" RealAddress="00A12F9C"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12F9C</Address>
@@ -800,7 +696,6 @@
         <CheatEntry>
           <ID>110</ID>
           <Description>"*"</Description>
-          <LastState Value="0" RealAddress="0ADBF66C"/>
           <VariableType>4 Bytes</VariableType>
           <Address>ADBE074</Address>
           <Offsets>
@@ -821,7 +716,6 @@
     <CheatEntry>
       <ID>114</ID>
       <Description>"g_currentDetailedStatsArray"</Description>
-      <LastState Value="0CCDE818" RealAddress="00A12FA4"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FA4</Address>
@@ -829,7 +723,6 @@
     <CheatEntry>
       <ID>115</ID>
       <Description>"g_currentDetailedStatsMaxArray"</Description>
-      <LastState Value="0CCDEB60" RealAddress="00A12FAC"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FAC</Address>
@@ -837,49 +730,42 @@
     <CheatEntry>
       <ID>116</ID>
       <Description>"g_sustainRelated_A12FB4"</Description>
-      <LastState Value="1" RealAddress="00A12FB4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FB4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>117</ID>
       <Description>"g_gHighwayTiling"</Description>
-      <LastState Value="1.5" RealAddress="00A12FB8"/>
       <VariableType>Float</VariableType>
       <Address>00A12FB8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>118</ID>
       <Description>"g_highwayStartFade"</Description>
-      <LastState Value="335" RealAddress="00A12FBC"/>
       <VariableType>Float</VariableType>
       <Address>00A12FBC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>119</ID>
       <Description>"g_highwayEndFade"</Description>
-      <LastState Value="305" RealAddress="00A12FC0"/>
       <VariableType>Float</VariableType>
       <Address>00A12FC0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>120</ID>
       <Description>"g_destroyTime"</Description>
-      <LastState Value="1" RealAddress="00A12FC4"/>
       <VariableType>Float</VariableType>
       <Address>00A12FC4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>121</ID>
       <Description>"g_whammyOffsetTweak"</Description>
-      <LastState Value="-33" RealAddress="00A12FC8"/>
       <VariableType>Float</VariableType>
       <Address>00A12FC8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>122</ID>
       <Description>"g_spAndHp?"</Description>
-      <LastState Value="0CCDD220" RealAddress="00A12FCC"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FCC</Address>
@@ -887,42 +773,36 @@
     <CheatEntry>
       <ID>123</ID>
       <Description>"g_scoreObject"</Description>
-      <LastState Value="0" RealAddress="00A12FD0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FD0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>124</ID>
       <Description>"g_currHighwayScreenElementIndex"</Description>
-      <LastState Value="11" RealAddress="00A12FD8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FD8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>125</ID>
       <Description>"g_wildCardSearchString?"</Description>
-      <LastState Value="0" RealAddress="00A12FDC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FDC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>126</ID>
       <Description>"g_NoteRelated"</Description>
-      <LastState Value="0" RealAddress="00A12FE4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FE4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>127</ID>
       <Description>"g_starRelatedFlags_A12FE8"</Description>
-      <LastState Value="4294967295" RealAddress="00A12FE8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FE8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>128</ID>
       <Description>"g_currentStarpowerPhrase"</Description>
-      <LastState Value="1AFA4460" RealAddress="00A12FF0"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FF0</Address>
@@ -930,7 +810,6 @@
     <CheatEntry>
       <ID>129</ID>
       <Description>"g_starArray"</Description>
-      <LastState Value="1AFA4434" RealAddress="00A12FF8"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A12FF8</Address>
@@ -938,126 +817,108 @@
     <CheatEntry>
       <ID>130</ID>
       <Description>"g_gemLeftStartPosX"</Description>
-      <LastState Value="0" RealAddress="00A13000"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13000</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>131</ID>
       <Description>"g_gemLeftStartPosY"</Description>
-      <LastState Value="0" RealAddress="00A13014"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13014</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>132</ID>
       <Description>"g_gemSomething0"</Description>
-      <LastState Value="0" RealAddress="00A13024"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13024</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>133</ID>
       <Description>"g_gemLeftEndPosX"</Description>
-      <LastState Value="0" RealAddress="00A13028"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13028</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>134</ID>
       <Description>"g_gemSomething1"</Description>
-      <LastState Value="0" RealAddress="00A13038"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13038</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>135</ID>
       <Description>"g_gemLeftEndPosY"</Description>
-      <LastState Value="0" RealAddress="00A1303C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A1303C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>136</ID>
       <Description>"g_gemStartPosX"</Description>
-      <LastState Value="0" RealAddress="00A13050"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13050</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>137</ID>
       <Description>"g_gemStartPosY"</Description>
-      <LastState Value="0" RealAddress="00A13064"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13064</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>138</ID>
       <Description>"g_gemEndPosX"</Description>
-      <LastState Value="0" RealAddress="00A13078"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13078</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>139</ID>
       <Description>"g_gemEndPosY"</Description>
-      <LastState Value="0" RealAddress="00A1308C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A1308C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>140</ID>
       <Description>"g_gemLeftAngle"</Description>
-      <LastState Value="0" RealAddress="00A1309C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A1309C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>141</ID>
       <Description>"g_gemStartScale"</Description>
-      <LastState Value="0.25" RealAddress="00A130C8"/>
       <VariableType>Float</VariableType>
       <Address>00A130C8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>142</ID>
       <Description>"g_gemEndScale"</Description>
-      <LastState Value="0.8000000119" RealAddress="00A130CC"/>
       <VariableType>Float</VariableType>
       <Address>00A130CC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>143</ID>
       <Description>"g_gemStarScale"</Description>
-      <LastState Value="1.299999952" RealAddress="00A130D0"/>
       <VariableType>Float</VariableType>
       <Address>00A130D0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>144</ID>
       <Description>"g_gemYJust"</Description>
-      <LastState Value="0.8299999833" RealAddress="00A130D4"/>
       <VariableType>Float</VariableType>
       <Address>00A130D4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>145</ID>
       <Description>"g_startYJust"</Description>
-      <LastState Value="0.5" RealAddress="00A130D8"/>
       <VariableType>Float</VariableType>
       <Address>00A130D8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>146</ID>
       <Description>"g_crowdModelCams"</Description>
-      <LastState Value="0" RealAddress="00A130DC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A130DC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>147</ID>
       <Description>"g_NoteMappingRelated"</Description>
-      <LastState Value="1B1087D0" RealAddress="00A130E0"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A130E0</Address>
@@ -1065,140 +926,120 @@
     <CheatEntry>
       <ID>148</ID>
       <Description>"particlesCount"</Description>
-      <LastState Value="0" RealAddress="00A13104"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13104</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>149</ID>
       <Description>"g_healthInvincibleMinimum"</Description>
-      <LastState Value="25" RealAddress="00A1310C"/>
       <VariableType>Float</VariableType>
       <Address>00A1310C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>150</ID>
       <Description>"g_crowdDebugMode"</Description>
-      <LastState Value="0" RealAddress="00A13110"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13110</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>151</ID>
       <Description>"g_crowdPoorMedium"</Description>
-      <LastState Value="0.6665999889" RealAddress="00A1311C"/>
       <VariableType>Float</VariableType>
       <Address>00A1311C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>152</ID>
       <Description>"g_crowdMediumGood"</Description>
-      <LastState Value="1.333299994" RealAddress="00A13120"/>
       <VariableType>Float</VariableType>
       <Address>00A13120</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>153</ID>
       <Description>"g_healthChangeRedMulti"</Description>
-      <LastState Value="1.349999905" RealAddress="00A13124"/>
       <VariableType>Float</VariableType>
       <Address>00A13124</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>154</ID>
       <Description>"g_healthChangeGreenMulti"</Description>
-      <LastState Value="0.8500000238" RealAddress="00A13128"/>
       <VariableType>Float</VariableType>
       <Address>00A13128</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>155</ID>
       <Description>"g_viewercamNOFAIL"</Description>
-      <LastState Value="0" RealAddress="00A1312C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A1312C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>156</ID>
       <Description>"g_healthScale"</Description>
-      <LastState Value="2" RealAddress="00A13130"/>
       <VariableType>Float</VariableType>
       <Address>00A13130</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>157</ID>
       <Description>"g_noteFxNoteIndex"</Description>
-      <LastState Value="11" RealAddress="00A13134"/>
       <VariableType>Byte</VariableType>
       <Address>00A13134</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>158</ID>
       <Description>"g_holdPattern"</Description>
-      <LastState Value="0" RealAddress="00A13138"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13138</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>159</ID>
       <Description>"g_arrayEntry"</Description>
-      <LastState Value="0" RealAddress="00A13140"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13140</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>160</ID>
       <Description>"g_currentHoldStart"</Description>
-      <LastState Value="0" RealAddress="00A13148"/>
       <VariableType>Float</VariableType>
       <Address>00A13148</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>161</ID>
       <Description>"g_currentHoldNow"</Description>
-      <LastState Value="0" RealAddress="00A13150"/>
       <VariableType>Float</VariableType>
       <Address>00A13150</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>162</ID>
       <Description>"g_currentHoldTicksFloat"</Description>
-      <LastState Value="0" RealAddress="00A13158"/>
       <VariableType>Float</VariableType>
       <Address>00A13158</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>163</ID>
       <Description>"g_currentHoldTicks"</Description>
-      <LastState Value="0" RealAddress="00A13160"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13160</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>164</ID>
       <Description>"g_currentHoldRemaining"</Description>
-      <LastState Value="0" RealAddress="00A13168"/>
       <VariableType>Float</VariableType>
       <Address>00A13168</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>165</ID>
       <Description>"g_currentHoldLength"</Description>
-      <LastState Value="0" RealAddress="00A13170"/>
       <VariableType>Float</VariableType>
       <Address>00A13170</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>166</ID>
       <Description>"g_controller"</Description>
-      <LastState Value="0" RealAddress="00A13178"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13178</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>167</ID>
       <Description>"g_btnUpPixelArrays"</Description>
-      <LastState Value="00000000" RealAddress="00A13180"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13180</Address>
@@ -1206,42 +1047,36 @@
     <CheatEntry>
       <ID>168</ID>
       <Description>"g_whammyMinHoldMuteMS"</Description>
-      <LastState Value="0" RealAddress="00A13188"/>
       <VariableType>Float</VariableType>
       <Address>00A13188</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>169</ID>
       <Description>"g_whammyMinHoldPctShort"</Description>
-      <LastState Value="0" RealAddress="00A1318C"/>
       <VariableType>Float</VariableType>
       <Address>00A1318C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>170</ID>
       <Description>"g_whammyMinHoldPct"</Description>
-      <LastState Value="0" RealAddress="00A13190"/>
       <VariableType>Float</VariableType>
       <Address>00A13190</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>171</ID>
       <Description>"noteBeingHit?"</Description>
-      <LastState Value="100" RealAddress="00A13194"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13194</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>172</ID>
       <Description>"No description"</Description>
-      <LastState Value="510" RealAddress="00A1319C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A1319C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>173</ID>
       <Description>"g_UnknownQBKey"</Description>
-      <LastState Value="26C80B0D" RealAddress="00A131A0"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A131A0</Address>
@@ -1249,21 +1084,18 @@
     <CheatEntry>
       <ID>174</ID>
       <Description>"g_hitParticleParams"</Description>
-      <LastState Value="8" RealAddress="00A13220"/>
       <VariableType>Float</VariableType>
       <Address>00A13220</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>175</ID>
       <Description>""</Description>
-      <LastState Value="-6307.991211" RealAddress="00A13224"/>
       <VariableType>Float</VariableType>
       <Address>00A13224</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>176</ID>
       <Description>"g_gameMode"</Description>
-      <LastState Value="03928A27" RealAddress="00A13310"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13310</Address>
@@ -1271,7 +1103,6 @@
     <CheatEntry>
       <ID>177</ID>
       <Description>"g_currentSong"</Description>
-      <LastState Value="4C1E7569" RealAddress="00A13314"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13314</Address>
@@ -1279,7 +1110,6 @@
     <CheatEntry>
       <ID>178</ID>
       <Description>"g_inputArrayKey"</Description>
-      <LastState Value="39E75B00" RealAddress="00A13318"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13318</Address>
@@ -1287,14 +1117,12 @@
     <CheatEntry>
       <ID>179</ID>
       <Description>"g_song?"</Description>
-      <LastState Value="0" RealAddress="00A1331C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00A1331C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>180</ID>
       <Description>"qbKey"</Description>
-      <LastState Value="B0E46CBD" RealAddress="00A13320"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00A13320</Address>
@@ -1302,7 +1130,6 @@
     <CheatEntry>
       <ID>183</ID>
       <Description>"highwayRelated_A14860"</Description>
-      <LastState Value="4F 79 AF 66 DA 6F 2E F0 4F 79 AF 66 4F 79 AF 66" RealAddress="00A15860"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>Array of byte</VariableType>
       <ByteLength>16</ByteLength>
@@ -1311,7 +1138,6 @@
     <CheatEntry>
       <ID>182</ID>
       <Description>"g_currentHighwayElements"</Description>
-      <LastState Value="4F 79 AF 66 DA 6F 2E F0 4F 79 AF 66 4F 79 AF 66" RealAddress="00A15860"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>Array of byte</VariableType>
       <ByteLength>16</ByteLength>
@@ -1320,7 +1146,6 @@
     <CheatEntry>
       <ID>181</ID>
       <Description>"g_currentGemsOnScreen"</Description>
-      <LastState Value="60 13 FB 2F 00 00 00 00 70 A0 9E 05 DE 11 65 2F" RealAddress="00A16860"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>Array of byte</VariableType>
       <ByteLength>16</ByteLength>
@@ -1329,7 +1154,6 @@
     <CheatEntry>
       <ID>184</ID>
       <Description>"particlesArray"</Description>
-      <LastState Value="30 EA 7B 09 00 00 20 44 00 C0 1E 44 00 00 00 41" RealAddress="00A255C8"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>Array of byte</VariableType>
       <ByteLength>16</ByteLength>
@@ -1338,7 +1162,6 @@
     <CheatEntry>
       <ID>185</ID>
       <Description>"No description"</Description>
-      <LastState Value="C4208937" RealAddress="00B46334"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00B46334</Address>
@@ -1346,14 +1169,12 @@
     <CheatEntry>
       <ID>186</ID>
       <Description>"screen element amount related probably"</Description>
-      <LastState Value="39" RealAddress="00B54530"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B54530</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>187</ID>
       <Description>"No description"</Description>
-      <LastState Value="0ADB92F8" RealAddress="00B5452C"/>
       <ShowAsHex>1</ShowAsHex>
       <VariableType>4 Bytes</VariableType>
       <Address>00B5452C</Address>
@@ -1361,114 +1182,129 @@
     <CheatEntry>
       <ID>189</ID>
       <Description>"No description"</Description>
-      <LastState Value="3218083" RealAddress="00B544C8"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B544C8</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>188</ID>
       <Description>"No description"</Description>
-      <LastState Value="1130208" RealAddress="00B54534"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B54534</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>190</ID>
       <Description>"No description"</Description>
-      <LastState Value="1006834287" RealAddress="00B544AC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B544AC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>191</ID>
       <Description>"No description"</Description>
-      <LastState Value="2153926112" RealAddress="00B544B3"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B544B3</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>192</ID>
       <Description>"No description"</Description>
-      <LastState Value="182500272" RealAddress="00B54420"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B54420</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>193</ID>
       <Description>"No description"</Description>
-      <LastState Value="182555168" RealAddress="00B54440"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B54440</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>195</ID>
       <Description>"No description"</Description>
-      <LastState Value="1954210112" RealAddress="00B544BB"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B544BB</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>196</ID>
       <Description>"No description"</Description>
-      <LastState Value="454068912" RealAddress="00B591F4"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00B591F4</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>197</ID>
       <Description>"No description"</Description>
-      <LastState Value="182924" RealAddress="00C5EF8C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C5EF8C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>198</ID>
       <Description>"No description"</Description>
-      <LastState Value="350930080" RealAddress="00C5F0EC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C5F0EC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>199</ID>
       <Description>"No description"</Description>
-      <LastState Value="350929856" RealAddress="00C5F0F0"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C5F0F0</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>200</ID>
       <Description>"No description"</Description>
-      <LastState Value="182925" RealAddress="00C627AC"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C627AC</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>201</ID>
       <Description>"No description"</Description>
-      <LastState Value="182925" RealAddress="00C6291C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C6291C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>202</ID>
       <Description>"No description"</Description>
-      <LastState Value="182925" RealAddress="00C62920"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C62920</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>203</ID>
       <Description>"No description"</Description>
-      <LastState Value="349797216" RealAddress="00C62E3C"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C62E3C</Address>
     </CheatEntry>
     <CheatEntry>
       <ID>204</ID>
       <Description>"No description"</Description>
-      <LastState Value="349796544" RealAddress="00C62E38"/>
       <VariableType>4 Bytes</VariableType>
       <Address>00C62E38</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>205</ID>
+      <Description>"Counts with screen elements"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>game.exe+846548</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>206</ID>
+      <Description>"Counts with screen elements"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>game.exe+91C910</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>208</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>game.exe+560F54</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>207</ID>
+      <Description>"No description"</Description>
+      <ShowAsHex>1</ShowAsHex>
+      <VariableType>4 Bytes</VariableType>
+      <Address>0D2EC650</Address>
+    </CheatEntry>
+    <CheatEntry>
+      <ID>209</ID>
+      <Description>"No description"</Description>
+      <VariableType>4 Bytes</VariableType>
+      <Address>048BB444</Address>
     </CheatEntry>
   </CheatEntries>
   <UserdefinedSymbols>
@@ -1527,10 +1363,10 @@
         <Element Offset="1" Vartype="Byte" Bytesize="1" Description="flags" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
         <Element Offset="2" Vartype="2 Bytes" Bytesize="2" Description="word2" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
         <Element Offset="4" Vartype="4 Bytes" Bytesize="4" Description="key" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
-        <Element Offset="8" Vartype="4 Bytes" Bytesize="4" Description="value(hex)" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
-        <Element Offset="8" Vartype="4 Bytes" Bytesize="4" Description="value" DisplayMethod="Signed Integer" BackgroundColor="80000005"/>
         <Element Offset="8" Vartype="Float" Bytesize="4" Description="value(float)" DisplayMethod="Signed Integer" BackgroundColor="80000005"/>
         <Element Offset="8" Vartype="Pointer" Bytesize="4" ChildStruct="QbStruct" Description="value(ptr)" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="4 Bytes" Bytesize="4" Description="value(hex)" DisplayMethod="Hexadecimal" BackgroundColor="80000005"/>
+        <Element Offset="8" Vartype="4 Bytes" Bytesize="4" Description="value" DisplayMethod="Signed Integer" BackgroundColor="80000005"/>
         <Element Offset="12" Vartype="Pointer" Bytesize="4" ChildStruct="QbStructItem" Description="next" DisplayMethod="Unsigned Integer" BackgroundColor="80000005"/>
       </Elements>
     </Structure>

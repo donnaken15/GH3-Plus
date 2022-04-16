@@ -259,6 +259,7 @@ DWORD CSDstrCounters[sizeof(CSDstrIds)];*/
 
 DWORD curScriptOffset = 0x2000;
 DWORD watchListOffset = 0x6800;
+DWORD brkpointsOffset = 0x6000;
 
 #include <time.h>
 
@@ -392,13 +393,14 @@ __declspec(naked) void* DebugScriptStart()
 	ScriptStack_Push(_test);
 	WriteWatch();
 	WriteCSD();
-	for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + 0x6000 - 4); IIIIIIIIIIIIIIIIIIIIIIII++)
+	for (IIIIIIIIIIIIIIIIIIIIIIII = 0; IIIIIIIIIIIIIIIIIIIIIIII < *(DWORD*)(DebugData + brkpointsOffset - 4); IIIIIIIIIIIIIIIIIIIIIIII++)
 	{
-		if (_test->type == *(DWORD*)(DebugData + 0x6000 + (IIIIIIIIIIIIIIIIIIIIIIII * 4)))
+		if (_test->type == *(DWORD*)(DebugData + brkpointsOffset + (IIIIIIIIIIIIIIIIIIIIIIII * 4)))
 		{
 			//WriteCSD();
 			DebugData[1] = 1;
 			DebugData[0] = Pause;
+			BreakCond();
 			break;
 		}
 	}
@@ -444,6 +446,12 @@ __declspec(naked) void* DebugScript()
 				// TAHNKS NUDE FUNCTION
 				// elseif by force of habit
 				// who would've thought
+				// as if *qcomp* hasn't
+				// failed me at using
+				// a switch before
+				// maybe C++ and qbscript
+				// have synonymous idiocy
+				// shruggggg
 				if (ACEptype == TypeInt)
 				{
 					ACEargs->InsertIntItem  (ACEpkey, *(int  *)(DebugData + ACEsoff + 4));

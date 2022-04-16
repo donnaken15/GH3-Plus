@@ -124,7 +124,8 @@ void ApplyHack()
 	g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
 	//g_patcher.WritePointer((void*)0x00957094, UpdatePresence);
 	// ^ use if i can get ahead of cfunc init without breaking something
-	
+	// and not have to depend on an already patched EXE to change
+
 }
 
 void Shutdown()

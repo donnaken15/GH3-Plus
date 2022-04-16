@@ -2,6 +2,11 @@ script({
 	int player = 1;
 }) {
 
+if (*current_num_players == 2)
+{
+	return;
+}
+
 Wait(*button_sink_time,Seconds);
 GetSongTimeMs();
 
