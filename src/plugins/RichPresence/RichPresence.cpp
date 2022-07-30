@@ -55,6 +55,7 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 	// when executing this func
 	// multiple times until a
 	// blank param is thrown in
+	pres.type = EDiscordActivityType::DiscordActivityType_Playing;
 	if (str->GetString(QbKey("state"), state))
 		strcpy_s(pres.state, 128, state);
 	if (str->GetString(QbKey("details"), details))

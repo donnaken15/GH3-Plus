@@ -14,7 +14,8 @@ void ApplyHack()
 		!TryApplyNoteLoadingPatches() ||
 		!TryApplyNoteLogicPatches() ||
 		!TryApplyGemConstantsPatches() ||
-		!TryApplyTextureTakeoverPatches())
+		!TryApplyTextureTakeoverPatches()
+		)
 	{
 		g_patcher.RemoveAllChanges();
 	}

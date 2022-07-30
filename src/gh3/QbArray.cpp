@@ -12,25 +12,25 @@ namespace GH3
 	void QbArray::Clear()
 	{
 		SetType(QbValueType::TypeUndefined);
-		m_arr = nullptr;
-		m_length = 0;
+		arr = nullptr;
+		size = 0;
 		unk1 = 0;
 	}
 
 	uint32_t QbArray::operator[](int index) const
 	{
-		if (m_length != 1)
-			return m_arr[index];
+		if (size != 1)
+			return arr[index];
 		else
-			return reinterpret_cast<uint32_t>(m_arr);
+			return reinterpret_cast<uint32_t>(arr);
 	}
 
 	uint32_t & QbArray::operator[](int index)
 	{
 		if (Length() == 1)
-			return reinterpret_cast<uint32_t &>(m_arr);
+			return reinterpret_cast<uint32_t &>(arr);
 		else
-			return m_arr[index];
+			return arr[index];
 	}
 
 }

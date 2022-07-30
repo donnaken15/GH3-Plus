@@ -14,12 +14,16 @@ namespace GH3
 	private:
 		uint8_t unk0;
 		uint8_t unk1;
-		QbValueType m_type;
-		uint8_t unk3;
-		uint32_t m_length;
-		uint32_t *m_arr;
 
 	public:
+		QbValueType type;
+	private:
+		uint8_t unk3;
+
+	public:
+		uint32_t size;
+		uint32_t* arr;
+
 		int * __thiscall Initialize(int size, int type);
 
 		void Clear();
@@ -30,9 +34,9 @@ namespace GH3
 		inline void Set(int index, uint32_t value) { (*this)[index] = value; }
 		inline uint32_t Get(int index) const { return (*this)[index]; }
 
-		inline void SetType(QbValueType type) { m_type = type; }
-		inline QbValueType Type() const { return m_type;}
-		inline uint32_t Length() const { return m_length;}
+		inline void SetType(QbValueType _type) { type = _type; }
+		inline QbValueType Type() const { return type;}
+		inline uint32_t Length() const { return size;}
 	};
 
 }

@@ -8,12 +8,16 @@
 #include "tapHopoChord.h"
 #include <map>
 
+// ACTUALLY, .SCN FILES MIGHT BE ALL I NEEDED
+// it half works
+#define DoTextureTakeover 1
+
+#if (DoTextureTakeover == 1)
 #define ArrayLength(x) (sizeof(x)/sizeof(*(x)))
 
 static GH3::QbKey tmpTextureKey;
 static GH3::TextureMetadata *tmpMetadata;
 static GH3::QbImage *tmpQbImage;
-
 
 
 // Probably don't need to understand what's in here as long as we have it
@@ -445,12 +449,15 @@ void __declspec(naked) storeSpecialTexturesNaked()
 		jmp		returnAddress;
 	}
 }
+#endif
 
 bool TryApplyTextureTakeoverPatches()
 {
+#if (DoTextureTakeover == 1)
 	if (!g_patcher.WriteJmp(storeSpecialTexturesDetour, storeSpecialTexturesNaked) ||
 		!g_patcher.WriteJmp(frankerzDetour, frankerzFixNaked))
 		return false;
+#endif
 
     return true;
 }

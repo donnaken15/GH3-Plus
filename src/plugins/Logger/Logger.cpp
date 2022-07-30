@@ -89,6 +89,7 @@ void print(const char*str)
 	}
 	if (l_WriteFile) {
 		fputs(str, log);
+		fflush(log); // how can i do this only when the program crashes
 	}
 }
 
@@ -182,6 +183,9 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 			*(float*)(&(WTF(value)) + 2),
 			*(float*)(&(WTF(value)) + 3));
 		break;
+	case TypeStringPointer:
+		sprintf(qbstrstr + qbstrstr2, "0x%08X\n", (DWORD*)(value));
+		break;
 	case TypeScript:
 	case TypeCFunc:
 	case TypeUnk9:
@@ -198,7 +202,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 			*(DWORD*)(value + 8), *(DWORD*)(value + 12));
 		break;
 	}
-	if (type != TypeStringPointer &&
+	if (//type != TypeStringPointer &&
 		type != TypeCString &&
 		type != TypeWString &&
 		type != TypeQbStruct &&

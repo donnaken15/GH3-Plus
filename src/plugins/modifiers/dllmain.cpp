@@ -1,10 +1,6 @@
 // dllmain.cpp : Defines the entry point for the DLL application.
 #include <Windows.h>
-#include "Logger.h"
-#include <stdio.h>
-
-extern FILE * log;
-extern BYTE l_WriteFile;
+#include "modifiers.h"
 
 BOOL APIENTRY DllMain(HMODULE hModule,
     DWORD  ul_reason_for_call,

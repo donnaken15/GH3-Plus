@@ -14,6 +14,9 @@ FormatText(checksumName=player_status, 'player%d_status', d = %player);
 
 open_color1 = [240,199,255,255];
 open_color2 = [212,  0,255,255];
+// WOR COLOR(-ish)
+//open_color1 = [255,178, 89,255];
+//open_color2 = [207,107,  0,255];
 
 if (*%player_status.star_power_used == 1)
 {

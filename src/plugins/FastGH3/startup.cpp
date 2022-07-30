@@ -2,6 +2,7 @@
 #include "core\Patcher.h"
 #include "startup.h"
 #include <stdint.h>
+#include <stdio.h>
 #include <Windows.h>
 #include <d3d9.h>
 
@@ -44,6 +45,8 @@ __declspec(naked) void hWndHack()
 			jmp returnAddress;
 		}
 	}
+	// lazy to find and write another one time detour
+
 }
 
 static char inipath[MAX_PATH];
@@ -69,4 +72,5 @@ void ApplyHack()
 	{
 		g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
 	}
+	g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
 }
