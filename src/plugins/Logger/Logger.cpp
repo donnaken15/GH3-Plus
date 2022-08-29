@@ -10,6 +10,7 @@
 
 
 #include "gh3\QbScript.h"
+#include <corecrt_share.h>
 
 /// code by wesley and not zedek
 ///
@@ -29,7 +30,8 @@ static char inipath[MAX_PATH],
 BYTE l_CreateCon, l_WriteFile, l_FixKeys,
 	l_PrintStruct, l_AllSuccess = 1,
 	l_CreateConFail = 0, l_DbgLoaded = 0,
-	l_FmtTxtLkup, l_ParseFormatting = 0;
+	l_FmtTxtLkup, l_ParseFormatting = 0,
+	l_WarnAsserts = 0;
 FILE * log, * CON;
 HANDLE CONh;
 
@@ -102,6 +104,57 @@ __declspec(naked) void RedirectOutput()
 		mov logtext, edx;
 		call PrintsubIthink;
 	}
+	print(logtext);
+	__asm {
+		jmp returnAddress;
+	}
+}
+__declspec(naked) void RedirectOutput2()
+{
+	static const uint32_t returnAddress = 0x00532E2F;
+	static const char*logtext;
+	__asm {
+		mov logtext, edx;
+		call PrintsubIthink;
+	}
+	print(logtext);
+	__asm {
+		jmp returnAddress;
+	}
+}
+
+static void* LogErrDfnctDetour = (void*)0x004F6500;
+void assertWarn()
+{
+	if (!l_WarnAsserts)
+		return;
+	void** EIP;
+	__asm {
+		mov EIP, ebp;
+	}
+	//EIP += 8;
+	// return address appears differently
+	// on one function
+	if (l_CreateCon) {
+		fprintf(CON, "ASSERT @ %p\n", *EIP);
+		// just use vprintf instead of putting this twice
+		// already did for qcc so why not here
+	}
+	if (l_WriteFile) {
+		fprintf(log, "ASSERT @ %p\n", *EIP);
+	}
+}
+
+__declspec(naked) void MyScriptAssert()
+{
+	static const uint32_t returnAddress = 0x00532E03;
+	static const char* logtext;
+	__asm {
+		mov logtext, edx;
+		call PrintsubIthink;
+	}
+	if (l_WarnAsserts)
+		print("ASSERT: ");
 	print(logtext);
 	__asm {
 		jmp returnAddress;
@@ -378,6 +431,19 @@ __declspec(naked) void MyPrintStruct()
 		ret;
 	}
 }
+char print2ndBuf[512];
+// detours 0x005B0DC0
+int extraPrinting(char* fmt, ...)
+{
+	// hasn't been executed
+	print("TESTTESTTESTTESTTESTTESTTESTTEST\n");
+	va_list args;
+	va_start(args, fmt);
+	int ret = vsprintf_s(print2ndBuf, 512, fmt, args);
+	va_end(args);
+	print(print2ndBuf);
+	return ret;
+}
 
 FILE*gh3pl;
 char gh3pll[64];
@@ -406,25 +472,16 @@ __declspec(naked) void* PrintGH3Plog()
 
 
 DWORD kIndex = 0;
-static void *AddToLookupDetour = (void *)0x00DA22A4;
-__declspec(naked) void* AddToMyLookup()
+static void *AddToLookupDetour = (void *)0x00DA22A6;
+void AddToMyLookup(QbKey checksum, char*keyname)
 {
-	static const uint32_t returnAddress = 0x00DA22AE;
-	char*keyname;
-	DWORD checksum;
 	if (kIndex < MAX_KEYS)
 	{
-		__asm {
-			mov[keyname], edx;
-			mov checksum, esi;
-		}
 		for (DWORD i = kIndex - 1; i > 0; i--)
 		{
 			if (checksum == dbgKeys[i])
 			{
-				__asm {
-					jmp returnAddress;
-				}
+				return;
 			}
 		}
 		memcpy(dbgStr + (kIndex * KEYSTRLEN), keyname, 128);
@@ -435,9 +492,6 @@ __declspec(naked) void* AddToMyLookup()
 	{
 		if (l_CreateCon)
 			fputs("FormatText's AddToLookup failed. Exceeded amount of debug keys allowed.\n", CON);
-	}
-	__asm {
-		jmp returnAddress;
 	}
 }
 
@@ -453,7 +507,8 @@ void ApplyHack()
 	l_FixKeys = GetPrivateProfileIntA("Logger", "FixKeys", 1, inipath);
 	l_PrintStruct = GetPrivateProfileIntA("Logger", "PrintStruct", 1, inipath);
 	l_FmtTxtLkup = GetPrivateProfileIntA("Logger", "FmtTxtAddToLkup", 1, inipath);
-	l_ParseFormatting = GetPrivateProfileIntA("Logger", "ParseFormatting", 1, inipath);
+	//l_ParseFormatting = GetPrivateProfileIntA("Logger", "ParseFormatting", 1, inipath); // for escape sequences for no reason, which don't actually appear ever
+	l_WarnAsserts = GetPrivateProfileIntA("Logger", "WarnAsserts", 0, inipath);
 	if (l_CreateCon)
 	{
 		l_CreateCon = 0;
@@ -467,7 +522,8 @@ void ApplyHack()
 	{
 		strcat_s(logfile, MAX_PATH, "\\output.txt");
 		l_WriteFile = 0;
-		if (!fopen_s(&log, logfile, "w"))
+		log = _fsopen(logfile, "w", _SH_DENYNO);
+		if (log)
 		{
 			l_WriteFile = 1;
 			if (l_CreateConFail)
@@ -478,9 +534,9 @@ void ApplyHack()
 	{
 		fputs("Guitar Hero 3 log\n--------------------\nPatching print functions...\n", CON);
 	}
-	if (!g_patcher.WriteJmp(ScrAsrtDetour, RedirectOutput) ||
-		!g_patcher.WriteJmp((void*)0x00530940, (void*)0x00532DD0) || // Printf jump to my function
-		!g_patcher.WriteJmp((void*)0x00532E2A, RedirectOutput)) // SoftAsrt jump to my function
+	if (!g_patcher.WriteJmp(ScrAsrtDetour, MyScriptAssert) ||
+		!g_patcher.WriteJmp((void*)0x00530940, (void*)0x00532E10) || // Printf jump to my function
+		!g_patcher.WriteJmp((void*)0x00532E2A, RedirectOutput2)) // SoftAsrt jump to my function
 	{
 		g_patcher.RemoveAllChanges();
 		l_AllSuccess = 0;
@@ -491,13 +547,14 @@ void ApplyHack()
 				fputs("!!!!!!!!!! Failed to redirect prints !!!!!!!!!!!", CON);
 			fputs("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!", CON);
 		}
+		g_patcher.WriteJmp((void*)0x005B0DC0, extraPrinting);
 		return;
 	}
 	else {
-		if (!l_ParseFormatting)
+		/*if (!l_ParseFormatting)
 		{
 			CONh = GetStdHandle(STD_OUTPUT_HANDLE);
-		}
+		}*/
 		if (l_FixKeys) {
 			if (l_CreateCon)
 				fputs("Loading debug pak.\n", CON);
@@ -606,7 +663,7 @@ void ApplyHack()
 					l_AllSuccess = 0;
 				}
 				if (l_FmtTxtLkup)
-					if (g_patcher.WriteJmp(AddToLookupDetour, AddToMyLookup))
+					if (g_patcher.WriteCall(AddToLookupDetour, AddToMyLookup))
 					{
 						if (l_CreateCon)
 							fputs("Patched FormatText's AddToLookup code.\n", CON);
@@ -642,5 +699,12 @@ void ApplyHack()
 			{
 				fputs("Cannot access GH3+ log.\n\n", CON);
 			}
+		if (l_WarnAsserts && (l_CreateCon || l_WriteFile))
+		{
+			if (g_patcher.WriteJmp(LogErrDfnctDetour, assertWarn)) // lol
+			{
+				fputs("Patched assert function.\n", CON);
+			}
+		}
 	}
 }

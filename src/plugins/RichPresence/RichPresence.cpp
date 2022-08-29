@@ -36,7 +36,6 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 {
 	// show params (logger)
 	//ExecuteScript2(QbKey("PrintStruct"), str, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
-
 	char*state = "";
 	char*details = "";
 	char*smltxt = "";
@@ -57,17 +56,18 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 	// blank param is thrown in
 	pres.type = EDiscordActivityType::DiscordActivityType_Playing;
 	if (str->GetString(QbKey("state"), state))
-		strcpy_s(pres.state, 128, state);
+		strcpy_s(pres.state, state);
 	if (str->GetString(QbKey("details"), details))
-		strcpy_s(pres.details, 128, details);
+		strcpy_s(pres.details, details);
 	if (str->GetString(QbKey("smltxt"), smltxt))
-		strcpy_s(pres.assets.small_text, 128, smltxt);
+		strcpy_s(pres.assets.small_text, smltxt);
 	if (str->GetString(QbKey("smlimage"), smlimage))
-		strcpy_s(pres.assets.small_image, 128, smlimage);
+		strcpy_s(pres.assets.small_image, smlimage);
 	if (str->GetString(QbKey("lrgtxt"), lrgtxt))
-		strcpy_s(pres.assets.large_text, 128, lrgtxt);
+		strcpy_s(pres.assets.large_text, lrgtxt);
 	if (str->GetString(QbKey("lrgimage"), lrgimage))
-		strcpy_s(pres.assets.large_image, 128, lrgimage);
+		strcpy_s(pres.assets.large_image, lrgimage);
+	//strcpy_s(pres.secrets.join, "421"); // discord fails to invite anyone through this
 	str->GetInt(QbKey("starttime"), starttime);
 	bool endtimepassed = str->GetInt(QbKey("endtime"), endtime);
 	if (endtimepassed)

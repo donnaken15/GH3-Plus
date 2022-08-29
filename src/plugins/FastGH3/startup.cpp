@@ -1,11 +1,15 @@
 #include "gh3\GH3Keys.h"
+#include "gh3\QbStruct.h"
+#include "gh3\QbScript.h"
 #include "core\Patcher.h"
 #include "startup.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <Windows.h>
 #include <d3d9.h>
+#include <D3dx9tex.h>
 
+#pragma comment(lib, "E:\\D3D9\\d3dx9.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
 static void *D3DPPpi = (void *)0x0057BB79;
@@ -18,7 +22,7 @@ int sizeX, sizeY, centerX, centerY;
 BYTE vsync, borderless;
 
 static void *hWndDetour = (void *)0x0057BA6F;
-static int * wndStyle = (int*)0x0057BA5D;
+static int* wndStyle = (int*)0x0057BA5D;
 __declspec(naked) void hWndHack()
 {
 	static const uint32_t returnAddress = 0x0057BA75;
@@ -49,6 +53,35 @@ __declspec(naked) void hWndHack()
 
 }
 
+using namespace GH3;
+static void* screenshotDetour = (void*)0x005377B0;
+bool ScreenShot(QbStruct*str,QbScript*scr)
+{
+	IDirect3DSurface9* pSurface;
+	IDirect3DSurface9* surf;
+	D3DSURFACE_DESC sd;
+	(*d3ddev)->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
+	pSurface->GetDesc(&sd);
+	(*d3ddev)->CreateOffscreenPlainSurface(
+		sd.Width, sd.Height, sd.Format, D3DPOOL_SYSTEMMEM, &surf, NULL);
+	(*d3ddev)->GetRenderTargetData(pSurface, surf);
+
+	char maindir[MAX_PATH];
+	char filepath[MAX_PATH];
+	char*filename;
+	if (!str->GetString(QbKey("filename"), filename))
+		filename = "screen";
+	GetCurrentDirectoryA(MAX_PATH, maindir);
+	sprintf_s(filepath,"%s\\%s.bmp",maindir,filename);
+	// WHY DO PNG AND JPG FAIL
+	// DDS USES ARGB8 AND IS THE SAME SIZE AS BITMAP >:(
+
+	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, surf, NULL, NULL);
+	pSurface->Release();
+	surf->Release();
+	return 1;
+}
+
 static char inipath[MAX_PATH];
 static char test[10];
 static int*presint = (int*)0x00C5B934;
@@ -73,4 +106,5 @@ void ApplyHack()
 		g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
 	}
 	g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
+	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
 }

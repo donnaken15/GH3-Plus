@@ -35,6 +35,8 @@ enum modtypes {
 
 static uint32_t g_randomIndex;
 
+#define opennote_mod
+
 #ifdef opennote_mod
 static uint32_t openNoteIndex = 5;
 #endif
@@ -57,15 +59,12 @@ __declspec (naked) void fruityNaked()
 
 #ifdef opennote_mod
 		cmp		eax, openNoteIndex;
-		je		EXIT;
+		je		COLORSHUFFLE_SKIP;
 #endif
 		pushad;
 		call	randomizeIndex;
 		popad;
 		mov		eax, g_randomIndex;
-#ifdef opennote_mod
-		EXIT :
-#endif
 
 	COLORSHUFFLE_SKIP:
 		test    ecx, ecx
@@ -236,6 +235,7 @@ __declspec (naked) void hopoCheckNaked()
 {
 	static const uint32_t returnAddress = 0x0041D1E4;
 
+	// FIX FOR BATTLE
 	__asm
 	{
 		//Only use the old method if we're literally on the first note.
@@ -311,7 +311,7 @@ __declspec(naked) void forceTapFlagNaked2()
 		jnz     FORCETAPS_ROUTINE;
 		jmp     FORCESTRUMS_ROUTINE;
 	FORCESTRUMS_ROUTINE:
-		mov     edx, 0;
+		xor     edx, edx; // shameful line replaced
 		jmp     NOTE_FLAG_SET;
 	FORCETAPS_ROUTINE:
 		mov     edx, 2;
@@ -344,8 +344,11 @@ void ApplyHack()
 	for (int i = 0; i < 8; i++)
 		flags |= (GetPrivateProfileIntA("Modifiers", modnames[i], 0, inipath) != 0) << i;
 	// DOUBLE NOTES
-	g_patcher.WriteJmp((void*)0x0041D288, &tinyJump);
-	g_patcher.WriteJmp(hopoCheckDetour, hopoCheckNaked);
+	if (flags & AllDoubles) // temp fix for battle
+	{
+		g_patcher.WriteJmp((void*)0x0041D288, &tinyJump);
+		g_patcher.WriteJmp(hopoCheckDetour, hopoCheckNaked);
+	}
 	// FORCE STRUMS
 	g_patcher.WriteJmp(setHopoFlagDetour2, &forceTapFlagNaked2);
 	// COLOR SHUFFLE
