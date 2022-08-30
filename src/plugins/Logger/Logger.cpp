@@ -691,20 +691,22 @@ void ApplyHack()
 				l_AllSuccess = 0;
 			}
 		}
-		if (l_AllSuccess)
-			if (l_CreateCon)
-				fputs("Success!\n\n", CON);
 		if (l_CreateCon)
 			if (!g_patcher.WriteJmp(RandomDetour2, PrintGH3Plog))
 			{
 				fputs("Cannot access GH3+ log.\n\n", CON);
+				l_AllSuccess = 0;
 			}
 		if (l_WarnAsserts && (l_CreateCon || l_WriteFile))
 		{
 			if (g_patcher.WriteJmp(LogErrDfnctDetour, assertWarn)) // lol
 			{
-				fputs("Patched assert function.\n", CON);
+				if (l_CreateCon)
+					fputs("Patched assert function.\n", CON);
 			}
 		}
+		if (l_AllSuccess)
+			if (l_CreateCon)
+				fputs("Success!\n\n", CON);
 	}
 }

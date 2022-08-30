@@ -57,7 +57,10 @@ using namespace GH3;
 static void* screenshotDetour = (void*)0x005377B0;
 bool ScreenShot(QbStruct*str,QbScript*scr)
 {
-	IDirect3DSurface9* pSurface;
+	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
+	// "just make it a separate plugin"
+#if 0
+	IDirect3DSurface9* pSurface; // do i really need two surfaces???
 	IDirect3DSurface9* surf;
 	D3DSURFACE_DESC sd;
 	(*d3ddev)->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
@@ -79,6 +82,7 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, surf, NULL, NULL);
 	pSurface->Release();
 	surf->Release();
+#endif
 	return 1;
 }
 
