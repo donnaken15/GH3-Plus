@@ -83,6 +83,8 @@ __declspec (naked) void fruityNaked()
 // conflicts with TapHopoChord when correcting HOPO flags
 // for GetFretmaskFromNoteQbArray and double notes
 
+// also messes up bot
+
 #if ENABLE_MIRROR
 enum class FretMask : uint32_t
 {
@@ -355,6 +357,7 @@ void ApplyHack()
 	g_patcher.WriteJmp(fruityDetour, &fruityNaked);
 	// MIRROR MODE
 #if ENABLE_MIRROR
-	g_patcher.WriteJmp(GetFretmaskFromNoteQbArrayDetour, GetMirroredFretmaskFromNoteQbArray);
+	if (flags & Mirror) // ANOTHER TEMP FIX FOR BATTLE
+		g_patcher.WriteJmp(GetFretmaskFromNoteQbArrayDetour, GetMirroredFretmaskFromNoteQbArray);
 #endif
 }
