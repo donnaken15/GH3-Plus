@@ -6,10 +6,12 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <Windows.h>
+#include <mmsystem.h>
 #include <d3d9.h>
 #include <D3dx9tex.h>
 
 #pragma comment(lib, "E:\\D3D9\\d3dx9.lib")
+#pragma comment(lib, "winmm.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
 static void *D3DPPpi = (void *)0x0057BB79;
@@ -86,6 +88,47 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 	return 1;
 }
 
+// copied from my OGL game test
+HANDLE frameLimiter;
+typedef long long dl;
+typedef unsigned long long dq;
+dl frameBase, frameTime;
+dl LAG_0, LAG_1;
+dl CLOCK_FREQ;
+float frameRate = 60.0f;
+
+#define FRAMERATE_FROM_QB 1
+
+#include <gh3\GH3Functions.h>
+
+static void* beforeMainloopDetour = (void*)0x00401FFD;
+void initFrameTimer()
+{
+	QueryPerformanceFrequency((LARGE_INTEGER*)&CLOCK_FREQ);
+	frameBase = -((float)(CLOCK_FREQ) / frameRate);
+	frameLimiter = CreateWaitableTimer(NULL, 1, NULL);
+}
+static void* beforePresentDetour = (void*)0x0048453B;
+void frameLimit()
+{
+#if (FRAMERATE_FROM_QB)
+	float frameRate = GlobalMapGetInt(QbKey("fps_max")); // can't get a float >:(
+#endif
+	if (!frameRate)
+	{
+		return;
+	}
+	timeBeginPeriod(1);
+	QueryPerformanceCounter((LARGE_INTEGER*)&frameTime);
+	frameBase = -((float)(CLOCK_FREQ) / frameRate);
+	frameTime += frameBase - LAG_1;
+	SetWaitableTimer(frameLimiter, (LARGE_INTEGER*)&frameTime, 0, NULL, NULL, 0);
+	WaitForSingleObject(frameLimiter, INFINITE);
+	QueryPerformanceCounter((LARGE_INTEGER*)&LAG_1);
+	timeEndPeriod(1);
+	// still unstable around 120 FPS :toolcoder:
+}
+
 static char inipath[MAX_PATH];
 static char test[10];
 static int*presint = (int*)0x00C5B934;
@@ -98,6 +141,9 @@ void ApplyHack()
 	g_patcher.WriteInt8(CD, GetPrivateProfileIntA("ActionReplay", "CD", 1, inipath));
 	vsync = GetPrivateProfileIntA("Misc", "VSync", 1, inipath);
 	borderless = GetPrivateProfileIntA("Misc", "Borderless", 0, inipath);
+#if (!FRAMERATE_FROM_QB)
+	frameRate = GetPrivateProfileIntA("Player", "MaxFPS", 60, inipath);
+#endif
 	//(*d3ddev)->
 	if (!vsync)
 	{
@@ -111,4 +157,6 @@ void ApplyHack()
 	}
 	g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
 	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
+	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
+	g_patcher.WriteCall(beforePresentDetour, frameLimit);
 }
