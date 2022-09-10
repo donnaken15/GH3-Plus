@@ -95,7 +95,7 @@ typedef unsigned long long dq;
 dl frameBase, frameTime;
 dl LAG_0, LAG_1;
 dl CLOCK_FREQ;
-float frameRate = 60.0f;
+float frameRate = 60.0f; // target FPS limit
 
 #define FRAMERATE_FROM_QB 1
 
@@ -112,7 +112,7 @@ static void* beforePresentDetour = (void*)0x0048453B;
 void frameLimit()
 {
 #if (FRAMERATE_FROM_QB)
-	float frameRate = GlobalMapGetInt(QbKey("fps_max")); // can't get a float >:(
+	frameRate = GlobalMapGetInt(QbKey("fps_max")); // can't get a float >:(
 #endif
 	if (!frameRate)
 	{
@@ -133,6 +133,39 @@ static char inipath[MAX_PATH];
 static char test[10];
 static int*presint = (int*)0x00C5B934;
 static char*CD = (char*)0x00B45A11;
+
+// patch framerate fixed velocity and friction of particles
+float frameFrac = 60.0f;
+static void* Upd2DPSys_detour = (void*)0x00428E4C;
+__declspec(naked) void velocityFix()
+{
+	static const uint32_t returnAddress = 0x00428E51;
+	__asm {
+		movss   dword ptr[esi + 8], xmm3;
+
+		// this is our velocity mod
+		// velMod =
+		movss   xmm4, dword ptr frameRate; // (frameRate
+		divss   xmm4, dword ptr frameFrac; // /frameFrac)
+		divss   xmm1, xmm4; // vel = vel * velMod
+
+		jmp returnAddress;
+	}
+}
+static void* Upd2DPSys_detour2 = (void*)0x00429178;
+__declspec(naked) void velocityFix2()
+{
+	static const uint32_t returnAddress = 0x0042917D;
+	__asm {
+		movss   dword ptr[esi + 8], xmm5;
+
+		movss   xmm6, dword ptr frameRate;
+		divss   xmm6, dword ptr frameFrac;
+		divss   xmm3, xmm6;
+
+		jmp returnAddress;
+	}
+}
 
 void ApplyHack()
 {
@@ -159,4 +192,7 @@ void ApplyHack()
 	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
 	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
 	g_patcher.WriteCall(beforePresentDetour, frameLimit);
+	//g_patcher.WriteCall(deltaDetour, deltaFix);
+	g_patcher.WriteJmp(Upd2DPSys_detour, velocityFix);
+	g_patcher.WriteJmp(Upd2DPSys_detour2, velocityFix2);
 }

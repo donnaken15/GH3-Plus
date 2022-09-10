@@ -11,9 +11,10 @@ get_song_artist(song=%song,with_year=0);
 FormatText(textname=text, '%a - %t', t = %song_title, a = %song_artist);
 modetext = 'Unknown mode';
 smlimage = '';
-lrgimage = 'slash_hat';
+lrgimage = 'slash_hat'; // fastgh3: main_icon // gh3+: slash_hat
 smltxt = '';
-lrgtxt = 'Expert'; // set automatically
+get_difficulty_text(difficulty=(*current_difficulty));
+FormatText(textname=lrgtxt,'%d',d=%difficulty_text);
 //get_game_mode_ui_string(game_mode=%mode);
 // TODO: use global struct
 // actually theres already a struct in globaltags
@@ -54,6 +55,11 @@ elseif (%mode == p2_coop)
 {
 	modetext = 'Co-op';
 	smlimage = 'coop';
+}
+if (*boss_battle == 1)
+{
+	modetext = 'Boss Battle';
+	smlimage = 'battle';
 }
 // trust me, i'd love to use switch
 // but it's not working for some reason
