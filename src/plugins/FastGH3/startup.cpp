@@ -167,6 +167,34 @@ __declspec(naked) void velocityFix2()
 	}
 }
 
+int BossAttack_waitFrames = 100;
+// TODO: use global value/create boss props value
+int BossAttack_waitFrames_ = BossAttack_waitFrames;
+static void* BossWaitForAttack_framesDetour1 = (void*)0x00D7EBF1;
+__declspec(naked) void BWFA_frames2Realtime1()
+{
+	static const uint32_t returnAddress = 0x00D7EBF8;
+	BossAttack_waitFrames_ = (float)(BossAttack_waitFrames) * (frameRate / frameFrac);
+	__asm {
+		mov edx, BossAttack_waitFrames_;
+		mov dword ptr[esi + 0Ch], edx;
+
+		jmp returnAddress;
+	}
+}
+static void* BossWaitForAttack_framesDetour2 = (void*)0x00D7EC0B;
+__declspec(naked) void BWFA_frames2Realtime2()
+{
+	static const uint32_t returnAddress = 0x00D7EC12;
+	BossAttack_waitFrames_ = (float)(BossAttack_waitFrames) * (frameRate / frameFrac);
+	__asm {
+		mov edx, BossAttack_waitFrames_;
+		mov dword ptr[esi + 0Ch], edx;
+
+		jmp returnAddress;
+	}
+}
+
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -195,4 +223,6 @@ void ApplyHack()
 	//g_patcher.WriteCall(deltaDetour, deltaFix);
 	g_patcher.WriteJmp(Upd2DPSys_detour, velocityFix);
 	g_patcher.WriteJmp(Upd2DPSys_detour2, velocityFix2);
+	g_patcher.WriteJmp(BossWaitForAttack_framesDetour1, BWFA_frames2Realtime1);
+	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
 }
