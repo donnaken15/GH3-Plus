@@ -2,7 +2,7 @@ script({
 	int player = 1;
 }) {
 
-if (*current_num_players == 2)
+if (*current_num_players == 2 || *toggle_particles > 1)
 {
 	return;
 }

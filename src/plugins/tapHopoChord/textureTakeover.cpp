@@ -290,7 +290,7 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 
 	case static_cast<uint32_t>(OpenHitFx1TextureKey) :
 	case static_cast<uint32_t>(OpenHitFx2TextureKey) :
-		return GH3::QbKey(SYSTEX("sys_Particle_lnzflare02")); // additive texture
+		return GH3::QbKey(SYSTEX("sys_Particle_Star02")); // additive texture
 #endif
 
 	default:

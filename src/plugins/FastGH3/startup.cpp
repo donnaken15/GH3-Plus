@@ -135,7 +135,9 @@ static int*presint = (int*)0x00C5B934;
 static char*CD = (char*)0x00B45A11;
 
 // patch framerate fixed velocity and friction of particles
+// TODO: use actual current frame rate and not the limit
 float frameFrac = 60.0f;
+float*g_gameSpeed1 = (float*)0x009596B4;
 static void* Upd2DPSys_detour = (void*)0x00428E4C;
 __declspec(naked) void velocityFix()
 {
@@ -147,7 +149,11 @@ __declspec(naked) void velocityFix()
 		// velMod =
 		movss   xmm4, dword ptr frameRate; // (frameRate
 		divss   xmm4, dword ptr frameFrac; // /frameFrac)
+		push    eax;
+		mov     eax,  dword ptr g_gameSpeed1; // also apply fix for slomo
+		divss   xmm4, [eax];
 		divss   xmm1, xmm4; // vel = vel * velMod
+		pop     eax;
 
 		jmp returnAddress;
 	}
@@ -161,7 +167,11 @@ __declspec(naked) void velocityFix2()
 
 		movss   xmm6, dword ptr frameRate;
 		divss   xmm6, dword ptr frameFrac;
+		push    eax;
+		mov     eax,  dword ptr g_gameSpeed1;
+		divss   xmm6, [eax];
 		divss   xmm3, xmm6;
+		pop     eax;
 
 		jmp returnAddress;
 	}
