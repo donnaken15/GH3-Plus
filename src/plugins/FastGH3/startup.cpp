@@ -180,6 +180,7 @@ __declspec(naked) void velocityFix2()
 int BossAttack_waitFrames = 100;
 // TODO: use global value/create boss props value
 int BossAttack_waitFrames_ = BossAttack_waitFrames;
+// could i probably make this more efficent by using GetSongTime and setting wait time to 1 until (100 frames in seconds) is reached
 static void* BossWaitForAttack_framesDetour1 = (void*)0x00D7EBF1;
 __declspec(naked) void BWFA_frames2Realtime1()
 {
@@ -205,6 +206,32 @@ __declspec(naked) void BWFA_frames2Realtime2()
 	}
 }
 
+float* GameRes_X = (float*)0x00C5E6B0;
+float resCurrent = 1280.0f;
+float resFrac = 1280.0f;
+float dummy;
+static void* whammyWidth_Detour = (void*)0x0060354C;
+__declspec(naked) void whammyWidthFix()
+{
+	static const uint32_t returnAddress = 0x00603552;
+	__asm {
+		movss   dummy, xmm0;
+
+		push    eax;
+		mov     eax, dword ptr GameRes_X;
+		movss   xmm0, [eax];
+		movss   resCurrent, xmm0;
+		pop     eax;
+	}
+	// ez hack overwriting xmm0 using temporary math operations
+	dummy = dummy * (resCurrent / resFrac);
+	__asm {
+		movss   [esp + 58h], xmm0;
+
+		jmp returnAddress;
+	}
+}
+
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -223,10 +250,9 @@ void ApplyHack()
 	}
 	g_patcher.WriteJmp(hWndDetour, hWndHack);
 	if (!borderless)
-	{
 		g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
-	}
-	g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
+	else
+		g_patcher.WriteInt32(wndStyle, WS_POPUP);
 	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
 	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
 	g_patcher.WriteCall(beforePresentDetour, frameLimit);
@@ -235,4 +261,5 @@ void ApplyHack()
 	g_patcher.WriteJmp(Upd2DPSys_detour2, velocityFix2);
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour1, BWFA_frames2Realtime1);
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
+	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
 }
