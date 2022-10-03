@@ -41,6 +41,32 @@ uint32_t g_gemMatTapSp[6] = {
 	OrangeTapStarTextureKey,
 	StarpowerTapTextureKey
 };
+#ifdef OVERLAPPING_STARPOWER
+uint32_t g_gemMatSpSp[6] = {
+	StarStarTextureKey,
+	StarStarTextureKey,
+	StarStarTextureKey,
+	StarStarTextureKey,
+	StarStarTextureKey,
+	OpenStarStarTextureKey
+};
+uint32_t g_gemMatHammerSpSp[6] = {
+	StarHammerStarTextureKey,
+	StarHammerStarTextureKey,
+	StarHammerStarTextureKey,
+	StarHammerStarTextureKey,
+	StarHammerStarTextureKey,
+	OpenStarHammerStarTextureKey
+};
+uint32_t g_gemMatTapSpSp[6] = {
+	StarTapStarTextureKey,
+	StarTapStarTextureKey,
+	StarTapStarTextureKey,
+	StarTapStarTextureKey,
+	StarTapStarTextureKey,
+	StarTapStarTextureKey
+};
+#endif
 
 uint32_t g_gemMatSp[6] = { 0 };
 uint32_t g_gemMatHammerSp[6] = { 0 };

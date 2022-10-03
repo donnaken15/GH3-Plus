@@ -145,9 +145,84 @@ __declspec(naked) void makeSpTapGemsNaked()
 	}
 }
 
+#ifdef OVERLAPPING_STARPOWER
+int overlapping_starpower;
+
+// compiler says this (with original names)
+// is both undefined and already exists
+// WTF >:(
+typedef int why2(int);
+why2* why = (why2*)(0x004A5960);
+
+int why3;
+
+float tmp;
+static void * const setSpStarGemAppearanceDetour = (void *)0x004328A5;
+void __declspec(naked) makeSpStarGemsNaked()
+{
+	static float* globalGemStartScale = reinterpret_cast<float*>(0x00A130C8);
+	static float* globalGemEndScale = reinterpret_cast<float*>(0x00A130CC);
+	static float* globalGemStarScale = reinterpret_cast<float*>(0x00A130D0);
+	const static uint32_t returnAddress  = 0x00432901;
+	const static uint32_t returnAddress2 = 0x00432956;
+
+	__asm { mov why3, eax }
+	//                      kill me
+	overlapping_starpower = why(0x4039F5F1);
+
+	// WHY DOES THIS DETOUR SCREW UP COLORS
+	// EVEN WHEN MY OWN CODE DOESN'T RUN
+	__asm
+	{
+		mov  overlapping_starpower, eax
+		mov  eax, why3
+
+		mov  edx, overlapping_starpower;
+		test edx, edx;
+		jz   RETURN_NOT_STAR;
+
+		cmp  bl, 1; // makes below key (EBX) set to `star` if 1
+		jne  RETURN_NOT_STAR;
+
+		cmp  ebp, 2;
+		jnz  STAR_NOT_TAP;
+
+		mov  edi, g_gemMatTapSpSp[eax * 4];
+		jmp  RETURN;
+
+	STAR_NOT_TAP:
+
+		cmp  ebp, 1; // hopo flag
+		jnz  STAR_NOT_HOPO;
+		mov  edi, g_gemMatHammerSpSp[eax * 4];
+		jmp  RETURN;
+	STAR_NOT_HOPO:
+		mov  edi, g_gemMatSpSp[eax * 4];
+
+	RETURN:
+		neg  bl; // ternary operation
+		sbb  ebx, ebx;
+		and  ebx, 0CF752C9Ch;
+		mov [esp + 24h] /*gemType*/, ebx;
+		jmp  returnAddress;
+		// use star scale if originally a star note
+		
+		// dumb
+	RETURN_NOT_STAR:
+		neg  bl;
+		sbb  ebx, ebx;
+		and  ebx, 0CF752C9Ch;
+		mov [esp + 24h], ebx;
+		jmp  returnAddress2;
+	}
+}
+#endif
+
 //Point to the new gem constants
 bool PatchGemConstants()
 {
+	// could this be more efficient with an array
+	// and make returning if this was successful easier
 	g_patcher.WritePointer((void *)(0x00432895 + 3), &g_gemMatHammerSp);
 	//g_patcher.WritePointer((void *)(0x0043289E + 3), &g_gemMatSp); <-- We are detouring here so don't patch this one out. Uncomment if detour is removed
 	g_patcher.WritePointer((void *)(0x004328F1 + 3), &g_gemMatHammerBattle);
@@ -243,8 +318,164 @@ void __declspec(naked) gemStepLoopFixBNaked()
 	}
 }
 
+#define CRCD(k,n) k
 
 
+#ifdef OVERLAPPING_STARPOWER
+
+char star_power_used;
+int boss_battle;
+
+// this code also allows original unpatched code to run
+// unless if overlapping_starpower in QB == 1
+
+// patch GiveSPIfPhraseIsHit
+// so star sequence can be hit with starpower on
+static void* const starpowerusedDetour1A = (void*)0x004303AD;
+void __declspec(naked) starpowerusedPatch1A()
+{
+	// exile v     wtf   v
+	static const void* const returnAddress  = (void*)0x0043042E;
+	static const void* const returnAddress2 = (void*)0x004303B5;
+	static const void* const SP_NOT_USED = (void*)0x00430422;
+	static int* bossbattle = (int*)0x00A12BC0;
+	__asm { push eax }
+	// why is QbKey constexpr f%$#ing up here
+	// i was actually going schizophrenic that
+	// it was the below assembly's fault
+	
+	overlapping_starpower = why(CRCD(0x4039F5F1,"overlapping_starpower"));
+	//         ns oldskool style ^
+	__asm {
+		pop  eax;
+
+		//jmp  OFF; a cliff re*%#@ed compiler
+		mov  ecx, overlapping_starpower;
+		test ecx, ecx;
+		jnz  ACTIVE;
+
+	OFF:
+		test al, al;
+		jz   SP_NOT_USED_;
+		mov  eax, [esp + 14h - 4h];
+		jmp  returnAddress2;
+
+	ACTIVE:
+		jmp  returnAddress;
+
+	SP_NOT_USED_:
+		jmp  SP_NOT_USED;
+	}
+}
+
+// AwardSP patches
+// add starpower amount for player
+static void* const starpowerusedDetour1B = (void*)0x00424941;
+void __declspec(naked) starpowerusedPatch1B()
+{
+	static const void* const returnAddress  = (void*)0x0042495F;
+	static const void* const returnAddress2 = (void*)0x00424947;
+	static const void* const SP_NOT_USED = (void*)0x00424954;
+	__asm { push eax }
+	overlapping_starpower = why(CRCD(0x4039F5F1, "overlapping_starpower"));
+	__asm {
+		pop  eax;
+		// i forgot what this was for, for a moment
+
+		mov  edx, overlapping_starpower;
+		test edx, edx;
+		jnz  ACTIVE;
+
+	OFF:
+		test al, al;
+		jnz  SP_NOT_USED_;
+		push 1;
+		jmp  returnAddress2;
+
+	ACTIVE:
+		mov  edx, [esp + 0Ch]; // stupid
+		mov  star_power_used,  dl;
+		jmp  returnAddress;
+
+	SP_NOT_USED_:
+		jmp  SP_NOT_USED;
+	}
+}
+const float const_50_0 = 50.0f; // should use original direct value but whatever
+static void* const starpowerusedDetour1C = (void*)0x00424A22;
+void __declspec(naked) starpowerusedPatch1C()
+{
+	static const void* const returnAddress = (void*)0x00424AD0;
+	static const void* const returnAddress2 = (void*)0x00424A2A;
+	__asm { push eax }
+	overlapping_starpower = why(CRCD(0x4039F5F1, "overlapping_starpower"));
+	__asm {
+		pop  eax;
+		//jmp  OFF; // literally
+		mov  edx, overlapping_starpower;
+		test edx, edx;
+		jz   OFF;
+		mov   dl, star_power_used;
+		test  dl,  dl; // if (%star_power_used == 1)
+		jnz  ACTIVE;
+
+	OFF:
+		movss xmm0, const_50_0;
+		jmp  returnAddress2; // continue condition
+
+	ACTIVE:
+		jmp  returnAddress; // skip condition
+	}
+}
+
+// detour of "highwayGemSub"'s action star_power_on
+// patched to change star gems to my custom textures
+// instead of normal gems
+// 
+// 00A15860 = array of type of highway elements (gem,star,fretbar,etc)
+// 00A16860 = gem colors (noname when not a gem or star)
+// actually don't need to use these because the game automatically
+// applies my patch for the gems i want to be stars :)
+static void* const starpowerusedDetour1D = (void*)0x00427A8A;
+void __declspec(naked) starpowerusedPatch1D()
+{
+	static const void* const returnAddress = (void*)0x00427A8F;
+	static const void* const returnAddress2 = (void*)0x00427647;
+	static const int star = CRCD(0x3624A5EB, "star");
+	static const int gem  = CRCD(0x66AF794F, "gem");
+	static const int starstar     = StarStarTextureKey;
+	static const int starstarhopo = StarHammerStarTextureKey;
+	static const int starstartap  = StarTapStarTextureKey;
+	overlapping_starpower = why(CRCD(0x4039F5F1, "overlapping_starpower"));
+	__asm {
+		mov  eax, overlapping_starpower;
+		test eax, eax;
+		jz   OFF;
+
+	ACTIVE:
+		// cmp A15860+(4*i) = star
+		mov  eax, starstar;
+		cmp [esp + 14h], 0; // hopo
+		jz   STRUM;
+		mov  eax, starstarhopo;
+		cmp [esp + 14h], 2; // tap
+		je   TAP;
+		jmp  STRUM;
+		// TODO: scale these
+		// use code from where another patch jumps to?
+	TAP:
+		mov  eax, starstartap;
+
+	STRUM:
+		push eax;
+		jmp  returnAddress2;
+
+	OFF: // or just a gem
+		cmp [esp + 14h], 0;
+		jmp  returnAddress;
+	}
+}
+#endif
 
 
 
@@ -261,6 +492,16 @@ bool TryApplyGemLoadingPatches()
 		!g_patcher.WriteJmp(setSpGemAppearanceDetour, &makeSpTapGemsNaked) ||
 		!PatchGemConstants())
 		return false;
+
+#ifdef OVERLAPPING_STARPOWER
+	if (!g_patcher.WriteJmp(setSpStarGemAppearanceDetour, &makeSpStarGemsNaked) ||
+		!g_patcher.WriteJmp(starpowerusedDetour1A, starpowerusedPatch1A) ||
+		!g_patcher.WriteJmp(starpowerusedDetour1B, starpowerusedPatch1B) ||
+		!g_patcher.WriteJmp(starpowerusedDetour1C, starpowerusedPatch1C) ||
+		!g_patcher.WriteJmp(starpowerusedDetour1D, starpowerusedPatch1D)
+		)
+		return false;
+#endif
 
 	if (!g_patcher.WriteJmp(gemStepLoopDetourA, gemStepLoopFixANaked) ||
 		!g_patcher.WriteInt8((void*)(0x00435B92+2), 6))

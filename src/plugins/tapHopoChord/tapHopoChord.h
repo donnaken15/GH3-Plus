@@ -6,6 +6,7 @@
 #include "gh3\QbArray.h"
 
 #define OPEN_NOTEFX 1
+#define OVERLAPPING_STARPOWER 1
 
 // dont use, broken
 // also i wont give out the required zones lol
@@ -102,6 +103,14 @@ constexpr GH3::QbKey RawOpenHitFx2TextureKey =			"images\\highway\\openfx2.img";
 constexpr GH3::QbKey RawOpenAnimStarpowerTextureKey =		"images\\highway\\gem2d_open_starpower_anim.img";
 constexpr GH3::QbKey RawOpenAnimStarpowerHammerTextureKey = "images\\highway\\gem2d_open_hammer_starpower_anim.img";
 
+#ifdef OVERLAPPING_STARPOWER
+constexpr GH3::QbKey RawStarStarTextureKey =			"images\\highway\\star2d_star.img";
+constexpr GH3::QbKey RawStarHammerStarTextureKey =		"images\\highway\\star2d_star_hammer.img";
+constexpr GH3::QbKey RawStarTapStarTextureKey =			"images\\highway\\star2d_star_tap.img";
+constexpr GH3::QbKey RawOpenStarStarTextureKey =		"images\\highway\\star2d_open_star.img";
+constexpr GH3::QbKey RawOpenStarHammerStarTextureKey =	"images\\highway\\star2d_open_hammer_star.img";
+#endif
+
 constexpr GH3::QbKey OpenTextureKey =					SYSTEX("sys_gem2d_open");
 constexpr GH3::QbKey OpenHammerTextureKey =				SYSTEX("sys_gem2d_open_hammer");
 constexpr GH3::QbKey OpenStarTextureKey =				SYSTEX("sys_star2d_open");
@@ -113,6 +122,14 @@ constexpr GH3::QbKey OpenWhammyStarTextureKey =			SYSTEX("sys_whammy2d_open_star
 constexpr GH3::QbKey OpenWhammyDeadTextureKey =			SYSTEX("sys_whammy2d_open_dead");
 constexpr GH3::QbKey OpenHitFx1TextureKey =				SYSTEX("sys_openfx1");
 constexpr GH3::QbKey OpenHitFx2TextureKey =				SYSTEX("sys_openfx2");
+
+#ifdef OVERLAPPING_STARPOWER
+constexpr GH3::QbKey StarStarTextureKey =				SYSTEX("sys_star2d_star");
+constexpr GH3::QbKey StarHammerStarTextureKey =			SYSTEX("sys_star2d_hammer");
+constexpr GH3::QbKey StarTapStarTextureKey =			SYSTEX("sys_star2d_tap");
+constexpr GH3::QbKey OpenStarStarTextureKey =			SYSTEX("sys_star2d_open_star_star");
+constexpr GH3::QbKey OpenStarHammerStarTextureKey =		SYSTEX("sys_star2d_open_star_hammer");
+#endif
 
 constexpr GH3::QbKey OpenTapTextureKey =				SYSTEX("sys_gem2d_open_tap");
 constexpr GH3::QbKey OpenAnimTextureKey =				SYSTEX("sys_gem2d_open_anim");
@@ -404,6 +421,12 @@ extern uint32_t g_gemMatSpWhammy[6];
 
 extern uint32_t g_gemMatTapStar[6];
 
+
+#ifdef OVERLAPPING_STARPOWER
+extern uint32_t g_gemMatSpSp[6];
+extern uint32_t g_gemMatHammerSpSp[6];
+extern uint32_t g_gemMatTapSpSp[6];
+#endif
 
 extern uint32_t g_gemMatRainbow[6];
 extern uint32_t g_gemMatRainbowHammer[6];

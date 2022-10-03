@@ -61,6 +61,7 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 {
 	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
 	// "just make it a separate plugin"
+	// also UPX
 #if 0
 	IDirect3DSurface9* pSurface; // do i really need two surfaces???
 	IDirect3DSurface9* surf;
@@ -93,7 +94,7 @@ HANDLE frameLimiter;
 typedef long long dl;
 typedef unsigned long long dq;
 dl frameBase, frameTime;
-dl LAG_0, LAG_1;
+dl LAG_1, LAG_2;
 dl CLOCK_FREQ;
 float frameRate = 60.0f; // target FPS limit
 
@@ -101,13 +102,18 @@ float frameRate = 60.0f; // target FPS limit
 
 #include <gh3\GH3Functions.h>
 
+float realFPS;
+bool couldntCap = false;
+
 static void* beforeMainloopDetour = (void*)0x00401FFD;
 void initFrameTimer()
 {
 	QueryPerformanceFrequency((LARGE_INTEGER*)&CLOCK_FREQ);
 	frameBase = -((float)(CLOCK_FREQ) / frameRate);
-	frameLimiter = CreateWaitableTimer(NULL, 1, NULL);
+	frameLimiter = CreateWaitableTimerA(NULL, 1, NULL);
 }
+//extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
+
 static void* beforePresentDetour = (void*)0x0048453B;
 void frameLimit()
 {
@@ -116,17 +122,70 @@ void frameLimit()
 #endif
 	if (!frameRate)
 	{
+		couldntCap = true;
+		timeBeginPeriod(1);
+		QueryPerformanceCounter((LARGE_INTEGER*)&LAG_1);
+		timeEndPeriod(1);
 		return;
 	}
 	timeBeginPeriod(1);
+	/*dl tmp;
+	* DOESNT WORK
+	if (NtSetTimerResolution(10000, TRUE, (PULONG) & tmp)) {
+		exit(0);
+	}*/
+	// get timestamp before rendering a frame
 	QueryPerformanceCounter((LARGE_INTEGER*)&frameTime);
+	// and then do math to set how much time to wait
+	// subtracted by how much time game code ran for
 	frameBase = -((float)(CLOCK_FREQ) / frameRate);
 	frameTime += frameBase - LAG_1;
-	SetWaitableTimer(frameLimiter, (LARGE_INTEGER*)&frameTime, 0, NULL, NULL, 0);
-	WaitForSingleObject(frameLimiter, INFINITE);
+	if (frameTime < 0) // positive value means absolute time for these funcs but
+		// guessing that if it didnt get a time long enough to subtract
+		// frame rate delta from it without going inverse, make later
+		// function rely on game's original delta
+		// because somehow, even when the limit isnt reached
+		// when vsync is on, and despite changing the code,
+		// so the particles have to rely on two timestamps,
+		// the particles still act like its using the unreachable limit
+		// WTFFFFFFF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	{
+		couldntCap = false;
+		SetWaitableTimer(frameLimiter, (LARGE_INTEGER*)&frameTime, 0, NULL, NULL, 0);
+		WaitForSingleObject(frameLimiter, INFINITE);
+	}
+	else
+		couldntCap = true;
 	QueryPerformanceCounter((LARGE_INTEGER*)&LAG_1);
 	timeEndPeriod(1);
 	// still unstable around 120 FPS :toolcoder:
+}
+typedef int lol2();
+lol2* lol = (lol2*)(0x00492780);
+static void* afterPresentDetour = (void*)0x0048458B;
+float* g_delta = (float*)0x009596BC;
+//int test2 = 0;
+void lagBegin()
+{
+	lol();
+	if (!couldntCap) // stupid
+		realFPS = 1.0f / ((float)(LAG_1 - LAG_2) / 10000000);
+	else // read line 143 for why this is like this
+		realFPS = 1.0f / *g_delta;
+	timeBeginPeriod(1);
+	/*test2++;
+	// check delta so im not getting alzheimers for real
+	// FPS count and limiting still fluctuates
+	if (test2 > 100)
+	{
+		char test[11];
+		sprintf(test,"%f",1.0f/realFPS);
+		MessageBoxA(0,test,"",0);
+		test2 = 0;
+	}*/
+	//get a timestamp immediately after rendering a frame
+	QueryPerformanceCounter((LARGE_INTEGER*)&LAG_2);
+	timeEndPeriod(1);
 }
 
 static char inipath[MAX_PATH];
@@ -135,7 +194,6 @@ static int*presint = (int*)0x00C5B934;
 static char*CD = (char*)0x00B45A11;
 
 // patch framerate fixed velocity and friction of particles
-// TODO: use actual current frame rate and not the limit
 float frameFrac = 60.0f;
 float*g_gameSpeed1 = (float*)0x009596B4;
 static void* Upd2DPSys_detour = (void*)0x00428E4C;
@@ -147,10 +205,10 @@ __declspec(naked) void velocityFix()
 
 		// this is our velocity mod
 		// velMod =
-		movss   xmm4, dword ptr frameRate; // (frameRate
+		movss   xmm4, dword ptr realFPS; // (frameRate
 		divss   xmm4, dword ptr frameFrac; // /frameFrac)
 		push    eax;
-		mov     eax,  dword ptr g_gameSpeed1; // also apply fix for slomo
+		mov     eax , dword ptr g_gameSpeed1; // also apply fix for slomo
 		divss   xmm4, [eax];
 		divss   xmm1, xmm4; // vel = vel * velMod
 		pop     eax;
@@ -165,13 +223,27 @@ __declspec(naked) void velocityFix2()
 	__asm {
 		movss   dword ptr[esi + 8], xmm5;
 
-		movss   xmm6, dword ptr frameRate;
+		movss   xmm6, dword ptr realFPS;
 		divss   xmm6, dword ptr frameFrac;
 		push    eax;
-		mov     eax,  dword ptr g_gameSpeed1;
+		mov     eax , dword ptr g_gameSpeed1;
 		divss   xmm6, [eax];
 		divss   xmm3, xmm6;
 		pop     eax;
+
+		/*
+		* tried to fix for particles
+		* falling shorter and slower
+		* with slomo when FPS is not
+		* limited
+		cmp     couldntCap, 0;
+		jnz     COULDNT_CAP;
+		divss   xmm4, [eax];
+		jmp     SKIP;
+	COULDNT_CAP:
+		mulss   xmm4, [eax];
+	SKIP:
+		*/
 
 		jmp returnAddress;
 	}
@@ -185,7 +257,7 @@ static void* BossWaitForAttack_framesDetour1 = (void*)0x00D7EBF1;
 __declspec(naked) void BWFA_frames2Realtime1()
 {
 	static const uint32_t returnAddress = 0x00D7EBF8;
-	BossAttack_waitFrames_ = (float)(BossAttack_waitFrames) * (frameRate / frameFrac);
+	BossAttack_waitFrames_ = (float)(BossAttack_waitFrames) * (realFPS / frameFrac);
 	__asm {
 		mov edx, BossAttack_waitFrames_;
 		mov dword ptr[esi + 0Ch], edx;
@@ -197,7 +269,7 @@ static void* BossWaitForAttack_framesDetour2 = (void*)0x00D7EC0B;
 __declspec(naked) void BWFA_frames2Realtime2()
 {
 	static const uint32_t returnAddress = 0x00D7EC12;
-	BossAttack_waitFrames_ = (float)(BossAttack_waitFrames) * (frameRate / frameFrac);
+	BossAttack_waitFrames_ = (float)(BossAttack_waitFrames) * (realFPS / frameFrac);
 	__asm {
 		mov edx, BossAttack_waitFrames_;
 		mov dword ptr[esi + 0Ch], edx;
@@ -219,7 +291,9 @@ __declspec(naked) void whammyWidthFix()
 
 		push    eax;
 		mov     eax, dword ptr GameRes_X;
-		movss   xmm0, [eax];
+		movss   xmm0, [eax]; // couldnt i just mov value, [eax]
+		// what's even the point of this in compilation
+		// when nothing is being done to the float
 		movss   resCurrent, xmm0;
 		pop     eax;
 	}
@@ -242,6 +316,13 @@ void ApplyHack()
 #if (!FRAMERATE_FROM_QB)
 	frameRate = GetPrivateProfileIntA("Player", "MaxFPS", 60, inipath);
 #endif
+	// try something with this
+	// and see if fixing whammy speed
+	// is possible with this
+	// (code limits width values to 144 floats)
+	// since just setting wibble speed
+	// from QB wont do jack if above 120 FPS
+	// (with it set to 1 instead of 2)
 	//(*d3ddev)->
 	if (!vsync)
 	{
@@ -256,7 +337,7 @@ void ApplyHack()
 	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
 	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
 	g_patcher.WriteCall(beforePresentDetour, frameLimit);
-	//g_patcher.WriteCall(deltaDetour, deltaFix);
+	g_patcher.WriteCall(afterPresentDetour, lagBegin);
 	g_patcher.WriteJmp(Upd2DPSys_detour, velocityFix);
 	g_patcher.WriteJmp(Upd2DPSys_detour2, velocityFix2);
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour1, BWFA_frames2Realtime1);

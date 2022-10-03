@@ -113,7 +113,11 @@ void ApplyHack()
 	params.activity_events = &activities_events;
 	params.relationship_events = &relationships_events;
 	params.user_events = &users_events;
-	DiscordCreate(DISCORD_VERSION, &params, &app.core);
+	if (DiscordCreate(DISCORD_VERSION, &params, &app.core) != DiscordResult_Ok)
+	{
+		return; // give up if returning nonzero ^
+	}
+	// trash app
 
 	app.users = app.core->get_user_manager(app.core);
 	app.achievements = app.core->get_achievement_manager(app.core);

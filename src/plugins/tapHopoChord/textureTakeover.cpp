@@ -132,6 +132,13 @@ static constexpr GH3::QbKey g_rawKeys[] = {
 	RawOpenHitFx1TextureKey,
 	RawOpenHitFx2TextureKey,
 #endif
+#if OVERLAPPING_STARPOWER
+	RawStarStarTextureKey,
+	RawStarHammerStarTextureKey,
+	RawStarTapStarTextureKey,
+	RawOpenStarStarTextureKey,
+	RawOpenStarHammerStarTextureKey,
+#endif
 	RawGreenTapTextureKey,
 	RawRedTapTextureKey,
 	RawYellowTapTextureKey,
@@ -180,6 +187,13 @@ static constexpr GH3::QbKey g_textureKeys[] = {
 	OpenWhammyDeadTextureKey,
 	OpenHitFx1TextureKey,
 	OpenHitFx2TextureKey,
+#endif
+#if OVERLAPPING_STARPOWER
+	StarStarTextureKey,
+	StarHammerStarTextureKey,
+	StarTapStarTextureKey,
+	OpenStarStarTextureKey,
+	OpenStarHammerStarTextureKey,
 #endif
 	GreenTapTextureKey,
 	RedTapTextureKey,
@@ -242,7 +256,12 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 	case static_cast<uint32_t>(RedTapStarTextureKey) :
 	case static_cast<uint32_t>(YellowTapStarTextureKey) :
 	case static_cast<uint32_t>(BlueTapStarTextureKey) :
-	case static_cast<uint32_t>(OrangeTapStarTextureKey) :
+	case static_cast<uint32_t>(OrangeTapStarTextureKey):
+#ifdef OVERLAPPING_STARPOWER
+	case static_cast<uint32_t>(StarStarTextureKey):
+	case static_cast<uint32_t>(StarTapStarTextureKey):
+	case static_cast<uint32_t>(OpenStarStarTextureKey):
+#endif
 #ifdef RAINBOW
 	case static_cast<uint32_t>(Rainbow1TextureKey) :
 	case static_cast<uint32_t>(Rainbow2TextureKey) :
@@ -267,7 +286,11 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 #endif
 		return YellowStarTextureKey;
 
-	case static_cast<uint32_t>(OpenStarHammerTextureKey) :
+	case static_cast<uint32_t>(OpenStarHammerTextureKey):
+#ifdef OVERLAPPING_STARPOWER
+	case static_cast<uint32_t>(StarHammerStarTextureKey):
+	case static_cast<uint32_t>(OpenStarHammerStarTextureKey):
+#endif
 		return YellowStarHammerTextureKey;
 
 	case static_cast<uint32_t>(OpenStarpowerTextureKey) :
@@ -313,7 +336,13 @@ bool constexpr isTextureKey(GH3::QbKey key)
 		key == OpenHitFx1TextureKey ||
 		key == OpenHitFx2TextureKey
 #endif
-		
+#ifdef OVERLAPPING_STARPOWER
+		|| key == StarStarTextureKey ||
+		key == StarHammerStarTextureKey ||
+		key == StarTapStarTextureKey ||
+		key == OpenStarStarTextureKey ||
+		key == OpenStarHammerStarTextureKey
+#endif
 		|| key == GreenTapTextureKey ||
 		key == RedTapTextureKey ||
 		key == YellowTapTextureKey ||
