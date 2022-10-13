@@ -97,6 +97,8 @@ void DiscordCallbacks()
 #define RPC_FASTGH3 true
 constexpr unsigned long long RPC_ID = RPC_FASTGH3 ? 385161862586695686 : 940793683144507492;
 
+int why;
+
 void ApplyHack()
 {
 
@@ -113,20 +115,26 @@ void ApplyHack()
 	params.activity_events = &activities_events;
 	params.relationship_events = &relationships_events;
 	params.user_events = &users_events;
-	if (DiscordCreate(DISCORD_VERSION, &params, &app.core) != DiscordResult_Ok)
+	why = DiscordCreate(DISCORD_VERSION, &params, &app.core);
+	/*if (DiscordCreate(DISCORD_VERSION, &params, &app.core) != DiscordResult_Ok)
 	{
 		return; // give up if returning nonzero ^
-	}
+		// THIS CLOSES THE GAME WHEN DISCORD IS NOT OPEN
+		WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
+	}*/
 	// trash app
 
-	app.users = app.core->get_user_manager(app.core);
-	app.achievements = app.core->get_achievement_manager(app.core);
-	app.activities = app.core->get_activity_manager(app.core);
-	app.application = app.core->get_application_manager(app.core);
-	app.lobbies = app.core->get_lobby_manager(app.core);
+	if (!why)
+	{
+		app.users = app.core->get_user_manager(app.core);
+		app.achievements = app.core->get_achievement_manager(app.core);
+		app.activities = app.core->get_activity_manager(app.core);
+		app.application = app.core->get_application_manager(app.core);
+		app.lobbies = app.core->get_lobby_manager(app.core);
 
-	g_patcher.WriteCall(gameFrameDetour, DiscordCallbacks);
-	g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
+		g_patcher.WriteCall(gameFrameDetour, DiscordCallbacks);
+		g_patcher.WriteJmp((void*)0x004CDF43, UpdatePresence);
+	}
 	//g_patcher.WritePointer((void*)0x00957094, UpdatePresence);
 	// ^ use if i can get ahead of cfunc init without breaking something
 	// and not have to depend on an already patched EXE to change
@@ -135,5 +143,6 @@ void ApplyHack()
 
 void Shutdown()
 {
-	app.activities->clear_activity(app.activities, 0, 0);
+	if (!why)
+		app.activities->clear_activity(app.activities, 0, 0);
 }

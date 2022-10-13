@@ -10,7 +10,7 @@ using namespace GH3;
 
 // needs cleanup i think
 
-typedef int CFunc(QbStruct* str, QbScript* scr);
+typedef int CFunc(QbStruct*params, QbScript*_this);
 typedef int CFuncI(int);
 typedef int CFuncF(float);
 typedef int CFuncI2(int, int);

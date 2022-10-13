@@ -125,10 +125,10 @@ static constexpr GH3::QbKey g_rawKeys[] = {
 	RawOpenStarHammerTextureKey,
 	RawOpenStarpowerTextureKey,
 	RawOpenStarpowerHammerTextureKey,
-#if OPEN_NOTEFX
 	RawOpenWhammyTextureKey,
 	RawOpenWhammyStarTextureKey,
 	RawOpenWhammyDeadTextureKey,
+#if OPEN_NOTEFX
 	RawOpenHitFx1TextureKey,
 	RawOpenHitFx2TextureKey,
 #endif
@@ -181,10 +181,10 @@ static constexpr GH3::QbKey g_textureKeys[] = {
 	OpenStarHammerTextureKey,
 	OpenStarpowerTextureKey,
 	OpenStarpowerHammerTextureKey,
-#if OPEN_NOTEFX
 	OpenWhammyTextureKey,
 	OpenWhammyStarTextureKey,
 	OpenWhammyDeadTextureKey,
+#if OPEN_NOTEFX
 	OpenHitFx1TextureKey,
 	OpenHitFx2TextureKey,
 #endif
@@ -299,17 +299,17 @@ static GH3::QbKey getYellowEquivalent(GH3::QbKey openKey)
 	case static_cast<uint32_t>(OpenStarpowerHammerTextureKey) :
 		return YellowStarpowerHammerTextureKey;
 
-#if OPEN_NOTEFX
 		// the magic trick
 		// used in function where textures are actually applied: frankerzFix
-	case static_cast<uint32_t>(OpenWhammyTextureKey) :
-		return YellowTextureKey;
+	case static_cast<uint32_t>(OpenWhammyTextureKey):
+		//return YellowWhammyTextureKey;
+	case static_cast<uint32_t>(OpenWhammyStarTextureKey):
+		//return YellowWhammyStarTextureKey; // WHY CRASH
+	case static_cast<uint32_t>(OpenWhammyDeadTextureKey):
+		//return YellowWhammyDeadTextureKey; // WHY CRASH
+		return YellowWhammyTextureKey;
 
-	case static_cast<uint32_t>(OpenWhammyStarTextureKey) :
-		return YellowTextureKey;
-
-	case static_cast<uint32_t>(OpenWhammyDeadTextureKey) :
-		return YellowTextureKey;
+#if OPEN_NOTEFX
 
 	case static_cast<uint32_t>(OpenHitFx1TextureKey) :
 	case static_cast<uint32_t>(OpenHitFx2TextureKey) :
@@ -328,11 +328,11 @@ bool constexpr isTextureKey(GH3::QbKey key)
 		key == OpenStarTextureKey ||
 		key == OpenStarHammerTextureKey ||
 		key == OpenStarpowerTextureKey ||
-		key == OpenStarpowerHammerTextureKey
-#if OPEN_NOTEFX
-		|| key == OpenWhammyTextureKey ||
+		key == OpenStarpowerHammerTextureKey ||
+		key == OpenWhammyTextureKey ||
 		key == OpenWhammyStarTextureKey ||
 		key == OpenWhammyDeadTextureKey ||
+#if OPEN_NOTEFX
 		key == OpenHitFx1TextureKey ||
 		key == OpenHitFx2TextureKey
 #endif

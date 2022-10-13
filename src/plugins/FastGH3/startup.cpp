@@ -56,7 +56,7 @@ __declspec(naked) void hWndHack()
 }
 
 using namespace GH3;
-static void* screenshotDetour = (void*)0x005377B0;
+static void*screenshotDetour = (void*)0x005377B0;
 bool ScreenShot(QbStruct*str,QbScript*scr)
 {
 	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
@@ -66,11 +66,22 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 	IDirect3DSurface9* pSurface; // do i really need two surfaces???
 	IDirect3DSurface9* surf;
 	D3DSURFACE_DESC sd;
+#if 1
 	(*d3ddev)->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
 	pSurface->GetDesc(&sd);
 	(*d3ddev)->CreateOffscreenPlainSurface(
 		sd.Width, sd.Height, sd.Format, D3DPOOL_SYSTEMMEM, &surf, NULL);
 	(*d3ddev)->GetRenderTargetData(pSurface, surf);
+#else
+	LPDIRECT3DTEXTURE9 scrTex;
+	(*d3ddev)->GetRenderTarget(0, &pSurface);
+	pSurface->GetDesc(&sd);
+	(*d3ddev)->CreateTexture(sd.Width, sd.Height,
+		1, 0, sd.Format, D3DPOOL_SYSTEMMEM, &scrTex, 0);
+	scrTex->GetSurfaceLevel(0, &surf);
+
+	(*d3ddev)->GetRenderTargetData(pSurface, surf);
+#endif
 
 	char maindir[MAX_PATH];
 	char filepath[MAX_PATH];
@@ -81,7 +92,8 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 	sprintf_s(filepath,"%s\\%s.bmp",maindir,filename);
 	// WHY DO PNG AND JPG FAIL
 	// DDS USES ARGB8 AND IS THE SAME SIZE AS BITMAP >:(
-
+	
+	//D3DXIFF_BMP
 	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, surf, NULL, NULL);
 	pSurface->Release();
 	surf->Release();
@@ -302,6 +314,24 @@ __declspec(naked) void whammyWidthFix()
 	__asm {
 		movss   [esp + 58h], xmm0;
 
+		jmp returnAddress;
+	}
+}
+
+// fix audio seeking (SOON TM)
+static void* FMOD_setPosition_Detour = (void*)0x00000000;
+__declspec(naked) void setPosFix()
+{
+	static const uint32_t returnAddress = 0x00000000;
+	__asm {
+		jmp returnAddress;
+	}
+}
+static void* FMOD_getPosition_Detour = (void*)0x00000000;
+__declspec(naked) void getPosFix()
+{
+	static const uint32_t returnAddress = 0x00000000;
+	__asm {
 		jmp returnAddress;
 	}
 }

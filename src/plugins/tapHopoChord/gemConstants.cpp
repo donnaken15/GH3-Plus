@@ -133,8 +133,10 @@ void __declspec(naked) setupOpenNote()
 	g_gemMatHammer[5] = OpenHammerTextureKey;
 	g_gemMatSp[5] = OpenStarpowerTextureKey;
 	g_gemMatHammerSp[5] = OpenStarpowerHammerTextureKey;
-	g_gemMatWhammy[5] = g_gemMatWhammy[2];
-	g_gemMatSpWhammy[5] = g_gemMatSpWhammy[2];
+	//g_gemMatWhammy[5] = YellowWhammyTextureKey;
+	//g_gemMatSpWhammy[5] = YellowWhammyStarTextureKey;
+	g_gemMatWhammy[5] = OpenWhammyTextureKey;
+	g_gemMatSpWhammy[5] = OpenWhammyStarTextureKey;
 
 #ifdef RAINBOW
 	for (int i = 0; i < 4; i++)

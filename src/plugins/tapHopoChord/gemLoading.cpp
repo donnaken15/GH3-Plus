@@ -436,6 +436,8 @@ void __declspec(naked) starpowerusedPatch1C()
 // 00A16860 = gem colors (noname when not a gem or star)
 // actually don't need to use these because the game automatically
 // applies my patch for the gems i want to be stars :)
+// except for star opens :(
+int*highwayGemColors = (int*)0x00A16860;
 static void* const starpowerusedDetour1D = (void*)0x00427A8A;
 void __declspec(naked) starpowerusedPatch1D()
 {
@@ -443,9 +445,12 @@ void __declspec(naked) starpowerusedPatch1D()
 	static const void* const returnAddress2 = (void*)0x00427647;
 	static const int star = CRCD(0x3624A5EB, "star");
 	static const int gem  = CRCD(0x66AF794F, "gem");
+	static const int open = CRCD(0x5B8F7C5B, "open");
 	static const int starstar     = StarStarTextureKey;
 	static const int starstarhopo = StarHammerStarTextureKey;
 	static const int starstartap  = StarTapStarTextureKey;
+	static const int openstarstar     = OpenStarStarTextureKey;
+	static const int openstarstarhopo = OpenStarHammerStarTextureKey;
 	overlapping_starpower = why(CRCD(0x4039F5F1, "overlapping_starpower"));
 	__asm {
 		mov  eax, overlapping_starpower;
@@ -454,19 +459,38 @@ void __declspec(naked) starpowerusedPatch1D()
 
 	ACTIVE:
 		// cmp A15860+(4*i) = star
-		mov  eax, starstar;
+		mov  eax , highwayGemColors;
+		mov  edx , [eax + esi * 4];
+		cmp  edx , open; // brain damage
+		je   _OPEN;
+
+	NOT_OPEN:
+		mov  eax , starstar;
 		cmp [esp + 14h], 0; // hopo
 		jz   STRUM;
-		mov  eax, starstarhopo;
+		mov  eax , starstarhopo;
 		cmp [esp + 14h], 2; // tap
 		je   TAP;
 		jmp  STRUM;
 		// TODO: scale these
 		// use code from where another patch jumps to?
 	TAP:
-		mov  eax, starstartap;
+		mov  eax , starstartap;
 
 	STRUM:
+		push eax;
+		jmp  returnAddress2;
+
+	_OPEN:
+		mov  eax , openstarstar;
+		cmp [esp + 14h], 0; // hopo
+		jz   OPEN_STRUM;
+		mov  eax , openstarstarhopo;
+		jmp  OPEN_STRUM;
+	OPEN_TAP:
+		mov  eax , starstartap;
+
+	OPEN_STRUM:
 		push eax;
 		jmp  returnAddress2;
 
