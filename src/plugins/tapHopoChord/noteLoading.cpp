@@ -301,17 +301,14 @@ void __declspec(naked) Sustains4Opens()
 char openName[] = "yellow";
 char*openName_ = openName;
 void* calculateNoteKey = (void*)0x00418AC0;
-//int*lastGemKeys = (int*)0x00A5E8F0;
-//int* lastWhammyKeys = (int*)0x00A5E918;
 #define MAX_NUM_PLAYERS 2
-int g_lastOpenKeys[MAX_NUM_PLAYERS] = { 0,0 };
-int g_lastOpenWhammyKeys[MAX_NUM_PLAYERS] = { 0,0 };
+int g_lastOpenKeys[] = { 0,0,0,0,0,0,0,0,0,0 };
 
 void*CheckNoteHoldInit_detour = (void *)0x0041EC59;
 void __declspec(naked) CheckNoteHoldInit_4Opens()
 {
 	static const unsigned int returnAddress = 0x0041EC5E;
-	static const unsigned int returnAddress2 = 0x0041ECD2;
+	static const unsigned int returnAddress2 = 0x0041EC8B;//0x0041ECD2;
 	__asm
 	{
 		mov  ebp, 10000h;
@@ -329,6 +326,7 @@ void __declspec(naked) CheckNoteHoldInit_4Opens()
 		call calculateNoteKey;
 
 		mov  eax, [esp + 3Ch - 24h];
+		shr  eax, 2; // why
 		mov  g_lastOpenKeys[eax], ecx;
 
 		mov  ecx, [esp + 3Ch - 20h]; // arrayEntry
@@ -336,26 +334,14 @@ void __declspec(naked) CheckNoteHoldInit_4Opens()
 		push ecx;
 		push edx;
 
-		mov  edx, openName_; // gemColor
-		mov  eax, 008A6D38h; // 'whammybar'
-		lea  edi, [esp + 44h - 04h]; // *key
-		call calculateNoteKey;
-
-		mov  eax, [esp + 44h - 24h]; // playerIndex
-		mov  g_lastOpenWhammyKeys[eax], ecx;
-
-		mov  edx, dword ptr [esp + 44h - 14h];
-		//shr  eax, 2; // blind shot hoping this part works // dont actually need
-		// because the other way didnt work
-		//mov  g_lastOpenKeys[eax], edx; // not work
 		mov  edx, [esp + 44h - 04h];
-		add  esp, 10h;
 		add  edx, 1;
-		//mov  g_lastOpenWhammyKeys[eax], edx;
 
-		// rewrote this part of a function
-		// using an independent array
-		// how chad
+		mov [esp + 44h - 14h], 0;
+		mov  ebp, YELLOW;
+		mov  esi, 2;
+		// somehow works (to manipulate the open whammy key)
+		// but then again it copies off the yellow whammy props
 
 		jmp  returnAddress2;
 
@@ -375,14 +361,16 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 	static const unsigned int returnAddress3_fail = 0x0042B782;
 	__asm
 	{
+		xor  esi, esi;
 		cmp  ebx, 33333h;
 		jne  NOT_OPEN;
-		xor  esi, esi;
 		mov  ecx, 00B54440h;
-		mov  edx, esi; // lea failed to load a zero pointer that isnt accessed
-		add  edx, eax; // why is it even that way other than for optimization
-		add  edx, eax; // besides doing two adds
-		mov  eax, g_lastOpenKeys[edx * 4];
+		//lea  edx, [eax*4]; // lea failed to load a zero pointer that isnt accessed
+		//add  edx, eax; // why is it even that way other than for optimization
+		//add  edx, eax; // besides doing two adds
+		mov  edx, [esp + 10h];
+		shr  edx, 2; // why
+		mov  eax, g_lastOpenKeys[edx];
 		push 0;
 		push eax;
 		lea  eax, [esp + 28h - 0Ch];
@@ -406,55 +394,6 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 
 	NOT_OPEN:
 		mov  ebp, 10000h;
-		jmp  returnAddress;
-	}
-}
-
-int*fxNoteIdx = (int*)0x00A13134;
-void*CheckNoteHoldStart_detour = (void*)0x0042B999;
-void __declspec(naked) CheckNoteHoldStart_4Opens()
-{
-	static const unsigned int returnAddress  = 0x0042B9A4;
-	static const unsigned int returnAddress2 = 0x0042B9E9;
-	__asm
-	{
-		mov  ebp, 10000h; // green
-		xor  edi, edi;
-		mov  ecx, [esp + 28h - 14h];
-		cmp  ecx, 33333h;
-		jne  NOT_OPEN;
-
-		//and dword ptr[esp + 18h], ~0x11111;
-
-		// i couldve probably just used any of
-		// the last gem key slots rather
-		// than reimplement this
-		// but that could also require
-		// redundant separate jmp patches
-		mov  eax, [esp + 28h - 18h];
-		mov  ecx, 00B54440h;
-		lea  edx, [edi + eax * 4];
-		add  edx, eax;
-		mov  eax, g_lastOpenWhammyKeys[edx * 4];
-		push 0;
-		push eax;
-		lea  eax, [esp + 30h - 0Ch];
-		push eax;
-		call element_sub_48F8D0;
-		mov  ecx, [esp + 28h - 0Ch];
-		test ecx, ecx;
-		mov  esi, [eax];
-		jz   l1;
-		lea  edx, [esp + 28h - 0Ch];
-		push edx;
-		call CScreenElement__elementBoxMethod;
-		mov [esp + 28 - 0Ch], 0;
-	l1:
-		test esi, esi;
-		mov  edi, 4;
-		jmp  returnAddress2;
-
-	NOT_OPEN:
 		jmp  returnAddress;
 	}
 }
@@ -514,9 +453,8 @@ bool TryApplyNoteLoadingPatches()
 
 			g_patcher.WriteJmp(CreateNote, CreateNoteWithOpen) && //Substitute our own CreateNote function that handles open notes
 			g_patcher.WriteJmp(SetUpSustainsDetour, Sustains4Opens) && // Hack sustain code to apply note lengths for opens too
-			g_patcher.WriteJmp(CheckNoteHoldInit_detour, CheckNoteHoldInit_4Opens) && // wtf
+			g_patcher.WriteJmp(CheckNoteHoldInit_detour, CheckNoteHoldInit_4Opens) &&
 			g_patcher.WriteJmp(CheckNoteHoldWait_detour, CheckNoteHoldWait_4Opens) &&
-			g_patcher.WriteJmp(CheckNoteHoldStart_detour, CheckNoteHoldStart_4Opens) &&
 			g_patcher.WriteJmp(CheckNoteHoldPerFrame_detour, CheckNoteHoldPerFrame_4Opens) &&
 			g_patcher.WriteJmp(CalculateSustainPoints_detour, CalculateSustainPoints_4Opens) &&
 			g_patcher.WriteNOPs((void *)0x0041D452, 3) && //NOP out the "sub esp 20h" following any CreateNote call since we are cleaning up the stack ourselves (effectively changing the calling convention)

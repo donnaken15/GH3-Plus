@@ -21,7 +21,7 @@ HWND*hWnd;
 RECT WndR;
 int sizeX, sizeY, centerX, centerY;
 
-BYTE vsync, borderless;
+BYTE vsync, borderless, windowed;
 
 static void *hWndDetour = (void *)0x0057BA6F;
 static int* wndStyle = (int*)0x0057BA5D;
@@ -41,20 +41,24 @@ __declspec(naked) void hWndHack()
 			sizeY += (GetSystemMetrics(SM_CYFIXEDFRAME) * 2)
 				+ GetSystemMetrics(SM_CYCAPTION)
 				+ GetSystemMetrics(SM_CXFIXEDFRAME) - 3;
-			// figure this out so its just dependent on GSM // i tried everything here...
+			// figure this out so its just dependent on GSM
+			// without these extra constants // i tried everything here...
+			// its actually impossible
 		}
 		SetWindowPos(*hWnd, 0,
-			centerX, centerY,
-			sizeX, sizeY,
+			centerX, centerY, sizeX, sizeY,
 			SWP_FRAMECHANGED | SWP_NOZORDER | SWP_NOACTIVATE);
-		__asm {
-			jmp returnAddress;
-		}
+		__asm jmp returnAddress;
 	}
 	// lazy to find and write another one time detour
 
 }
 
+#define SCREENSHOT 0
+
+int* GameRes_Xi = (int*)0x00C5E6B8;
+int* GameRes_Yi = (int*)0x00C5E6BC;
+float* GameRes_X = (float*)0x00C5E6B0;
 using namespace GH3;
 static void*screenshotDetour = (void*)0x005377B0;
 bool ScreenShot(QbStruct*str,QbScript*scr)
@@ -62,26 +66,16 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
 	// "just make it a separate plugin"
 	// also UPX
-#if 0
-	IDirect3DSurface9* pSurface; // do i really need two surfaces???
+#if SCREENSHOT
+	IDirect3DSurface9* pSurface;
 	IDirect3DSurface9* surf;
 	D3DSURFACE_DESC sd;
-#if 1
+
 	(*d3ddev)->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
 	pSurface->GetDesc(&sd);
 	(*d3ddev)->CreateOffscreenPlainSurface(
 		sd.Width, sd.Height, sd.Format, D3DPOOL_SYSTEMMEM, &surf, NULL);
 	(*d3ddev)->GetRenderTargetData(pSurface, surf);
-#else
-	LPDIRECT3DTEXTURE9 scrTex;
-	(*d3ddev)->GetRenderTarget(0, &pSurface);
-	pSurface->GetDesc(&sd);
-	(*d3ddev)->CreateTexture(sd.Width, sd.Height,
-		1, 0, sd.Format, D3DPOOL_SYSTEMMEM, &scrTex, 0);
-	scrTex->GetSurfaceLevel(0, &surf);
-
-	(*d3ddev)->GetRenderTargetData(pSurface, surf);
-#endif
 
 	char maindir[MAX_PATH];
 	char filepath[MAX_PATH];
@@ -92,9 +86,11 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 	sprintf_s(filepath,"%s\\%s.bmp",maindir,filename);
 	// WHY DO PNG AND JPG FAIL
 	// DDS USES ARGB8 AND IS THE SAME SIZE AS BITMAP >:(
+	// AND WHY IS IT SO BIG FOR WRITING AN UNCOMPRESSED
+	// RGB32 STUPIDLY LARGE SCREENSHOT
 	
-	//D3DXIFF_BMP
-	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, surf, NULL, NULL);
+	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, pSurface, NULL, NULL);
+
 	pSurface->Release();
 	surf->Release();
 #endif
@@ -141,11 +137,6 @@ void frameLimit()
 		return;
 	}
 	timeBeginPeriod(1);
-	/*dl tmp;
-	* DOESNT WORK
-	if (NtSetTimerResolution(10000, TRUE, (PULONG) & tmp)) {
-		exit(0);
-	}*/
 	// get timestamp before rendering a frame
 	QueryPerformanceCounter((LARGE_INTEGER*)&frameTime);
 	// and then do math to set how much time to wait
@@ -185,16 +176,6 @@ void lagBegin()
 	else // read line 143 for why this is like this
 		realFPS = 1.0f / *g_delta;
 	timeBeginPeriod(1);
-	/*test2++;
-	// check delta so im not getting alzheimers for real
-	// FPS count and limiting still fluctuates
-	if (test2 > 100)
-	{
-		char test[11];
-		sprintf(test,"%f",1.0f/realFPS);
-		MessageBoxA(0,test,"",0);
-		test2 = 0;
-	}*/
 	//get a timestamp immediately after rendering a frame
 	QueryPerformanceCounter((LARGE_INTEGER*)&LAG_2);
 	timeEndPeriod(1);
@@ -217,8 +198,8 @@ __declspec(naked) void velocityFix()
 
 		// this is our velocity mod
 		// velMod =
-		movss   xmm4, dword ptr realFPS; // (frameRate
-		divss   xmm4, dword ptr frameFrac; // /frameFrac)
+		movss   xmm4, dword ptr realFPS;   // (frameRate
+		divss   xmm4, dword ptr frameFrac; //            / frameFrac)
 		push    eax;
 		mov     eax , dword ptr g_gameSpeed1; // also apply fix for slomo
 		divss   xmm4, [eax];
@@ -290,7 +271,6 @@ __declspec(naked) void BWFA_frames2Realtime2()
 	}
 }
 
-float* GameRes_X = (float*)0x00C5E6B0;
 float resCurrent = 1280.0f;
 float resFrac = 1280.0f;
 float dummy;
@@ -346,14 +326,10 @@ void ApplyHack()
 #if (!FRAMERATE_FROM_QB)
 	frameRate = GetPrivateProfileIntA("Player", "MaxFPS", 60, inipath);
 #endif
-	// try something with this
-	// and see if fixing whammy speed
-	// is possible with this
-	// (code limits width values to 144 floats)
-	// since just setting wibble speed
-	// from QB wont do jack if above 120 FPS
-	// (with it set to 1 instead of 2)
 	//(*d3ddev)->
+	windowed = GetPrivateProfileIntA("Misc", "Windowed", 1, inipath);
+	// ^ because why would you want to turn this off
+	g_patcher.WriteInt32((void*)0x0057BB50, windowed);
 	if (!vsync)
 	{
 		g_patcher.WriteNOPs(D3DPPpi, 6);

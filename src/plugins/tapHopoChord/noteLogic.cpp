@@ -488,35 +488,31 @@ QbStruct *nullParams;
 //If an open note is being hit, make the pattern 0x33333 so that all the frets pop up!
 //Also animate open note effects,
 //requires script Open_NoteFX
-//in this project's folder
-#if OPEN_NOTEFX
-//static DWORD ONFXplayer;
-#endif
+//which is in this project's folder
+void*insertitem = (void*)0x00479C80;
 static void * const noteHitPatternDetour = (void *)0x00430985;
 void __declspec(naked) noteHitPatternFixNaked()
 {
 	static const void * const returnAddress = (void *)0x0043098E;
 	__asm
 	{
-		mov     edi, [esp + 5Ch];
-		cmp     edi, OPEN;
-		jnz		DONE;
+		mov  edi, [esp + 5Ch];
+		cmp  edi, OPEN;
+		jnz	 DONE;
+
+#if OPEN_NOTEFX
+		// insert open note param (this is how WT does it, so)
+		mov  edi, 5B8F7C5Bh;
+		xor  eax, eax;
+		push edi;
+		push eax;
+		mov  ecx, esi;
+		call insertitem;
+#endif
 
 		mov     edi, (OPEN | GREEN | RED | YELLOW | BLUE | ORANGE);
 		mov[esp + 5Ch], edi;
-#if OPEN_NOTEFX
-		//push edx;
-		//mov  edx, [esp + 08h];// figure this out for multiplayer
-		//mov  ONFXplayer, edx; // despite also not stretching to highway properly
-		//pop  edx;
-		// SOMEHOW NEVER CHANGES TO TWO EVEN WHEN BREAKPOINTING ON THE DETOURED FUNCTION FOR PLAYER 2 NOTES
-#endif
 	}
-#if OPEN_NOTEFX
-	//nullParams->first->value = 1;// ONFXplayer;// player;
-	ExecuteScript2(QbKey("Open_NoteFX"), nullParams, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
-	// have to prevent execution when in multiplayer now
-#endif
 	__asm {
 	DONE:
 		//Displaced code

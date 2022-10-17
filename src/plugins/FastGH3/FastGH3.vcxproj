@@ -94,12 +94,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mp3seek.c" />
     <ClCompile Include="startup.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="mp3seek.h" />
     <ClInclude Include="startup.h" />
   </ItemGroup>
   <ItemGroup>
