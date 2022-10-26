@@ -251,6 +251,77 @@ _declspec(naked) void gemMutationStarOverlapBranchNaked()
 	}
 }
 
+// patch to stretch out open whammy textures
+char isOpenWhammy = 0;
+static void* const WhammyShader_TexKeyCheck = (void*)0x00603241;
+_declspec(naked) void WhammyShader_TexKeyCheck_Naked()
+{
+	static const uint32_t returnAddress = 0x00603246;
+	__asm
+	{
+		mov  ecx, [ebp + 18h];
+
+		// check if whammy texture is
+		// open whammy texture or open star whammy texture *
+		// *whammyTexture == OpenWhammyTextureKey
+		cmp dword ptr [ecx], 06965AA99h;
+		je  IS_OPEN;
+		cmp dword ptr [ecx], 0CE121C5Dh;
+		je  IS_OPEN;
+		//cmp dword ptr [ecx], 0E454323Ch;
+		//je  IS_OPEN;
+		jmp DONE;
+	IS_OPEN:
+		setz isOpenWhammy;
+
+	DONE:
+		fmul st , st(1);
+
+		jmp returnAddress;
+	}
+}
+const float openWhammySizeMultiplier = 11.8f;
+static void* const WhammyShader_Resize = (void*)0x00603552;
+_declspec(naked) void WhammyShader_Resize_Naked()
+{
+	static const uint32_t returnAddress = 0x00603558;
+	__asm
+	{
+		cmp  isOpenWhammy, 0;
+		jz   NOT_OPEN;
+
+	_OPEN:
+		// and then change the width *
+		// of the whammy before it gets drawn
+		movss xmm1, dword ptr openWhammySizeMultiplier;
+		mulss xmm0, xmm1;
+
+		movss[esp + 58h], xmm0;
+		movss xmm0, [esp + 24h];
+	NOT_OPEN:
+		jmp returnAddress;
+	}
+}
+static void* const WhammyShader_WeirdFix = (void*)0x00603020;
+_declspec(naked) void WhammyShader_WeirdFix_Naked()
+{
+	static const uint32_t returnAddress = 0x00603026;
+	__asm
+	{
+		sub esp, 344h;
+		mov isOpenWhammy, 0;
+		jmp returnAddress;
+	}
+}
+// TODO: scale down glowing sprite
+// condition for held note detour here?: 006036E3
+// and another reminder to make it possible
+// to continue holding long notes after unpausing
+//
+// looks like it could be just a frame fix
+// as open was successfully held (with no
+// frets lol) when unpausing
+
 bool TryApplyGemMutationPatches()
 {
 	return  (g_patcher.WriteJmp(gemMutationSPActivationBranch, &gemMutationSPActivationBranchNaked) &&
@@ -258,5 +329,8 @@ bool TryApplyGemMutationPatches()
 			g_patcher.WriteJmp(gemMutationPhraseMissBranch, &gemMutationPhraseMissBranchNaked) &&
 			g_patcher.WriteJmp(gemMutationStarOverlapBranch, &gemMutationStarOverlapBranchNaked) &&
 			g_patcher.WriteJmp(gemMutationSPtoStarBranch, &gemMutationSPtoStarBranchNaked) &&
+			g_patcher.WriteJmp(WhammyShader_TexKeyCheck, &WhammyShader_TexKeyCheck_Naked) &&
+			g_patcher.WriteJmp(WhammyShader_Resize, &WhammyShader_Resize_Naked) &&
+			g_patcher.WriteJmp(WhammyShader_WeirdFix, &WhammyShader_WeirdFix_Naked) &&
 			g_patcher.WriteJmp(buttonModelsInjectorDetour, &buttonModelsInjectorNaked));
 }

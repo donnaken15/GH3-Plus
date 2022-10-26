@@ -477,17 +477,12 @@ __declspec(naked) void noteHitEndNaked()
 	}
 }
 
-#if OPEN_NOTEFX
-using namespace GH3;
-
-QbStruct *nullParams;
-#endif
-
 //TryHitNote updates
 
 //If an open note is being hit, make the pattern 0x33333 so that all the frets pop up!
 //Also animate open note effects,
 //requires script Open_NoteFX
+//and modified GuitarEvent_HitNotes
 //which is in this project's folder
 void*insertitem = (void*)0x00479C80;
 static void * const noteHitPatternDetour = (void *)0x00430985;
@@ -501,7 +496,7 @@ void __declspec(naked) noteHitPatternFixNaked()
 		jnz	 DONE;
 
 #if OPEN_NOTEFX
-		// insert open note param (this is how WT does it, so)
+		// insert open note param on HitNotes (this is how WT does it, so)
 		mov  edi, 5B8F7C5Bh;
 		xor  eax, eax;
 		push edi;
@@ -512,8 +507,6 @@ void __declspec(naked) noteHitPatternFixNaked()
 
 		mov     edi, (OPEN | GREEN | RED | YELLOW | BLUE | ORANGE);
 		mov[esp + 5Ch], edi;
-	}
-	__asm {
 	DONE:
 		//Displaced code
 		mov eax, KEY_PATTERN;
@@ -591,11 +584,6 @@ bool TryApplyNoteLogicPatches()
 {
 	uint8_t *jnz_to_CHORD_CHECK_FAILED = (uint8_t *)(0x00431E75); // test before was cmp hopo vs 1
 
-#if OPEN_NOTEFX
-	nullParams = (QbStruct *)qbMalloc(sizeof(QbStruct), 1);
-	memset(nullParams, 0, sizeof(QbStruct));
-	//nullParams->InsertIntItem(QbKey("player"), 1);
-#endif
 	return
 		(
 			g_patcher.WriteJmp(guitarInputLogicDetour1, &loadLastHitNaked) &&

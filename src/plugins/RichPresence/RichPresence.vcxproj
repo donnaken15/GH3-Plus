@@ -98,6 +98,8 @@
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="discord_register.h" />
+    <ClInclude Include="discord_rpc.h" />
     <ClInclude Include="RichPresence.h" />
   </ItemGroup>
   <ItemGroup>
