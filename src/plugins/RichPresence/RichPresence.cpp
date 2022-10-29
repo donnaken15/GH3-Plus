@@ -1,14 +1,10 @@
 
-#define IM_SUICIDAL true
-// i would be regardless
-// since im adding support
-// for this stupid app
-// and quote unquote
+#define NOT_SDK true
 
 #include "gh3\GH3Keys.h"
 #include "core\Patcher.h"
 #include "RichPresence.h"
-#if !IM_SUICIDAL
+#if !NOT_SDK
 #include "discord_game_sdk.h"
 #else
 #include "discord_rpc.h"
@@ -22,7 +18,7 @@
 #include <stdio.h>
 #include <time.h>
 
-#if !IM_SUICIDAL
+#if !NOT_SDK
 #pragma comment(lib, "E:\\DiscordGameSDK\\lib\\x86\\discord_game_sdk.dll.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
@@ -61,7 +57,7 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 {
 	// show params (logger)
 	//ExecuteScript2(QbKey("PrintStruct"), str, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
-#if !IM_SUICIDAL
+#if !NOT_SDK
 	char* state = "";
 	char* details = "";
 	char* smltxt = "";
@@ -95,10 +91,11 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 		strcpy_s(pres.assets.large_image, lrgimage);
 	//strcpy_s(pres.secrets.join, "421"); // discord fails to invite anyone through this
 	str->GetInt(QbKey("starttime"), starttime);
+	bool starttimepassed = str->GetInt(QbKey("starttime"), starttime);
 	bool endtimepassed = str->GetInt(QbKey("endtime"), endtime);
 	if (endtimepassed)
 	{
-		if (endtime)
+		if (endtime >= 0)
 		{
 			time(&pres.timestamps.start);
 			pres.timestamps.end = endtime - starttime + time(0);
@@ -109,7 +106,13 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 			pres.timestamps.end = 0;
 		}
 	}
-
+	else if (starttimepassed && endtime == -1)
+	{
+		pres.timestamps.start = time(0) + starttime;
+		pres.timestamps.end = 0;
+	}
+	if (starttime == -1)
+		pres.timestamps.start = 0;
 	app.activities->update_activity(app.activities, &pres, 0, 0);
 #else
 	char*buf;
@@ -174,7 +177,7 @@ int UpdatePresence(QbStruct*str, QbScript*scr)
 static void *gameFrameDetour = (void *)0x0048452C;
 void DiscordCallbacks()
 {
-#if !IM_SUICIDAL
+#if !NOT_SDK
 	app.core->run_callbacks(app.core); // do i need to do this every frame
 #else
 	Discord_RunCallbacks();
@@ -182,7 +185,7 @@ void DiscordCallbacks()
 }
 
 #define RPC_FASTGH3 true
-#if !IM_SUICIDAL
+#if !NOT_SDK
 constexpr unsigned long long RPC_ID = RPC_FASTGH3 ? 385161862586695686 : 940793683144507492;
 #else
 constexpr char*RPC_ID_STR = RPC_FASTGH3 ? "385161862586695686" : "940793683144507492";
@@ -192,7 +195,7 @@ int why;
 
 #define handletest false
 
-#if IM_SUICIDAL
+#if NOT_SDK
 void Shutdown();
 
 #if handletest
@@ -252,10 +255,10 @@ void init()
 void ApplyHack()
 {
 
-#if !IM_SUICIDAL
+#if !NOT_SDK
 #else
 #endif
-#if !IM_SUICIDAL
+#if !NOT_SDK
 	// ?????
 	memset(&app, 0, sizeof(Application));
 	memset(&users_events, 0, sizeof(users_events));
@@ -301,7 +304,7 @@ void ApplyHack()
 
 void Shutdown()
 {
-#if !IM_SUICIDAL
+#if !NOT_SDK
 	if (!why)
 		app.activities->clear_activity(app.activities, 0, 0);
 #else
