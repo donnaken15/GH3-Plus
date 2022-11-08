@@ -3,7 +3,7 @@ script({
 	qbkey player_status = player1_status;
 }) {
 
-if (*toggle_particles > 1)
+if (*disable_particles > 1)
 {
 	return;
 }
