@@ -123,26 +123,169 @@ __declspec(naked) void RedirectOutput2()
 	}
 }
 
+typedef struct {
+	void* rangeStart;
+	void* rangeEnd; // on ret
+	char* funcName;
+} _ASSERT_INFO_FUNC;
+#define AIF(S,E,N) { (void*)S,(void*)E,N }
+_ASSERT_INFO_FUNC assert_functions[] = {
+	AIF(0x00404D60,0x00404DE9,0),
+	AIF(0x00404DF0,0x00404E2F,0),
+	AIF(0x004075B0,0x00407747,"SendStructure"),
+	AIF(0x004100B0,0x00410122,"InitCutsceneInfo"),
+	AIF(0x00410800,0x004108B5,"CProgressionSave__method_410800"),
+	AIF(0x00411290,0x004112E3,"SetLeakCheck"),
+	AIF(0x00412860,0x004128B4,"ToggleLOD"),
+	AIF(0x00412FC0,0x00413393,"CreateParticleSystem"),
+	AIF(0x00419A50,0x00419ADE,"WinPortSioGetControlPress"),
+	AIF(0x00419AE0,0x00419B2F,"WinPortSioIsDirectInputGamepad"),
+	AIF(0x00419B30,0x00419B7E,"WinPortSioIsKeyboard"),
+	AIF(0x00419B80,0x00419BD3,"WinPortSioSetDevice0"),
+	AIF(0x00419BE0,0x00419C8F,"WinPortSioGetControlName"),
+	AIF(0x00419C90,0x00419D17,"WinPortSioGetControlBinding"),
+	AIF(0x00419D20,0x00419DC4,"WinPortSioSetControlBinding"),
+	AIF(0x00532DD0,0x00532E10,"ScriptAssert"),
+	AIF(0x0053FD30,0x0053FD7F,"LoadMovieIntoBuffer"),
+	AIF(0x0053FD80,0x0053FE05,"PlayMovieFromBuffer"),
+	AIF(0x00478E50,0x004790FD,"QbStruct::GetValue"),
+	AIF(0x004789F0,0x00478A34,"QbStruct::GetInt"),
+};
+DWORD textSegs[] = {
+	0x00401000, 0x00898000, // .text
+	0x00D7A000, 0x00DB0000, // .HATRED
+};
+char*getAssertFunctionRange(void*addr)
+{
+	for (int i = 0; i < sizeof(assert_functions) / sizeof(_ASSERT_INFO_FUNC); i++)
+	{
+		_ASSERT_INFO_FUNC*current = &assert_functions[i];
+		if (addr > current->rangeStart && addr < current->rangeEnd)
+		{
+			if (current->funcName)
+				return current->funcName;
+			else
+			{
+				char* funcName = (char*)malloc(64);
+				sprintf_s(funcName, 64, "sub_%X", current->rangeStart);
+				current->funcName = funcName;
+				return funcName;
+			}
+		}
+	}
+	return "unknown sub";
+}
+
+void printStructBase(QbStruct* qs);
+
 static void* LogErrDfnctDetour = (void*)0x004F6500;
 void assertWarn()
 {
 	if (!l_WarnAsserts)
 		return;
-	void** EIP;
-	__asm {
-		mov EIP, ebp;
+	__asm mov eax, [esp+12]; // +12 from function setting up stack or whatever
+	int EIP;
+	__asm mov ecx, [esp+12+8]; // get extra arguments (qbstruct)
+	// I FORGOT I WAS JUST JMPING ON A NULLSUB
+	// SO I COULD'VE SET PARAMETERS HERE
+	// but i dont know if when i add those, ESP will move again
+	QbStruct*a;
+	__asm mov a, ecx;
+	__asm mov EIP, eax;
+	EIP -= 5;
+	for (int i = 0; i < sizeof(textSegs) / sizeof(DWORD) >> 1; i++)
+	{
+		/*if (l_CreateCon) {
+			fprintf(CON, "%p > %p\n", EIP, textSegs[(i << 1)]);
+			fprintf(CON, "%p < %p\n", EIP, textSegs[(i << 1) + 1]);
+		}*/
+		if (EIP > textSegs[(i << 1)] &&
+			EIP < textSegs[(i << 1) + 1])
+			break;
+		else
+		{
+			print("Assert execution address is not in code range !!!!!!!!!!!!!!!\n");
+			return;
+		}
 	}
-	//EIP += 8;
-	// return address appears differently
-	// on one function
+	char*funcName = getAssertFunctionRange((void*)EIP);
 	if (l_CreateCon) {
-		fprintf(CON, "ASSERT @ %p\n", *EIP);
+		fprintf(CON, "ASSERT in %s @ %p\n", funcName, EIP);
 		// just use vprintf instead of putting this twice
 		// already did for qcc so why not here
 	}
 	if (l_WriteFile) {
-		fprintf(log, "ASSERT @ %p\n", *EIP);
+		fprintf(log, "ASSERT in %s @ %p\n", funcName, EIP);
 	}
+	printStructBase(a);
+}
+
+int qbstrindent = 0;
+
+static void* PrintScriptInfoDetour = (void*)0x005309A0;
+void PrintScriptInfo(QbStruct*params, QbScript*_this)
+{
+	if (l_CreateCon) {
+		fprintf(CON, "Printing script %s:\n{", QbKeyPrintFix(_this->type));
+	}
+	if (l_WriteFile) {
+		fprintf(log, "Printing script %s:\n{", QbKeyPrintFix(_this->type));
+	}
+	qbstrindent++;
+	//print("\n    "); // grease for half optimization
+	//print("0x04 some struct: {\n");
+	//printStructBase(_this->qbStruct4);
+	//print("    }");
+	print("\n    ");
+	if (l_CreateCon) {
+		fprintf(CON, "0x10 EIP: %04X %04X", _this->instructionPointer, _this->scriptBegin);
+	}
+	if (l_WriteFile) {
+		fprintf(log, "0x10 EIP: %04X %04X", _this->instructionPointer, _this->scriptBegin);
+	}
+	print("\n    ");
+	print("0x14 mp_function_params: {\n");
+	printStructBase(_this->qbStruct14);
+	print("    }");
+	print("\n    ");
+	print("0x18 Arguments: {\n");
+	printStructBase(_this->qbStruct18);
+	print("    }");
+	print("\n    ");
+	print("0x1C Variables: {\n");
+	printStructBase(_this->qbStruct1C);
+	print("    }");
+	print("\n    ");
+	if (l_CreateCon) {
+		fprintf(CON, "0x38 Call depth: %u", _this->scriptDepth);
+	}
+	if (l_WriteFile) {
+		fprintf(log, "0x38 Call depth: %u", _this->scriptDepth);
+	}
+	print("\n    ");
+	if (l_CreateCon) {
+		fprintf(CON, "0x3C Parent script: %s", QbKeyPrintFix(_this->rootScript));
+	}
+	if (l_WriteFile) {
+		fprintf(log, "0x3C Parent script: %s", QbKeyPrintFix(_this->rootScript));
+	}
+	print("\n    ");
+	print("0x40 some struct: {\n");
+	printStructBase(_this->qbStruct40);
+	print("    }");
+	print("\n    ");
+	if (l_CreateCon) {
+		fprintf(CON, "0x70 some key:", QbKeyPrintFix(_this->someKey70));
+	}
+	if (l_WriteFile) {
+		fprintf(log, "0x70 some key:", QbKeyPrintFix(_this->someKey70));
+	}
+	print("\n    ");
+	print("0x74 some struct: {\n");
+	printStructBase(_this->qbStruct74);
+	print("    }");
+	print("\n}\n");
+	qbstrindent--;
 }
 
 __declspec(naked) void MyScriptAssert()
@@ -164,7 +307,6 @@ __declspec(naked) void MyScriptAssert()
 #define WTF(x) (*(UINT*)(x))
 
 const char*qbstructOpen = "QbStruct {\n";
-int qbstrindent = 0;
 void printStructStructIndent()
 {
 	for (int i = 0; i < qbstrindent + 1; i++) {
@@ -174,6 +316,12 @@ void printStructStructIndent()
 void printStructItem(QbKey key, DWORD value, QbValueType type);
 void printStructBase(QbStruct*qs)
 {
+	if (!qs)
+	{
+		//printStructStructIndent();
+		//print("NON-EXISTENT STRUCT!!!\n");
+		return;
+	}
 	if (!qbstrindent)
 	{
 		print(qbstructOpen);
@@ -195,7 +343,7 @@ void printStructBase(QbStruct*qs)
 }
 void printStructItem(QbKey key, DWORD value, QbValueType type)
 {
-	char qbstrstr[0x80];
+	char qbstrstr[0x400];
 	int qbstrstr2;
 	char*keyStr;
 	if (l_DbgLoaded)
@@ -204,40 +352,40 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 			keyStr = QbKeyPrintFix(key);
 		else
 			keyStr = "0x00000000";
-		qbstrstr2 = sprintf(qbstrstr, "%02X %-16s = ", type, keyStr);
+		qbstrstr2 = sprintf_s(qbstrstr, "%02X %-16s = ", type, keyStr);
 	}
 	else
-		qbstrstr2 = sprintf(qbstrstr, "%02X %08X = ", type, (int)key);
+		qbstrstr2 = sprintf_s(qbstrstr, "%02X %08X = ", type, (int)key);
 	// fallback thing, if no later type matches, print as qbkey
 	if (l_DbgLoaded)
-		sprintf(qbstrstr + qbstrstr2, "%s\n", QbKeyPrintFix(value));
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%s\n", QbKeyPrintFix(value));
 	else
-		sprintf(qbstrstr + qbstrstr2, "%08X\n", value);
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%08X\n", value);
 	switch (type)
 	{
 	case TypeInt:
-		sprintf(qbstrstr + qbstrstr2, "%d\n", (signed int)value);
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%d\n", (signed int)value);
 		break;
 	case TypeFloat:
-		sprintf(qbstrstr + qbstrstr2, "%f\n", (*(FLOAT*)&(value)));
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%f\n", (*(FLOAT*)&(value)));
 		break;
 	case TypeCString:
 	case TypeWString:
-		sprintf(qbstrstr + qbstrstr2, "");
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "");
 		break;
 	case TypePair:
-		sprintf(qbstrstr + qbstrstr2, "(%f, %f)\n",
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "(%f, %f)\n",
 			*(float*)(&WTF(value) + 1),
 			*(float*)(&WTF(value) + 2));
 		break;
 	case TypeVector:
-		sprintf(qbstrstr + qbstrstr2, "(%f, %f, %f)\n",
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "(%f, %f, %f)\n",
 			*(float*)(&(WTF(value)) + 1),
 			*(float*)(&(WTF(value)) + 2),
 			*(float*)(&(WTF(value)) + 3));
 		break;
 	case TypeStringPointer:
-		sprintf(qbstrstr + qbstrstr2, "0x%08X\n", (DWORD*)(value));
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "0x%08X\n", (DWORD*)(value));
 		break;
 	case TypeScript:
 	case TypeCFunc:
@@ -249,7 +397,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 	case TypeQbMap:
 	case TypeQbKeyStringQs:
 		break;
-		sprintf(qbstrstr + qbstrstr2, "WHAT IS THIS: 0x%p: %08X %08X %08X %08X\n",
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "WHAT IS THIS: 0x%p: %08X %08X %08X %08X\n",
 			(DWORD*)(value),
 			*(DWORD*)(value), *(DWORD*)(value + 4),
 			*(DWORD*)(value + 8), *(DWORD*)(value + 12));
@@ -690,6 +838,14 @@ void ApplyHack()
 				print("Failed to patch PrintStruct.\n");
 				l_AllSuccess = 0;
 			}
+			if (g_patcher.WriteJmp(PrintScriptInfoDetour, PrintScriptInfo))
+			{
+				if (l_CreateCon)
+					fputs("Patched PrintScriptInfo.\n", CON);
+			}
+			else {
+				print("Failed to patch PrintScriptInfo.\n");
+			}
 		}
 		if (l_CreateCon)
 			if (!g_patcher.WriteJmp(RandomDetour2, PrintGH3Plog))
@@ -704,6 +860,8 @@ void ApplyHack()
 				if (l_CreateCon)
 					fputs("Patched assert function.\n", CON);
 			}
+			else
+				print("Failed to patch assert function.\n");
 		}
 		if (l_AllSuccess)
 			if (l_CreateCon)

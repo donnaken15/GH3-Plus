@@ -14,7 +14,7 @@ namespace GH3
 		QbStruct *qbStruct4;
 		QbScript *qbScript8; // cheat engine shows like it's a script
 		uint32_t unkC;
-		uint8_t *instructionPointer;
+		uint8_t *instructionPointer; //or mp_pc
 		QbStruct *qbStruct14; // lines up with class items:
 							// mp_function_params and mp_params
 		//uint32_t dword18; // near IP, moves with IP, cursor for current op?
@@ -64,11 +64,11 @@ namespace GH3
 						// key setup_sprites
 		uint32_t unkStructPtrA8; // always 0 maybe
 		uint32_t dwordAC;
-		uint32_t unkB0;
+		uint32_t qbState; // unkB0
 		uint32_t dwordB4; // always 0 maybe
-		uint32_t dwordB8;
+		uint32_t scriptIndex;
 		uint8_t unkBC; // checked in QbStruct::Update for game frame related
-		uint8_t unkBD;
+		uint8_t flags;
 		uint8_t unkBE;
 		uint8_t unkBF;
 		uint8_t *nextIP; // sometimes is 0, why
@@ -80,7 +80,7 @@ namespace GH3
 		uint8_t unkC6;
 		uint8_t unkC7;
 		uint32_t node; // "Number of the node that caused this script to be spawned, -1 if none specific"
-		uint32_t dwordCC; // points to stuff related to script
+		uint32_t*mpObject; // ?? // points to stuff related to script
 		uint32_t dwordD0;
 		uint32_t dwordD4; // becomes a pointer at one POINT
 		QbKey type;

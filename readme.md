@@ -36,12 +36,9 @@ Apparently not soon or then:
 Changes from the latest version include:
 - Major updates to the GH3+ API, supporting most of GH3's native "Qb" structures/classes.
 - RUNNING ON A BETTER NO-CD EXE (cut down file size, better deobfuscated SecuROM)
-- Open notes
+- Open notes and long open notes
+- Overlapping starpower
 
 Original work by ExileLord
 
 Continued by donnaken15 / Wesley
-
-<!--FAQ:
-- Q: "What's [FastGH3](https://donnaken15.tk/FastGH3)?"
-- A: Nothing you need to worry about...-->
