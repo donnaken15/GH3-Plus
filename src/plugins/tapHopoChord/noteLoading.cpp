@@ -398,12 +398,42 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 	}
 }
 
+char duct_tape = 0;
+
+void* pause_detour = (void*)0x00410CF5;
+void __declspec(naked) pause_fix2()
+{
+	static const unsigned int returnAddress = 0x00410CFA;
+	duct_tape = 1;
+	__asm
+	{
+		add  esp, 4;
+		mov   al, 1;
+		jmp  returnAddress;
+	}
+}
+
 void* CheckNoteHoldPerFrame_detour = (void*)0x0042BC5B;
 void __declspec(naked) CheckNoteHoldPerFrame_4Opens()
 {
 	static const unsigned int returnAddress = 0x0042BC60;
 	__asm
 	{
+		// fix for game not getting held frets
+		// for a frame right after unpausing
+
+		mov   al, duct_tape;
+		test  al,  al;
+		jz   MAIN;
+		//jmp  UNPAUSED;
+	//UNPAUSED:
+		mov  duct_tape, 0;
+		mov   al, 1;
+		mov   ah,  al;
+		cmp   al,  ah;
+		jmp  returnAddress;
+
+	MAIN:
 		mov  eax, 1;
 		cmp  ebx, 33333h;
 		jne  NOT_OPEN;
@@ -444,6 +474,8 @@ void __declspec(naked) CalculateSustainPoints_4Opens()
 	}
 }
 
+
+
 bool TryApplyNoteLoadingPatches()
 {
 
@@ -457,6 +489,7 @@ bool TryApplyNoteLoadingPatches()
 			g_patcher.WriteJmp(CheckNoteHoldWait_detour, CheckNoteHoldWait_4Opens) &&
 			g_patcher.WriteJmp(CheckNoteHoldPerFrame_detour, CheckNoteHoldPerFrame_4Opens) &&
 			g_patcher.WriteJmp(CalculateSustainPoints_detour, CalculateSustainPoints_4Opens) &&
+			g_patcher.WriteJmp(pause_detour, pause_fix2) &&
 			g_patcher.WriteNOPs((void *)0x0041D452, 3) && //NOP out the "sub esp 20h" following any CreateNote call since we are cleaning up the stack ourselves (effectively changing the calling convention)
 			g_patcher.WriteNOPs((void *)0x0041AD97, 3) &&
 			g_patcher.WriteInt8((void *)0x0041D451, 0x28)); //Since the stack will no longer be off by 0x20 we need to fix anything that grabs a stack variable before it is correct);

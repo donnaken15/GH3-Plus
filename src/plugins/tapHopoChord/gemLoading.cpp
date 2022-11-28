@@ -322,6 +322,8 @@ void __declspec(naked) gemStepLoopFixBNaked()
 
 
 #ifdef OVERLAPPING_STARPOWER
+// this requires modified scripts
+// in guitar_starpower.qb
 
 char star_power_used;
 int boss_battle;
@@ -339,7 +341,7 @@ void __declspec(naked) starpowerusedPatch1A()
 	static const void* const returnAddress2 = (void*)0x004303B5;
 	static const void* const SP_NOT_USED = (void*)0x00430422;
 	static int* bossbattle = (int*)0x00A12BC0;
-	__asm { push eax }
+	__asm push eax
 	// why is QbKey constexpr f%$#ing up here
 	// i was actually going schizophrenic that
 	// it was the below assembly's fault
@@ -431,7 +433,7 @@ void __declspec(naked) starpowerusedPatch1C()
 // detour of "highwayGemSub"'s action star_power_on
 // patched to change star gems to my custom textures
 // instead of normal gems
-// 
+//
 // 00A15860 = array of type of highway elements (gem,star,fretbar,etc)
 // 00A16860 = gem colors (noname when not a gem or star)
 // actually don't need to use these because the game automatically

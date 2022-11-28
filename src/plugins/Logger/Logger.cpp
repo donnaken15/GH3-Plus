@@ -166,7 +166,7 @@ char*getAssertFunctionRange(void*addr)
 				return current->funcName;
 			else
 			{
-				char* funcName = (char*)malloc(64);
+				char*funcName = (char*)malloc(64);
 				sprintf_s(funcName, 64, "sub_%X", current->rangeStart);
 				current->funcName = funcName;
 				return funcName;
