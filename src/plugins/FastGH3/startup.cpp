@@ -122,12 +122,30 @@ void initFrameTimer()
 }
 //extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
 
+
+static char inipath[MAX_PATH];
+
+int killswitchTimer = 0;
+int killswitchCheckInterval = 100;
+
 static void* beforePresentDetour = (void*)0x0048453B;
 void frameLimit()
 {
 #if (FRAMERATE_FROM_QB)
 	frameRate = GlobalMapGetInt(QbKey("fps_max")); // can't get a float >:(
 #endif
+
+	// kill me
+	if (killswitchTimer++ < (frameRate/4))
+	{
+		killswitchTimer = 0;
+		if (GetPrivateProfileIntA("Misc", "Killswitch", 0, inipath))
+		{
+			WritePrivateProfileStringA("Misc", "Killswitch", "0", inipath);
+			ExitProcess(0);
+		}
+	}
+
 	if (!frameRate)
 	{
 		couldntCap = true;
@@ -173,7 +191,7 @@ void lagBegin()
 	lol();
 	if (!couldntCap) // stupid
 		realFPS = 1.0f / ((float)(LAG_1 - LAG_2) / 10000000);
-	else // read line 143 for why this is like this
+	else // read line 165 for why this is like this
 		realFPS = 1.0f / *g_delta;
 	timeBeginPeriod(1);
 	//get a timestamp immediately after rendering a frame
@@ -181,7 +199,6 @@ void lagBegin()
 	timeEndPeriod(1);
 }
 
-static char inipath[MAX_PATH];
 static char test[10];
 static int*presint = (int*)0x00C5B934;
 static char*CD = (char*)0x00B45A11;
@@ -316,6 +333,14 @@ __declspec(naked) void getPosFix()
 	}
 }
 
+
+static void* dumb1 = (void*)0x0048493A;
+static void* dumb3 = (void*)0x005377F0;
+__declspec(naked) void dumb2()
+{
+	ExitProcess(0);
+}
+
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -329,6 +354,7 @@ void ApplyHack()
 	//(*d3ddev)->
 	windowed = GetPrivateProfileIntA("Misc", "Windowed", 1, inipath);
 	// ^ because why would you want to turn this off
+	// unless you like purposely suffering
 	g_patcher.WriteInt32((void*)0x0057BB50, windowed);
 	if (!vsync)
 	{
@@ -349,4 +375,6 @@ void ApplyHack()
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour1, BWFA_frames2Realtime1);
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
+	g_patcher.WriteJmp(dumb1, dumb2);
+	g_patcher.WriteJmp(dumb3, dumb2);
 }
