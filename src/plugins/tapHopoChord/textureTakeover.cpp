@@ -448,15 +448,23 @@ bool isRawTextureKey(GH3::QbKey key, int &i)
 bool  __stdcall storeSpecialTextures(GH3::QbImage *img, GH3::TextureMetadata *metadata)
 {
 	int index;
-
 	if (isRawTextureKey(metadata->key, index))
 	{
-		GH3::QbKey textureKey = g_textureKeys[index];
+		// WHY C++ WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		// WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY WHY
+		UINT textureKey = g_textureKeys[index];
 		g_metadataMap[textureKey] = metadata;
 		g_imageMap[textureKey] = img;
 		g_weirdMap[textureKey] = WeirdTextureStruct();
 	}
-
 	return false;
 }
 

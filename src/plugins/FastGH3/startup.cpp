@@ -122,11 +122,13 @@ void initFrameTimer()
 }
 //extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
 
-
 static char inipath[MAX_PATH];
 
 int killswitchTimer = 0;
 int killswitchCheckInterval = 100;
+
+typedef int lol2();
+lol2* lol3 = (lol2*)(0x005377F0);
 
 static void* beforePresentDetour = (void*)0x0048453B;
 void frameLimit()
@@ -142,7 +144,7 @@ void frameLimit()
 		if (GetPrivateProfileIntA("Misc", "Killswitch", 0, inipath))
 		{
 			WritePrivateProfileStringA("Misc", "Killswitch", "0", inipath);
-			ExitProcess(0);
+			lol3();
 		}
 	}
 
@@ -173,7 +175,7 @@ void frameLimit()
 	{
 		couldntCap = false;
 		SetWaitableTimer(frameLimiter, (LARGE_INTEGER*)&frameTime, 0, NULL, NULL, 0);
-		WaitForSingleObject(frameLimiter, INFINITE);
+		WaitForSingleObject(frameLimiter, (1.0f/frameRate)*1000);
 	}
 	else
 		couldntCap = true;
@@ -181,7 +183,6 @@ void frameLimit()
 	timeEndPeriod(1);
 	// still unstable around 120 FPS :toolcoder:
 }
-typedef int lol2();
 lol2* lol = (lol2*)(0x00492780);
 static void* afterPresentDetour = (void*)0x0048458B;
 float* g_delta = (float*)0x009596BC;
@@ -333,14 +334,6 @@ __declspec(naked) void getPosFix()
 	}
 }
 
-
-static void* dumb1 = (void*)0x0048493A;
-static void* dumb3 = (void*)0x005377F0;
-__declspec(naked) void dumb2()
-{
-	ExitProcess(0);
-}
-
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -375,6 +368,4 @@ void ApplyHack()
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour1, BWFA_frames2Realtime1);
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
-	g_patcher.WriteJmp(dumb1, dumb2);
-	g_patcher.WriteJmp(dumb3, dumb2);
 }
