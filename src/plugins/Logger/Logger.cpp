@@ -66,6 +66,11 @@ __declspec(naked) char* QbKeyPrintFix(UINT qbk)
 	}
 	FML(*keytmp2);
 	keytmp = keyfault;
+	if (!l_DbgLoaded)
+	{
+		sprintf(keyfault, "%08X", qbk);
+		goto fail;
+	}
 	for (uint16_t i = 0; i < MAX_KEYS; i++)
 	{
 		if (*keytmp2 == dbgKeys[i])
@@ -78,6 +83,7 @@ __declspec(naked) char* QbKeyPrintFix(UINT qbk)
 			break;
 		}
 	}
+	fail:
 	__asm {
 		mov eax, keytmp;
 		jmp returnAddress;
@@ -357,10 +363,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 	else
 		qbstrstr2 = sprintf_s(qbstrstr, "%02X %08X = ", type, (int)key);
 	// fallback thing, if no later type matches, print as qbkey
-	if (l_DbgLoaded)
-		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%s\n", QbKeyPrintFix(value));
-	else
-		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%08X\n", value);
+	sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%s\n", QbKeyPrintFix(value));
 	switch (type)
 	{
 	case TypeInt:
@@ -481,17 +484,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 					fprintf(log, "\"%ls\"", (wchar_t*)qa->Get(i));
 				break;
 			case TypeQbKey:
-				if (l_DbgLoaded) {
-					print(QbKeyPrintFix(qa->Get(i)));
-				}
-				else {
-					if (l_CreateCon) {
-						fprintf(CON, "%08X", qa->Get(i));
-					}
-					if (l_WriteFile) {
-						fprintf(log, "%08X", qa->Get(i));
-					}
-				}
+				print(QbKeyPrintFix(qa->Get(i)));
 				break;
 			case TypeQbStruct:
 				print("\n");
