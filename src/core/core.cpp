@@ -13,9 +13,8 @@ std::vector<HANDLE> g_loadedPlugins;
 
 void LoadPlugins()
 {
-	std::wofstream log;
-	log.open("plugins\\_log.txt");
-	log << L"GH3+ initializing...\nLoading plugins...\n";
+	FILE * log = fopen("plugins\\_log.txt", "w");
+	fputs("GH3+ Initializing...\nLoading plugins...\n", log);
 
 	HANDLE hFind;
 	WIN32_FIND_DATA data;
@@ -39,17 +38,19 @@ void LoadPlugins()
 		FindClose(hFind);
 	}
 
-	log << L"Done...\n";
-	log.close();
+	fputs("Done...\n", log);
+	fclose(log);
 }
 
-HANDLE LoadPlugin(LPCWSTR plugin, std::wofstream &log)
+HANDLE LoadPlugin(LPCWSTR plugin, FILE*log)
 {
 	std::wstring plugin2(plugin);
 	std::wstring lowerPlugin2(plugin);
 	std::transform(lowerPlugin2.begin(), lowerPlugin2.end(), lowerPlugin2.begin(), ::towlower);
 
-	if (lstrcmp(lowerPlugin2.c_str(), L"core.dll") == 0 || !lendswith(lowerPlugin2.c_str(), L".dll"))
+	if (lstrcmp(lowerPlugin2.c_str(), L"core.dll") == 0 ||
+		lstrcmp(lowerPlugin2.c_str(), L"vcruntime140.dll") == 0 ||
+		!lendswith(lowerPlugin2.c_str(), L".dll"))
 		return NULL;
 
 	std::wstring dir(L"plugins\\");
@@ -58,11 +59,13 @@ HANDLE LoadPlugin(LPCWSTR plugin, std::wofstream &log)
     HANDLE pluginHandle = LoadLibraryW(dir.c_str());
     if (pluginHandle != INVALID_HANDLE_VALUE && pluginHandle != NULL)
     {
-        log << L"Loaded: " << dir.c_str() << " @ " << pluginHandle << L"\n";
+		fprintf(log, "Loaded: %ls @ %p\n", dir.c_str(), pluginHandle);
+        //log << L"Loaded: " << dir.c_str() << " @ " << pluginHandle << L"\n";
     }
     else
     {
-        log << L"Failed: " << dir.c_str() << L", Returned: " << GetLastError() << L"\n";
+		fprintf(log, "Failed: %ls, Returned: %d\n", dir.c_str(), GetLastError());
+        //log << L"Failed: " << dir.c_str() << L", Returned: " << GetLastError() << L"\n";
     }
     return pluginHandle;
 

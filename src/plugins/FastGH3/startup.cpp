@@ -117,15 +117,16 @@ static void* beforeMainloopDetour = (void*)0x00401FFD;
 void initFrameTimer()
 {
 	QueryPerformanceFrequency((LARGE_INTEGER*)&CLOCK_FREQ);
-	frameBase = -((float)(CLOCK_FREQ) / frameRate);
-	frameLimiter = CreateWaitableTimerA(NULL, 1, NULL);
+	frameBase = -(CLOCK_FREQ / frameRate);
 }
-//extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
+
+// doesn't work?
+extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
 
 static char inipath[MAX_PATH];
 
 int killswitchTimer = 0;
-int killswitchCheckInterval = 100;
+//int killswitchCheckInterval = 100;
 
 typedef int lol2();
 lol2* lol3 = (lol2*)(0x005377F0);
@@ -138,7 +139,8 @@ void frameLimit()
 #endif
 
 	// kill me
-	if (killswitchTimer++ < (frameRate/4))
+#if 0
+	if (killswitchTimer++ < (frameRate*2))
 	{
 		killswitchTimer = 0;
 		if (GetPrivateProfileIntA("Misc", "Killswitch", 0, inipath))
@@ -147,6 +149,7 @@ void frameLimit()
 			lol3();
 		}
 	}
+#endif
 
 	if (!frameRate)
 	{
@@ -161,7 +164,11 @@ void frameLimit()
 	QueryPerformanceCounter((LARGE_INTEGER*)&frameTime);
 	// and then do math to set how much time to wait
 	// subtracted by how much time game code ran for
-	frameBase = -((float)(CLOCK_FREQ) / frameRate);
+	frameBase = -(CLOCK_FREQ / frameRate);
+	// what's even the point of float cast
+	// when using whole number limits
+	// and when I CAN'T EVEN GET A
+	// FLOAT IN QB THROUGH C++
 	frameTime += frameBase - LAG_1;
 	if (frameTime < 0) // positive value means absolute time for these funcs but
 		// guessing that if it didnt get a time long enough to subtract
@@ -174,8 +181,10 @@ void frameLimit()
 		// WTFFFFFFF!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	{
 		couldntCap = false;
+		frameLimiter = CreateWaitableTimerA(NULL, 1, NULL);
 		SetWaitableTimer(frameLimiter, (LARGE_INTEGER*)&frameTime, 0, NULL, NULL, 0);
 		WaitForSingleObject(frameLimiter, (1.0f/frameRate)*1000);
+		CloseHandle(frameLimiter);
 	}
 	else
 		couldntCap = true;
@@ -192,7 +201,7 @@ void lagBegin()
 	lol();
 	if (!couldntCap) // stupid
 		realFPS = 1.0f / ((float)(LAG_1 - LAG_2) / 10000000);
-	else // read line 165 for why this is like this
+	else // read line 173 for why this is like this
 		realFPS = 1.0f / *g_delta;
 	timeBeginPeriod(1);
 	//get a timestamp immediately after rendering a frame

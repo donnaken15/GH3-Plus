@@ -4,5 +4,5 @@
 #include <iostream>
 
 bool lendswith(LPCWSTR str, LPCWSTR ending);
-HANDLE LoadPlugin(LPCWSTR plugin, std::wofstream &log);
+HANDLE LoadPlugin(LPCWSTR plugin, FILE*log);
 void LoadPlugins();
