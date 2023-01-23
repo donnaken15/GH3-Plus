@@ -23,9 +23,3 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 	}
 	return TRUE;
 }
-/*BOOL WINAPI _DllMainCRTStartup(HMODULE hModule,
-	DWORD  ul_reason_for_call,
-	LPVOID lpReserved)
-{
-	return DllMain(hModule, ul_reason_for_call, lpReserved);
-}*/

@@ -13,7 +13,8 @@ std::vector<HANDLE> g_loadedPlugins;
 
 void LoadPlugins()
 {
-	FILE * log = fopen("plugins\\_log.txt", "w");
+	FILE*log;
+	fopen_s(&log, "plugins\\_log.txt", "w");
 	fputs("GH3+ Initializing...\nLoading plugins...\n", log);
 
 	HANDLE hFind;

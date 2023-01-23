@@ -325,21 +325,90 @@ __declspec(naked) void whammyWidthFix()
 	}
 }
 
+/**typedef int imgbase_func();
+imgbase_func* setPosition = (imgbase_func*)(0x007A57AC);
+imgbase_func* getWaveData = (imgbase_func*)(0x007A57C4);
+
+int seekval;
+void*channel;
+float*_test;
 // fix audio seeking (SOON TM)
-static void* FMOD_setPosition_Detour = (void*)0x00000000;
+static void* FMOD_setPosition_Detour = (void*)0x00D9D12B;
 __declspec(naked) void setPosFix()
 {
-	static const uint32_t returnAddress = 0x00000000;
+	static const uint32_t returnAddress = 0x00D9D13A;
 	__asm {
+		mov  seekval, eax; // get milliseconds
+	}
+	__asm {
+		mov  eax, [esi + 21Ch];
+		mov  channel, eax;
+	}
+	__asm {
+		mov  eax, seekval;
+		push 1;
+		push eax;
+		mov  eax, [esi + 21Ch];
+		push eax;
+		call setPosition;
 		jmp returnAddress;
 	}
-}
-static void* FMOD_getPosition_Detour = (void*)0x00000000;
+}/**/
+/*static void* FMOD_getPosition_Detour = (void*)0x00000000;
 __declspec(naked) void getPosFix()
 {
 	static const uint32_t returnAddress = 0x00000000;
 	__asm {
 		jmp returnAddress;
+	}
+}*/
+
+char*FSBa;
+char*FSBaa;
+char*FSBb;
+int  FSBm;
+FILE*FSBf;
+char*FSBc;
+
+int realEBX, realECX, realEDX;
+// thx zed
+static void* FSBLoad_Detour = (void*)0x00548F46;
+__declspec(naked) void FSBLoadAllowUnenc()
+{
+	static const uint32_t returnAddress = 0x00548F4D;
+	__asm {
+		mov  edx, [esp + 24h - 0Ch];
+		mov  FSBb, edx;
+		mov  realEBX, ebx; // later functions use these registers >:(
+		mov  realECX, ecx;
+		mov  realEDX, edx;
+	}
+	FSBa = (char*)malloc(MAX_PATH);
+	FSBaa = (char*)malloc(MAX_PATH);
+	GetModuleFileNameA(0,FSBa,MAX_PATH);
+	FSBc = strrchr(FSBa,'\\');
+	if (FSBc)
+		*FSBc = 0;
+	sprintf_s(FSBaa,MAX_PATH,"%s\\DATA\\%s.fsb.xen",FSBa,FSBb);
+
+	FSBf = fopen(FSBaa, "rb");
+	if (FSBf)
+	{
+		fread(&FSBm, sizeof(int), 1, FSBf);
+		fclose(FSBf);
+
+		if (FSBm == 0x33425346)
+		{
+			realECX = 0;
+		}
+	}
+	// else assert :/
+
+	__asm {
+		push realECX;
+		push realEBX;
+		push realEDX;
+		jmp  returnAddress;
 	}
 }
 
@@ -377,4 +446,11 @@ void ApplyHack()
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour1, BWFA_frames2Realtime1);
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
+	g_patcher.WriteJmp(FSBLoad_Detour, FSBLoadAllowUnenc);
+	/*if (GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))
+	{
+		int*streamParam = (int*)0x0050EBEE;
+		g_patcher.WriteInt32(streamParam, *streamParam | 0x4000); // ACCURATETIME
+	}*/
+	//g_patcher.WriteJmp(FMOD_setPosition_Detour, setPosFix);
 }

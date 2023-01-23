@@ -9,13 +9,14 @@ if (*disable_particles > 1)
 }
 
 Wait(*button_sink_time,Seconds);
-GetSongTimeMs();
 
 //FormatText(checksumName=player_status, 'player%d_status', d = %player);
 
 open_color1 = [240,199,255,255];
 open_color2 = [212,  0,255,255];
 // WOR COLOR(-ish)
+// PS: this is for drum note which apparently appears on guitar on WOR
+// and since there's no opens on guitar charts
 //open_color1 = [255,178, 89,255];
 //open_color2 = [207,107,  0,255];
 
@@ -25,6 +26,7 @@ if (*%player_status.star_power_used == 1)
 	open_color2 = [  0,247,255,255];
 }
 
+GetSongTimeMs();
 fxprefix = 'open_particle'; // hardcore optimization
 fxformat = '%f%dp%p_%t';
 // changed id keys to ones with existing names just because
