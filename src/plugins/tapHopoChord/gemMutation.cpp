@@ -280,7 +280,8 @@ _declspec(naked) void WhammyShader_TexKeyCheck_Naked()
 		jmp returnAddress;
 	}
 }
-const float openWhammySizeMultiplier = 11.8f;
+const float openWhammySizeMultiplier = 11.8f; // probably make a qb value
+// because someone can change whammy_top_width which this code depends on
 static void* const WhammyShader_Resize = (void*)0x00603552;
 _declspec(naked) void WhammyShader_Resize_Naked()
 {
@@ -315,12 +316,6 @@ _declspec(naked) void WhammyShader_WeirdFix_Naked()
 }
 // TODO: scale down glowing sprite
 // condition for held note detour here?: 006036E3
-// and another reminder to make it possible
-// to continue holding long notes after unpausing
-//
-// looks like it could be just a frame fix
-// as open was successfully held (with no
-// frets lol) when unpausing
 
 bool TryApplyGemMutationPatches()
 {

@@ -97,7 +97,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="mp3seek.c" />
+    <ClCompile Include="mp3seek.cpp" />
     <ClCompile Include="startup.cpp" />
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>

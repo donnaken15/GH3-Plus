@@ -14,16 +14,16 @@
 #pragma comment(lib, "winmm.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
-static void *D3DPPpi = (void *)0x0057BB79;
-static LPDIRECT3DDEVICE9*d3ddev = (LPDIRECT3DDEVICE9*)0x00C5C7A8;
+static void* D3DPPpi = (void*)0x0057BB79;
+static LPDIRECT3DDEVICE9* d3ddev = (LPDIRECT3DDEVICE9*)0x00C5C7A8;
 
-HWND*hWnd;
+HWND* hWnd;
 RECT WndR;
 int sizeX, sizeY, centerX, centerY;
 
 BYTE vsync, borderless, windowed;
 
-static void *hWndDetour = (void *)0x0057BA6F;
+static void* hWndDetour = (void*)0x0057BA6F;
 static int* wndStyle = (int*)0x0057BA5D;
 __declspec(naked) void hWndHack()
 {
@@ -60,8 +60,8 @@ int* GameRes_Xi = (int*)0x00C5E6B8;
 int* GameRes_Yi = (int*)0x00C5E6BC;
 float* GameRes_X = (float*)0x00C5E6B0;
 using namespace GH3;
-static void*screenshotDetour = (void*)0x005377B0;
-bool ScreenShot(QbStruct*str,QbScript*scr)
+static void* screenshotDetour = (void*)0x005377B0;
+bool ScreenShot(QbStruct* str, QbScript* scr)
 {
 	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
 	// "just make it a separate plugin"
@@ -79,16 +79,16 @@ bool ScreenShot(QbStruct*str,QbScript*scr)
 
 	char maindir[MAX_PATH];
 	char filepath[MAX_PATH];
-	char*filename;
+	char* filename;
 	if (!str->GetString(QbKey("filename"), filename))
 		filename = "screen";
 	GetCurrentDirectoryA(MAX_PATH, maindir);
-	sprintf_s(filepath,"%s\\%s.bmp",maindir,filename);
+	sprintf_s(filepath, "%s\\%s.bmp", maindir, filename);
 	// WHY DO PNG AND JPG FAIL
 	// DDS USES ARGB8 AND IS THE SAME SIZE AS BITMAP >:(
 	// AND WHY IS IT SO BIG FOR WRITING AN UNCOMPRESSED
 	// RGB32 STUPIDLY LARGE SCREENSHOT
-	
+
 	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, pSurface, NULL, NULL);
 
 	pSurface->Release();
@@ -140,7 +140,7 @@ void frameLimit()
 
 	// kill me
 #if 0
-	if (killswitchTimer++ < (frameRate*2))
+	if (killswitchTimer++ < (frameRate * 2))
 	{
 		killswitchTimer = 0;
 		if (GetPrivateProfileIntA("Misc", "Killswitch", 0, inipath))
@@ -183,7 +183,7 @@ void frameLimit()
 		couldntCap = false;
 		frameLimiter = CreateWaitableTimerA(NULL, 1, NULL);
 		SetWaitableTimer(frameLimiter, (LARGE_INTEGER*)&frameTime, 0, NULL, NULL, 0);
-		WaitForSingleObject(frameLimiter, (1.0f/frameRate)*1000);
+		WaitForSingleObject(frameLimiter, (1.0f / frameRate) * 1000);
 		CloseHandle(frameLimiter);
 	}
 	else
@@ -210,12 +210,12 @@ void lagBegin()
 }
 
 static char test[10];
-static int*presint = (int*)0x00C5B934;
-static char*CD = (char*)0x00B45A11;
+static int* presint = (int*)0x00C5B934;
+static char* CD = (char*)0x00B45A11;
 
 // patch framerate fixed velocity and friction of particles
 float frameFrac = 60.0f;
-float*g_gameSpeed1 = (float*)0x009596B4;
+float* g_gameSpeed1 = (float*)0x009596B4;
 static void* Upd2DPSys_detour = (void*)0x00428E4C;
 __declspec(naked) void velocityFix()
 {
@@ -228,7 +228,7 @@ __declspec(naked) void velocityFix()
 		movss   xmm4, dword ptr realFPS;   // (frameRate
 		divss   xmm4, dword ptr frameFrac; //            / frameFrac)
 		push    eax;
-		mov     eax , dword ptr g_gameSpeed1; // also apply fix for slomo
+		mov     eax, dword ptr g_gameSpeed1; // also apply fix for slomo
 		divss   xmm4, [eax];
 		divss   xmm1, xmm4; // vel = vel * velMod
 		pop     eax;
@@ -246,7 +246,7 @@ __declspec(naked) void velocityFix2()
 		movss   xmm6, dword ptr realFPS;
 		divss   xmm6, dword ptr frameFrac;
 		push    eax;
-		mov     eax , dword ptr g_gameSpeed1;
+		mov     eax, dword ptr g_gameSpeed1;
 		divss   xmm6, [eax];
 		divss   xmm3, xmm6;
 		pop     eax;
@@ -319,31 +319,110 @@ __declspec(naked) void whammyWidthFix()
 	// ez hack overwriting xmm0 using temporary math operations
 	dummy = dummy * (resCurrent / resFrac);
 	__asm {
-		movss   [esp + 58h], xmm0;
+		movss[esp + 58h], xmm0;
 
 		jmp returnAddress;
 	}
 }
 
-/**typedef int imgbase_func();
+#define ACCURATETIME 1
+
+#include "mp3seek.h"
+
+#if ACCURATETIME
+
+WORD** VBRfr;
+int* VBRfrL;
+int* VBRlens;
+BYTE* isVBR;
+int baseBR = 128;
+
+/**/typedef int imgbase_func();
 imgbase_func* setPosition = (imgbase_func*)(0x007A57AC);
-imgbase_func* getWaveData = (imgbase_func*)(0x007A57C4);
+imgbase_func* getPosition = (imgbase_func*)(0x007A5764);
+imgbase_func* QBStr_GetValue = (imgbase_func*)(0x00478E50);
+//imgbase_func* getWaveData = (imgbase_func*)(0x007A57C4);
+
+// convert time to accurate time for FMOD
+float VBR2CBR(WORD* BR, float fcount, int maxf, int freq)
+{
+	float nsamp = 0;
+	if (fcount > maxf)
+		fcount = maxf;
+	for (int i = 0; i < (int)fcount; i++)
+	{
+		nsamp += ((float)baseBR / BR[i]); // * 128
+	}
+	nsamp += fmod(fcount, 1); // lol
+	nsamp *= ((float)spf / freq);
+	return nsamp;
+}
+FILE* test3;
+
+#define __FC 4
+#define __ESIZE 0x50
+#define __SSIZE 8 + (__ESIZE * __FC)
+#define __FNSIZE 30
+const int ssize = __SSIZE;
+const int fc = __FC; // FC ACAIPOG
+const int esize = __ESIZE;
+const int fnsize = __FNSIZE;
+typedef struct {
+	uint16_t ssize; // __SSIZE
+	char fname[__FNSIZE]; // 30 bytes
+	uint32_t samples;
+	uint32_t datasize;
+	uint32_t loop_start;
+	uint32_t loop_end;
+	uint32_t mode;
+	uint32_t rate;
+	uint16_t vol;
+	uint16_t pan;
+	uint16_t priority;
+	uint16_t chs;
+	float min_dist;
+	float max_dist;
+	uint32_t var_freq;
+	uint16_t var_vol;
+	uint16_t var_pan;
+} FENTRY;
+FENTRY* FSBs;
 
 int seekval;
-void*channel;
-float*_test;
+int UID2idx(int key)
+{
+	//return 2;
+	/**/switch (key) // wtf
+	{
+	case 2: // fastgh3_guitar
+		return 0;
+	case 3: // fastgh3_rhythm
+		return 1;
+	case 1: // fastgh3_song
+		return 2;
+	}/**/
+}
+int sID; // fastgh3_* key, set from preload_song
+int sIDx;
+float _test;
 // fix audio seeking (SOON TM)
 static void* FMOD_setPosition_Detour = (void*)0x00D9D12B;
 __declspec(naked) void setPosFix()
 {
+	// weirdly messes up sometimes
 	static const uint32_t returnAddress = 0x00D9D13A;
 	__asm {
 		mov  seekval, eax; // get milliseconds
 	}
-	__asm {
-		mov  eax, [esi + 21Ch];
-		mov  channel, eax;
-	}
+	//test3 = fopen("ftest.bin", "wb");
+	_test = ((float)seekval) / 1000.0f;
+	//fwrite(&_test, 4, 1, test3);
+	_test /= ((float)spf / 44100.0f);// FSBs[sIDx].rate);
+	//fwrite(&_test, 4, 1, test3);
+	sIDx = UID2idx(sID);
+	seekval = VBR2CBR(VBRfr[sIDx], _test, VBRfrL[sIDx], FSBs[sIDx].rate) * 1000;
+	//fwrite(&seekval, 4, 1, test3);
+	//fclose(test3);
 	__asm {
 		mov  eax, seekval;
 		push 1;
@@ -351,29 +430,93 @@ __declspec(naked) void setPosFix()
 		mov  eax, [esi + 21Ch];
 		push eax;
 		call setPosition;
-		jmp returnAddress;
+		jmp  returnAddress;
 	}
-}/**/
-/*static void* FMOD_getPosition_Detour = (void*)0x00000000;
+}
+// only runs for fastgh3_song in highway scroll func
+static void* FMOD_getPosition_Detour = (void*)0x00D932A4;
 __declspec(naked) void getPosFix()
 {
-	static const uint32_t returnAddress = 0x00000000;
+	static const uint32_t returnAddress = 0x00D932B9;
 	__asm {
-		jmp returnAddress;
+		mov  seekval, ecx;
 	}
-}*/
 
-char*FSBa;
-char*FSBaa;
-char*FSBb;
+	__asm {
+		mov  ecx, seekval;
+		push 1;
+		//lea  ecx, [esp + 4];
+		push ecx;
+		push eax;
+		mov[esp + 10h - 4], 0;
+		call getPosition;
+		jmp  returnAddress;
+	}
+}
+#endif
+
+char* FSBa;
+char* FSBaa;
+char* FSBb;
 int  FSBm;
-FILE*FSBf;
-char*FSBc;
+FILE* FSBf;
+char* FSBc;
 
+// Invo
+char SwapByteBits(unsigned char cInput)
+{
+	unsigned char nResult = 0;
+	for (int i = 0; i < 8; i++)
+	{
+		nResult = nResult << 1;
+		nResult |= (cInput & 1);
+		cInput = cInput >> 1;
+	}
+	return (nResult);
+}
+#if ACCURATETIME
+void decfsbpart(char* inp, int len, char* key, int keylen, int keyoff)
+{
+	if (!key || !keylen || !len)
+		return;
+	for (int i = 0; i < len; i++)
+	{
+		*inp = SwapByteBits(*inp ^ key[(i + keyoff) % keylen]);
+		inp++;
+	}
+}
+int strlenNZ(char* str)
+{
+	if (str) return strlen(str);
+	return 0;
+}
+void AlignFile(FILE* f, unsigned char bits)
+{
+	// bits == 2, align to 4 bytes
+	bits = 1 << bits;
+	unsigned char align = ftell(f);
+	if (align & (bits - 1))
+		fseek(f, bits - (align & (bits - 1)), SEEK_CUR);
+}
+int align(int a, unsigned char bits)
+{
+	bits = 1 << bits;
+	unsigned char align = a;
+	if (align & (bits - 1))
+		return bits - (align & (bits - 1));
+	return 0;
+}
+
+#include <vector>
+std::vector<WORD> tmpvec;
+
+int iiiii, MP3Cursor;
+int fixseeking = 0;
+#endif
 int realEBX, realECX, realEDX;
 // thx zed
 static void* FSBLoad_Detour = (void*)0x00548F46;
-__declspec(naked) void FSBLoadAllowUnenc()
+__declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
 {
 	static const uint32_t returnAddress = 0x00548F4D;
 	__asm {
@@ -385,23 +528,95 @@ __declspec(naked) void FSBLoadAllowUnenc()
 	}
 	FSBa = (char*)malloc(MAX_PATH);
 	FSBaa = (char*)malloc(MAX_PATH);
-	GetModuleFileNameA(0,FSBa,MAX_PATH);
-	FSBc = strrchr(FSBa,'\\');
+	GetModuleFileNameA(0, FSBa, MAX_PATH);
+	FSBc = strrchr(FSBa, '\\');
 	if (FSBc)
 		*FSBc = 0;
-	sprintf_s(FSBaa,MAX_PATH,"%s\\DATA\\%s.fsb.xen",FSBa,FSBb);
+	sprintf_s(FSBaa, MAX_PATH, "%s\\DATA\\%s.fsb.xen", FSBa, FSBb);
 
 	FSBf = fopen(FSBaa, "rb");
 	if (FSBf)
 	{
-		fread(&FSBm, sizeof(int), 1, FSBf);
-		fclose(FSBf);
+		fread(&FSBm, 4, 1, FSBf);
+		//fclose(FSBf);
 
 		if (FSBm == 0x33425346)
 		{
 			realECX = 0;
 		}
+#if ACCURATETIME
+		if (fixseeking)
+		{
+			decfsbpart((char*)&FSBm, 4, (char*)realECX, strlenNZ((char*)realECX), 4);
+			if (FSBm != 0x33425346) goto FAIL;
+			//fseek(FSBf, 0, SEEK_SET);
+			// file count
+			fread(&FSBm, 4, 1, FSBf);
+			decfsbpart((char*)&FSBm, 4, (char*)realECX, strlenNZ((char*)realECX), 8);
+			if (FSBm != __FC) goto FAIL;
+			// struct size
+			fread(&FSBm, 4, 1, FSBf);
+			decfsbpart((char*)&FSBm, 4, (char*)realECX, strlenNZ((char*)realECX), 12);
+			if (FSBm != __SSIZE) goto FAIL;
+			fseek(FSBf, 12, SEEK_CUR); // skip extra bytes
+
+			FSBs = (FENTRY*)malloc(__SSIZE);
+			fread(FSBs, 1, __SSIZE, FSBf);
+			decfsbpart((char*)FSBs, __SSIZE,
+				(char*)realECX, strlenNZ((char*)realECX), ftell(FSBf) - 4);
+			//test3 = fopen("ftest.bin","wb");
+			isVBR = (BYTE*)calloc(3, 1); // just use a bitfield
+			VBRfrL = (int*)malloc(3 * sizeof(int));
+			VBRfr = (WORD**)calloc(3, sizeof(WORD));
+			//test3 = fopen("ftest.bin", "wb");
+			for (iiiii = 0; iiiii < 3; iiiii++) // dont read preview.mp3
+			{
+				MP3Cursor = 0;
+				tmpvec.clear();
+				while (MP3Cursor < FSBs[iiiii].samples) //FSBs[0].datasize
+				{
+					// brain drain
+					fread(&FSBm, 4, 1, FSBf);
+					decfsbpart((char*)&FSBm, 4,
+						(char*)realECX, strlenNZ((char*)realECX), ftell(FSBf) - 4);
+					//fwrite(&FSBm,4,1,test3);
+					// first time i use a std::vector
+					FSBm = ESWAP(FSBm);
+					tmpvec.push_back(bitrates(MFRAME_GET_BTIDX(FSBm)));
+					if (tmpvec.size() > 1 && !isVBR[iiiii])
+					{
+						if (tmpvec[tmpvec.size() - 2] == tmpvec[tmpvec.size() - 1])
+						{
+							isVBR[iiiii] = 1;
+						}
+					}
+					FSBm = MFRAME_SIZE(FSBm) + MFRAME_GET_PADBT(FSBm);
+					fseek(FSBf, FSBm - 4, SEEK_CUR);
+					MP3Cursor += spf;
+				}
+				AlignFile(FSBf, 4);
+				// does this actually work?
+				VBRfr[iiiii] = (WORD*)malloc(tmpvec.size() * sizeof(WORD));
+				VBRfrL[iiiii] = tmpvec.size();
+				memcpy(VBRfr[iiiii], &tmpvec[0], tmpvec.size() * sizeof(WORD));
+				//fwrite(VBRfr[iiiii], sizeof(WORD), tmpvec.size(), test3);
+				//FSBm = 0xFFFFFFFF;
+				//fwrite(&FSBm, 4, 1, test3);
+				//fwrite(&FSBm, 4, 1, test3);
+				//fwrite(&FSBm, 4, 1, test3);
+				//fwrite(&FSBm, 4, 1, test3);
+				//aaaa = VBR2CBR(VBRfr[iiiii], 8, VBRfrL[iiiii], 44100);
+				//fwrite(&aaaa, 4, 1, test3);
+			}
+			tmpvec.clear();
+			//fclose(test3);
+			//exit(0);
+		}
+#endif
+
+		fclose(FSBf);
 	}
+FAIL:
 	// else assert :/
 
 	__asm {
@@ -447,10 +662,9 @@ void ApplyHack()
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
 	g_patcher.WriteJmp(FSBLoad_Detour, FSBLoadAllowUnenc);
-	/*if (GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))
-	{
-		int*streamParam = (int*)0x0050EBEE;
-		g_patcher.WriteInt32(streamParam, *streamParam | 0x4000); // ACCURATETIME
-	}*/
-	//g_patcher.WriteJmp(FMOD_setPosition_Detour, setPosFix);
+#if ACCURATETIME
+	// experimental
+	if (fixseeking = GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))
+		g_patcher.WriteJmp(FMOD_setPosition_Detour, setPosFix);
+#endif
 }

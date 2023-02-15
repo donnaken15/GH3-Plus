@@ -404,6 +404,9 @@ void __declspec(naked) starpowerusedPatch1B()
 	}
 }
 const float const_50_0 = 50.0f; // should use original direct value but whatever
+// skip execution of show_star_power_ready when star power is on
+// somehow still does even when detoured to disable it
+// specific example: venetian snares mouth autoplay
 static void* const starpowerusedDetour1C = (void*)0x00424A22;
 void __declspec(naked) starpowerusedPatch1C()
 {
@@ -500,6 +503,10 @@ void __declspec(naked) starpowerusedPatch1D()
 		cmp [esp + 14h], 0;
 		jmp  returnAddress;
 	}
+	// TODO: make more versitile by pulling
+	// tex keys from guitar_gems
+	// tried already with changing taps
+	// during starpower and crashed
 }
 #endif
 
