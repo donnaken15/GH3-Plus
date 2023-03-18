@@ -24,3 +24,5 @@ Debug
 *.bak
 * - Copy*
 .useless
+\!*
+* (*).*

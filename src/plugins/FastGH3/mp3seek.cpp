@@ -1,5 +1,6 @@
 #include "mp3seek.h"
 
+#if ACCURATETIME
 // VERSION 1, LAYER 3
 // only format we're using (i'm pretty sure)
 unsigned short bitrates(unsigned char index) {
@@ -20,3 +21,5 @@ uint MFRAME_SIZE(uint hdr)
 {
 	return 144 * (bitrates(MFRAME_GET_BTIDX(hdr)) * 1000) / samprates[MFRAME_GET_FRIDX(hdr)];
 }
+#endif
+

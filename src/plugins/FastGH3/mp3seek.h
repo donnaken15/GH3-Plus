@@ -1,6 +1,9 @@
 #define ESWAP(i) (((i & 0xFF) << 24) | ((i & 0xFF00) << 8) | ((i & 0xFF0000) >> 8) | ((i & 0xFF000000) >> 24))
 typedef unsigned int uint;
 
+#define ACCURATETIME 1
+
+#if ACCURATETIME
 enum bitrate_index {
 	M_free = 0b0000,
 	M_32b = 0b0001,
@@ -64,3 +67,5 @@ uint MFRAME_SIZE(uint hdr);
 // 0xFFFB504C & 0x00000004 >> 2 & 1
 #define MFRAME_GET_ORGNL(h) h >> 2 & 1
 #define MFRAME_GET_EMPHS(h) h & 3
+#endif
+

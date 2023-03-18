@@ -10,6 +10,11 @@
 #include <d3d9.h>
 #include <D3dx9tex.h>
 
+// TODO!!!!!!!!:
+// detour D3D9 load texture from memory
+// function to see if I can use a
+// faster alternative
+
 #pragma comment(lib, "E:\\D3D9\\d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
@@ -56,9 +61,10 @@ __declspec(naked) void hWndHack()
 
 #define SCREENSHOT 0
 
+float* GameRes_X = (float*)0x00C5E6B0;
+#if SCREENSHOT
 int* GameRes_Xi = (int*)0x00C5E6B8;
 int* GameRes_Yi = (int*)0x00C5E6BC;
-float* GameRes_X = (float*)0x00C5E6B0;
 using namespace GH3;
 static void* screenshotDetour = (void*)0x005377B0;
 bool ScreenShot(QbStruct* str, QbScript* scr)
@@ -66,7 +72,6 @@ bool ScreenShot(QbStruct* str, QbScript* scr)
 	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
 	// "just make it a separate plugin"
 	// also UPX
-#if SCREENSHOT
 	IDirect3DSurface9* pSurface;
 	IDirect3DSurface9* surf;
 	D3DSURFACE_DESC sd;
@@ -93,9 +98,9 @@ bool ScreenShot(QbStruct* str, QbScript* scr)
 
 	pSurface->Release();
 	surf->Release();
-#endif
 	return 1;
 }
+#endif
 
 // copied from my OGL game test
 HANDLE frameLimiter;
@@ -120,8 +125,22 @@ void initFrameTimer()
 	frameBase = -(CLOCK_FREQ / frameRate);
 }
 
+//nullsub detoured for testing something
+static void* profiletimeDetour = (void*)0x00537300;
+dl PROFILE_TIME;
+double test2;
+bool ProfileTime(QbStruct* str, QbScript* scr)
+{
+	timeBeginPeriod(1);
+	QueryPerformanceCounter((LARGE_INTEGER*)&PROFILE_TIME);
+	timeEndPeriod(1);
+	scr->qbStruct1C->InsertIntItem(KEY_TIME, PROFILE_TIME&0x7FFFFFFF);
+	//CRCD(0x26A3E82E,"profile_time")
+	return 1;
+}
+
 // doesn't work?
-extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
+//extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
 
 static char inipath[MAX_PATH];
 
@@ -324,8 +343,6 @@ __declspec(naked) void whammyWidthFix()
 		jmp returnAddress;
 	}
 }
-
-#define ACCURATETIME 1
 
 #include "mp3seek.h"
 
@@ -652,7 +669,9 @@ void ApplyHack()
 		g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
 	else
 		g_patcher.WriteInt32(wndStyle, WS_POPUP);
+#if SCREENSHOT
 	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
+#endif
 	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
 	g_patcher.WriteCall(beforePresentDetour, frameLimit);
 	g_patcher.WriteCall(afterPresentDetour, lagBegin);
@@ -667,4 +686,5 @@ void ApplyHack()
 	if (fixseeking = GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))
 		g_patcher.WriteJmp(FMOD_setPosition_Detour, setPosFix);
 #endif
+	g_patcher.WriteJmp(profiletimeDetour, ProfileTime);
 }

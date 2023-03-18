@@ -2,6 +2,9 @@
 #include "core\GH3Plus.h"
 #include <stdint.h>
 
+#define CRC(x) ((uint32_t)x)
+#define CRCD(x,s) CRC(x)
+
 namespace GH3
 {
 	namespace crc32
