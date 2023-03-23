@@ -102,8 +102,11 @@
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ddshead.h" />
     <ClInclude Include="mp3seek.h" />
     <ClInclude Include="startup.h" />
+    <ClInclude Include="stb_dxt.h" />
+    <ClInclude Include="stb_image.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\core\GH3PlusCore.vcxproj">

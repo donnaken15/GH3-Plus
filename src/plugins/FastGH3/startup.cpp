@@ -644,6 +644,149 @@ FAIL:
 	}
 }
 
+#pragma region OPTIMIZED TEXTURE LOADING
+/// code by wesley and not zedek
+///
+///   #################################
+/// ##         ## # ####### ## # ######
+///             ## # ######  ## # #### 
+///              ## # ####    #######  
+///               #######              
+///
+/// https://donnaken15.tk/
+/// https://youtube.com/donnaken15
+/// https://github.com/donnaken15
+#include "ddshead.h"
+#define FOURCC_DXT1 ESWAP(0x44585431)
+#define FOURCC_DXT5 ESWAP(0x44585435)
+#define STB_IMAGE_IMPLEMENTATION
+//#define STBI_NO_JPEG
+//#define STBI_NO_BMP // bmp is banned in my mod lol
+#define STBI_NO_PSD // because why even
+#define STBI_NO_TGA
+#define STBI_NO_GIF
+#define STBI_NO_HDR
+#define STBI_NO_PIC
+#define STBI_NO_PNM
+#define STBI_NO_LINEAR
+#define STBI_ONLY_JPEG
+#define STBI_ONLY_PNG
+#define STBI_ASSERT(x)
+#define STBI_NO_FAILURE_STRINGS
+#define STBI_NO_SIMD
+#include "stb_image.h"
+#define STB_DXT_IMPLEMENTATION
+#include "stb_dxt.h"
+// image/compression code from Pintea and nothings STB on github
+unsigned char* compress_to_dxt(const unsigned char* pData, int width, int height, int bpp, UINT* outDstSize)
+{
+	const int blockSize = bpp == 24 ? 8 : 16;
+	const UINT dstSize = ((width + 3) >> 2) * ((height + 3) >> 2) * blockSize;
+	BYTE* dst = (BYTE*)malloc(dstSize);
+	if (!dst)
+	{
+		*outDstSize = 0;
+		return NULL;
+	}
+	*outDstSize = dstSize;
+
+	const int c = bpp >> 3; // num channels
+	const int stride = width * c;
+	BYTE* pd = dst;
+	for (int j = 0; j < height; j += 4)
+	{
+		for (int i = 0; i < width; i += 4)
+		{
+			const BYTE* row[4] = {
+				&pData[(j + 0) * stride + i * c],
+				&pData[(j + 1) * stride + i * c],
+				&pData[(j + 2) * stride + i * c],
+				&pData[(j + 3) * stride + i * c]
+			};
+
+			unsigned char block[16][4];
+			for (int b = 0; b < 16; ++b)
+			{
+				int idx1 = b >> 2, idx2 = b & 3;
+				for (int k = 0; k < 3; ++k)
+				{
+					block[b][k] = row[idx1][(idx2)*c + k];
+				}
+				block[b][3] = bpp == 24 ? 0 : row[idx1][idx2 * c + 3];
+			}
+
+			stb_compress_dxt_block(pd, &block[0][0], bpp == 24 ? 0 : 1, STB_DXT_NORMAL /* or STB_DXT_HIGHQUAL */);
+			pd += blockSize;
+		}
+	}
+	return dst;
+}
+
+// grease
+#define CTRAMargs \
+LPDIRECT3DDEVICE9         pDevice, \
+LPCVOID                   pSrcData, \
+UINT                      SrcDataSize, \
+UINT                      Width, \
+UINT                      Height, \
+UINT                      MipLevels, \
+DWORD                     Usage, \
+D3DFORMAT                 Format, \
+D3DPOOL                   Pool, \
+DWORD                     Filter, \
+DWORD                     MipFilter, \
+D3DCOLOR                  ColorKey, \
+D3DXIMAGE_INFO*pSrcInfo, \
+PALETTEENTRY*pPalette, \
+LPDIRECT3DTEXTURE9*ppTexture
+
+typedef HRESULT WINAPI CTRAMType(CTRAMargs);
+CTRAMType* CreateTextureRAM = (CTRAMType*)0;
+static void* texloadDetour = (void*)0x0068F732;
+HRESULT WINAPI texloadFixFast(CTRAMargs)
+{
+	if (*(DWORD*)pSrcData != ESWAP(0x44445320))
+		// if not DDS, use this instead
+		// since D3DX is slow at it
+	{
+		int x, y, comp;
+		char type = 3; // RGB by default
+		BYTE*RGBX;
+		BYTE*DXT;
+		BYTE*DDS;
+		UINT DDS_SZ;
+		if (*(DWORD*)pSrcData == ESWAP(0x89504E47))
+			type = 4; // RGBA
+
+		RGBX = stbi_load_from_memory((stbi_uc*)pSrcData, SrcDataSize, &x, &y, &comp, type);
+		DDSURFACEDESC2 ddsd;
+		memset(&ddsd, 0, sizeof(ddsd));
+		ddsd.dwMagic = ESWAP(0x44445320);
+		ddsd.dwSize = sizeof(ddsd) - 4;
+		ddsd.dwFlags = 0;
+		ddsd.dwWidth = x;
+		ddsd.dwHeight = y;
+		ddsd.lPitch = x * y;
+		ddsd.dwMipMapCount = 0;
+		ddsd.ddpfPixelFormat.dwSize = sizeof(ddsd.ddpfPixelFormat);
+		ddsd.ddpfPixelFormat.dwFlags = DDSF_FOURCC;
+		ddsd.ddpfPixelFormat.dwFourCC = type == 3 ? FOURCC_DXT1 : FOURCC_DXT5;
+		DXT = compress_to_dxt((BYTE*)RGBX, x, y, type << 3, &DDS_SZ);
+		DDS_SZ += 4 + ddsd.dwSize;
+		DDS = (BYTE*)malloc(DDS_SZ);
+		memcpy((void*)DDS, &ddsd, 4 + ddsd.dwSize);
+		memcpy((void*)((int)DDS + 4 + ddsd.dwSize), DXT, DDS_SZ - 4 - ddsd.dwSize);
+		pSrcData = DDS;
+		SrcDataSize = DDS_SZ;
+	}
+	return CreateTextureRAM(
+		pDevice,pSrcData,SrcDataSize,Width,Height,
+		MipLevels,Usage,Format,Pool,Filter,MipFilter,
+		ColorKey,pSrcInfo,pPalette,ppTexture);
+}
+#pragma endregion
+
+
 void ApplyHack()
 {
 	GetCurrentDirectoryA(MAX_PATH, inipath);
@@ -687,4 +830,8 @@ void ApplyHack()
 		g_patcher.WriteJmp(FMOD_setPosition_Detour, setPosFix);
 #endif
 	g_patcher.WriteJmp(profiletimeDetour, ProfileTime);
+	// use it from image base so we dont have to bloat this plugin
+	CreateTextureRAM = (CTRAMType*)(GetProcAddress(GetModuleHandleA("d3dx9_35.dll"), "D3DXCreateTextureFromFileInMemoryEx"));
+	if (CreateTextureRAM)
+		g_patcher.WriteJmp(texloadDetour, texloadFixFast);
 }
