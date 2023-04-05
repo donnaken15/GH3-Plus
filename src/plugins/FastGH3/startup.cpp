@@ -10,10 +10,8 @@
 #include <d3d9.h>
 #include <D3dx9tex.h>
 
-// TODO!!!!!!!!:
-// detour D3D9 load texture from memory
-// function to see if I can use a
-// faster alternative
+// why can't I UPX pack this plugin
+// without getting an error now
 
 #pragma comment(lib, "E:\\D3D9\\d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
@@ -722,6 +720,19 @@ unsigned char* compress_to_dxt(const unsigned char* pData, int width, int height
 	return dst;
 }
 
+BYTE failTex[] = {
+	0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D,
+	0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00, 0x80,
+	0x01, 0x03, 0x00, 0x00, 0x00, 0xF9, 0xF0, 0xF3, 0x88, 0x00, 0x00, 0x00,
+	0x06, 0x50, 0x4C, 0x54, 0x45, 0xFF, 0x00, 0xDC, 0x00, 0x00, 0x00, 0x2D,
+	0x21, 0x14, 0x22, 0x00, 0x00, 0x00, 0x25, 0x49, 0x44, 0x41, 0x54, 0x78,
+	0x01, 0x63, 0x00, 0x81, 0xFF, 0x40, 0x00, 0xA7, 0x11, 0x8C, 0x51, 0x81,
+	0x51, 0x01, 0x7C, 0xB2, 0xA3, 0x02, 0xA3, 0x02, 0xE4, 0x6A, 0x1B, 0x15,
+	0x18, 0x2D, 0x3F, 0x46, 0x05, 0x46, 0x05, 0x00, 0x06, 0x90, 0xFC, 0x2E,
+	0x3E, 0xDA, 0xBC, 0x53, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E, 0x44,
+	0xAE, 0x42, 0x60, 0x82
+};
+
 // grease
 #define CTRAMargs \
 LPDIRECT3DDEVICE9         pDevice, \
@@ -757,9 +768,8 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 		UINT DDS_SZ;
 		if (*(DWORD*)pSrcData == ESWAP(0x89504E47))
 			type = 4; // RGBA
-
 		RGBX = stbi_load_from_memory((stbi_uc*)pSrcData, SrcDataSize, &x, &y, &comp, type);
-		DDSURFACEDESC2 ddsd;
+		DDSURFACEDESC2 ddsd; 
 		memset(&ddsd, 0, sizeof(ddsd));
 		ddsd.dwMagic = ESWAP(0x44445320);
 		ddsd.dwSize = sizeof(ddsd) - 4;
@@ -772,20 +782,47 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 		ddsd.ddpfPixelFormat.dwFlags = DDSF_FOURCC;
 		ddsd.ddpfPixelFormat.dwFourCC = type == 3 ? FOURCC_DXT1 : FOURCC_DXT5;
 		DXT = compress_to_dxt((BYTE*)RGBX, x, y, type << 3, &DDS_SZ);
+		stbi_image_free(RGBX);
 		DDS_SZ += 4 + ddsd.dwSize;
 		DDS = (BYTE*)malloc(DDS_SZ);
 		memcpy((void*)DDS, &ddsd, 4 + ddsd.dwSize);
 		memcpy((void*)((int)DDS + 4 + ddsd.dwSize), DXT, DDS_SZ - 4 - ddsd.dwSize);
+		free(DXT);
 		pSrcData = DDS;
 		SrcDataSize = DDS_SZ;
 	}
-	return CreateTextureRAM(
+	HRESULT hr;
+	hr = CreateTextureRAM(
+		pDevice,pSrcData,SrcDataSize,Width,Height,
+		1,Usage,Format,Pool,Filter,MipFilter,
+		ColorKey,pSrcInfo,pPalette,ppTexture);
+	if (hr == D3DXERR_INVALIDDATA)
+	{
+		hr = CreateTextureRAM(
+			pDevice, failTex, 112, Width, Height,
+			1, Usage, Format, Pool, Filter, MipFilter,
+			ColorKey, pSrcInfo, pPalette, ppTexture);
+	}
+	return hr;
+	/*return CreateTextureRAM(
 		pDevice,pSrcData,SrcDataSize,Width,Height,
 		MipLevels,Usage,Format,Pool,Filter,MipFilter,
-		ColorKey,pSrcInfo,pPalette,ppTexture);
+		ColorKey,pSrcInfo,pPalette,ppTexture);*/
 }
 #pragma endregion
 
+float a;
+static void* replayrecordDetour = (void*)0x00420FF5;
+__declspec(naked) void replayPutTime()
+{
+	static const uint32_t returnAddress = 0x00420FFD;
+	static const double*g_dblGemTimingRelated = (double*)0x00C489E0;
+
+	a = *g_dblGemTimingRelated;
+	//__asm ret
+	//__asm movsd xmm0, g_dblGemTimingRelated
+	__asm jmp returnAddress
+}
 
 void ApplyHack()
 {
@@ -834,4 +871,5 @@ void ApplyHack()
 	CreateTextureRAM = (CTRAMType*)(GetProcAddress(GetModuleHandleA("d3dx9_35.dll"), "D3DXCreateTextureFromFileInMemoryEx"));
 	if (CreateTextureRAM)
 		g_patcher.WriteJmp(texloadDetour, texloadFixFast);
+	g_patcher.WriteJmp(replayrecordDetour, replayPutTime);
 }
