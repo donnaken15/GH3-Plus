@@ -49,4 +49,19 @@ namespace GH3
 		return false;
 	}
 
+	HashMapNode*GlobalMap::GetItem(QbKey key)
+	{
+		HashMapNode*node = GetEntry(key);
+
+		while (node != nullptr)
+		{
+			if (node->key == key)
+			{
+				return node;
+			}
+			node = node->nextItem;
+		}
+		return nullptr;
+	}
+
 }

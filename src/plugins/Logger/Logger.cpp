@@ -444,6 +444,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 		QbValueType qatype = qa->Type();
 		// try to collapse items into multiple lines when there's a lot in the array
 		DWORD qal = qa->Length();
+#if 0
 		DWORD qalnl = 0;
 		if (qal > 16)
 		{
@@ -456,6 +457,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 				qalnl = 1;
 			}
 		}
+#endif
 		for (UINT i = 0; i < qal; i++)
 		{
 			switch (qatype)
@@ -518,12 +520,14 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 					qbstrindent--;
 				}
 			}
+#if 0
 			if (qalnl > 0)
 				if (i % qalnl == qalnl - 1 && qatype != TypeQbStruct)
 				{
 					print("\n");
 					printStructStructIndent();
 				}
+#endif
 		}
 		print(qbstrstr);
 		print("]\n");

@@ -96,6 +96,7 @@ namespace GH3
 		void __thiscall InsertPairItem(QbKey qbKey, QbPair *item);
 		void __thiscall InsertQbArrayItem(QbKey qbKey, QbArray *item);
 		void __thiscall InsertQbStructItem(QbKey qbKey, QbStruct *item);
+		void __thiscall InsertItem(QbStructItem* item, uint32_t unknown);
 		
 	};
 

@@ -143,11 +143,11 @@ namespace GH3
 			node = node->next;
 			if (!node)
 				return success;
-		}                                             // 
-													  // 
-													  // 
-													  // 
-													  // 
+		}
+
+
+
+
 		QbMap *map = reinterpret_cast<QbMap *>(node->value);
 		node2 = reinterpret_cast<QbStructItem *>(map->Get(qbKey));
 		if (node2)
@@ -308,6 +308,16 @@ namespace GH3
 	}
 	void __thiscall QbStruct::InsertQbStructItem(QbKey qbKey, QbStruct *item) {
 		NativeInsertCall<0x00479E40, QbStruct *>(this, qbKey, item);
+	}
+	void __thiscall QbStruct::InsertItem(QbStructItem* item, uint32_t unknown)
+	{
+		static const void * const nativeFunction = (void *)0x00479920;
+		__asm
+		{
+			push unknown;
+			push item;
+			call nativeFunction;
+		}
 	}
 
 	//void __thiscall QbStruct::InsertQbStructItem(QbKey qbKey, QbStruct * item)

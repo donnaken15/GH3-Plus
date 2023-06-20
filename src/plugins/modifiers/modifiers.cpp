@@ -311,7 +311,7 @@ __declspec(naked) void forceTapFlagNaked2()
 		jnz     FORCETAPS_ROUTINE;
 		test[esp + 48h - 28h], 2;
 		jnz     FORCETAPS_ROUTINE;
-		jmp     FORCESTRUMS_ROUTINE;
+		//jmp     FORCESTRUMS_ROUTINE;
 	FORCESTRUMS_ROUTINE:
 		xor     edx, edx; // shameful line replaced
 		jmp     NOTE_FLAG_SET;
@@ -338,6 +338,8 @@ __declspec(naked) void forceTapFlagNaked2()
 // OF DOUBLE NOTES TO HAVE HOPOS,
 // AND STILL HAVE ORIGINAL HOPO FLAGS
 // OF SINGLE NOTES WITHOUT THE MOD
+
+// AND PROBABLY MAKE QB FRIENDLY TO CHANGE
 
 void ApplyHack()
 {

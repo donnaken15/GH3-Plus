@@ -751,6 +751,7 @@ D3DXIMAGE_INFO*pSrcInfo, \
 PALETTEENTRY*pPalette, \
 LPDIRECT3DTEXTURE9*ppTexture
 
+//int ii = 0;
 typedef HRESULT WINAPI CTRAMType(CTRAMargs);
 CTRAMType* CreateTextureRAM = (CTRAMType*)0;
 static void* texloadDetour = (void*)0x0068F732;
@@ -762,14 +763,14 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 	{
 		int x, y, comp;
 		char type = 3; // RGB by default
-		BYTE*RGBX;
-		BYTE*DXT;
-		BYTE*DDS;
+		BYTE* RGBX;
+		BYTE* DXT;
+		BYTE* DDS;
 		UINT DDS_SZ;
 		if (*(DWORD*)pSrcData == ESWAP(0x89504E47))
 			type = 4; // RGBA
 		RGBX = stbi_load_from_memory((stbi_uc*)pSrcData, SrcDataSize, &x, &y, &comp, type);
-		DDSURFACEDESC2 ddsd; 
+		DDSURFACEDESC2 ddsd;
 		memset(&ddsd, 0, sizeof(ddsd));
 		ddsd.dwMagic = ESWAP(0x44445320);
 		ddsd.dwSize = sizeof(ddsd) - 4;
@@ -793,9 +794,11 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 	}
 	HRESULT hr;
 	hr = CreateTextureRAM(
-		pDevice,pSrcData,SrcDataSize,Width,Height,
-		1,Usage,Format,Pool,Filter,MipFilter,
-		ColorKey,pSrcInfo,pPalette,ppTexture);
+		pDevice, pSrcData, SrcDataSize, Width, Height,
+		1, Usage, Format, Pool, Filter, MipFilter,
+		ColorKey, pSrcInfo, pPalette, ppTexture);
+	if (*(DWORD*)pSrcData != ESWAP(0x44445320))
+		free((void*)pSrcData);
 	if (hr == D3DXERR_INVALIDDATA)
 	{
 		hr = CreateTextureRAM(
@@ -808,7 +811,7 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 		pDevice,pSrcData,SrcDataSize,Width,Height,
 		MipLevels,Usage,Format,Pool,Filter,MipFilter,
 		ColorKey,pSrcInfo,pPalette,ppTexture);*/
-}
+	}
 #pragma endregion
 
 float a;
@@ -822,6 +825,218 @@ __declspec(naked) void replayPutTime()
 	//__asm ret
 	//__asm movsd xmm0, g_dblGemTimingRelated
 	__asm jmp returnAddress
+}
+
+#define FNTREDUC 1
+
+#if FNTREDUC
+// hate me
+UINT* fontThing = (UINT*)0x00D182A0;
+UINT* dynafnt_20058(UINT* a1)
+{
+	const UINT offset = 0x20058 >> 4;
+	UINT* result = *(UINT**)fontThing;
+	if (*fontThing == (UINT)a1)
+	{
+		result = *((UINT**)fontThing[offset]);
+		fontThing = *((UINT**)fontThing[offset]);
+	}
+	else if (fontThing[offset])
+	{
+		while (1)
+		{
+			UINT v2 = result[offset];
+			if (v2 == (UINT)a1)
+				break;
+			result = (UINT*)result[offset];
+			if (!((UINT*)v2)[offset])
+				return result;
+		}
+		result[offset] = ((UINT*)a1)[offset];
+	}
+	return result;
+}
+#endif
+
+#include "gh3\GlobalMap.h"
+
+#include "gh3\malloc.h"
+
+#define hard_cast(type,value) (*(type*)&(value))
+static void* FGH3ConfigDetour = (void*)0x00897D90;
+bool FGH3Config(QbStruct*params,QbScript*_this)
+{
+	// example use: FGH3Config sect='Player' 'Lefty1' default=0 out=value
+	// don't know if arguments can get out of order, because I want to see if I can
+	// use purely no-name key values
+	// return true if config value gotten
+	char*paramName,*sect = "Undefined"; // :/
+	if (params->GetString(QbKey((uint32_t)0), paramName))
+	{
+		params->GetString(QbKey("sect"), sect);
+		QbStructItem*paramItem;
+		if (paramItem = params->GetItem(QbKey("default"))) // get value from INI
+		{
+			void*retval;
+			QbValueType it = paramItem->Type();
+			switch (it)
+			{
+			case QbValueType::TypeInt:
+				retval = (void*)GetPrivateProfileIntA(sect, paramName, paramItem->value, inipath);
+				break;
+			case QbValueType::TypeFloat:
+			{
+				char strval[50]; // how many digits do you need
+				// especially when it does e notation with specific values
+				// i forgot if it's even like that in C++
+				float _retval;
+				if (GetPrivateProfileStringA(sect, paramName, "", strval, sizeof(strval), inipath))
+					_retval = atof(strval); // RETURNS DOUBLE YOU STUPID CRINGE
+				else
+					_retval = hard_cast(float, paramItem->value);
+				retval = hard_cast(void*, _retval);
+				break;
+			}
+			case QbValueType::TypeCString:
+			{
+				char*default = hard_cast(char*, paramItem->value);
+				const int strsize = 0x200;
+				char*strval = (char*)malloc(strsize);
+				if (GetPrivateProfileStringA(sect, paramName, default, strval, strsize, inipath))
+					retval = strval;
+				else
+					retval = default;
+				break;
+			}
+			case QbValueType::TypeQbKey:
+			{
+				const int strsize = 0x100;
+				char*strval = (char*)malloc(strsize);
+				if (GetPrivateProfileStringA(sect, paramName, "", strval, strsize, inipath))
+					retval = (void*)crc32::hash(strval);
+				else
+					retval = hard_cast(void*, paramItem->value);
+				// TODO: accept 0xXXXXXXXX
+				break;
+			}
+			case QbValueType::TypeWString:
+			{
+				wchar_t*default = hard_cast(wchar_t*, paramItem->value);
+				const int strsize = 0x200;
+				wchar_t*strval = (wchar_t*)malloc(strsize<<1);
+				wchar_t*sect_W = (wchar_t*)malloc(strsize<<1);
+				wchar_t*param_W = (wchar_t*)malloc(strsize<<1);
+				wchar_t*inipath_W = (wchar_t*)malloc(strsize<<1);
+				mbstowcs(sect_W,sect,strsize); // ehhhhhhh
+				mbstowcs(param_W,paramName,strsize);
+				mbstowcs(inipath_W,inipath,strsize);
+				GetPrivateProfileStringW(sect_W, param_W, default, strval, strsize, inipath_W);
+				retval = strval;
+				free(sect_W);
+				free(param_W);
+				free(inipath_W);
+				break;
+			}
+			// don't use items that have unknown types or are too complex or unneccessary for INI
+			//QbValueType::TypeStringPointer // allow using a global as a default (thonks)
+			// I STILL DON'T KNOW HOW TO GET GLOBAL ITEMS PROPERLY!!!!!!!!!!!!!!!
+			default:
+				return FALSE;
+			}
+			QbStructItem*qi = (QbStructItem*)qbItemMalloc(0x10,0);
+			QbKey name = QbKey("value");
+			QbStructItem*outitem;
+#define CFG_ALLOW_GLOBALS 0
+			// figure out to not have to do extra Change command
+#if CFG_ALLOW_GLOBALS
+			bool local = true;
+#endif
+			if (outitem = params->GetItem(QbKey("out")))
+			{
+				if (outitem->Type() == QbValueType::TypeQbKey)
+				{
+					name = (QbKey)outitem->value;
+#if CFG_ALLOW_GLOBALS
+					local = true;
+#endif CFG_ALLOW_GLOBALS
+				}
+#if CFG_ALLOW_GLOBALS
+				else if (outitem->Type() == QbValueType::TypeStringPointer)
+				{
+					name = (QbKey)outitem->value;
+					local = false;
+				}
+#endif CFG_ALLOW_GLOBALS
+			}
+#if CFG_ALLOW_GLOBALS
+			if (local)
+#endif
+			{
+				qi->key = name;
+				qi->flags = (QbNodeFlags)(it << 1 | 1);
+				qi->value = (uint32_t)retval;
+				_this->qbStruct1C->InsertItem(qi, 0);
+			}
+#if CFG_ALLOW_GLOBALS
+			else
+			{
+				// HOW DO I USE THIS!!!!!!!!!
+				HashMapNode*g_item = GlobalMap::GetEntry(name);
+				if (g_item != nullptr)
+					g_item->value = (uint32_t)retval;
+			}
+#endif
+			return TRUE;
+		}
+		else if (paramItem = params->GetItem(QbKey("set")))
+		{
+			QbValueType it = paramItem->Type();
+			switch (it)
+			{
+			case QbValueType::TypeInt:
+			{
+				char strval[12];
+				itoa(paramItem->value, strval, 10);
+				WritePrivateProfileStringA(sect, paramName, strval, inipath);
+				break;
+			}
+			case QbValueType::TypeFloat:
+			{
+				char strval[50];
+				sprintf_s(strval, "%f", paramItem->value);
+				WritePrivateProfileStringA(sect, paramName, strval, inipath);
+				break;
+			}
+			case QbValueType::TypeCString:
+			{
+				WritePrivateProfileStringA(sect, paramName, (char*)paramItem->value, inipath);
+				break;
+			}
+			case QbValueType::TypeWString:
+			{
+				const int strsize = 0x200;
+				wchar_t* sect_W = (wchar_t*)malloc(strsize << 1);
+				wchar_t* param_W = (wchar_t*)malloc(strsize << 1);
+				wchar_t* inipath_W = (wchar_t*)malloc(strsize << 1);
+				mbstowcs(sect_W, sect, strsize); // ehhhhhhh
+				mbstowcs(param_W, paramName, strsize);
+				mbstowcs(inipath_W, inipath, strsize);
+				WritePrivateProfileStringW(sect_W, param_W, (wchar_t*)paramItem->value, inipath_W);
+				free(sect_W);
+				free(param_W);
+				free(inipath_W);
+				break;
+			}
+			// don't use items that have unknown types or are too complex or unneccessary for INI
+			//QbValueType::TypeStringPointer // allow using a global as a default (thonks)
+			// I STILL DON'T KNOW HOW TO GET GLOBAL ITEMS PROPERLY!!!!!!!!!!!!!!!
+			default:
+				return FALSE;
+			}
+			return TRUE;
+		}
+	}
+	return FALSE;
 }
 
 void ApplyHack()
@@ -861,6 +1076,7 @@ void ApplyHack()
 	g_patcher.WriteJmp(BossWaitForAttack_framesDetour2, BWFA_frames2Realtime2);
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
 	g_patcher.WriteJmp(FSBLoad_Detour, FSBLoadAllowUnenc);
+	g_patcher.WriteJmp(FGH3ConfigDetour, FGH3Config);
 #if ACCURATETIME
 	// experimental
 	if (fixseeking = GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))

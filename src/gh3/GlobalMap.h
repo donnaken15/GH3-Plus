@@ -32,8 +32,9 @@ namespace GH3
 		inline static HashMapNode * GetEntry(QbKey key) { return Nodes()[key & IndexMask()]; };
 		static bool GetTypedValue(QbKey key, QbValueType type, void *pValue);
 		static bool GetValue(QbKey key, void *pValue, QbValueType *pType);
+		static HashMapNode*GetItem(QbKey key);
 
-		static uint32_t Insert(uint32_t key, QbValueType type, uint32_t value); //TODO
+		//static uint32_t Insert(uint32_t key, QbValueType type, uint32_t value); //TODO
 
 	};
 
