@@ -1003,7 +1003,7 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 			case QbValueType::TypeFloat:
 			{
 				char strval[50];
-				sprintf_s(strval, "%f", paramItem->value);
+				sprintf_s(strval, "%f", hard_cast(float,paramItem->value));
 				WritePrivateProfileStringA(sect, paramName, strval, inipath);
 				break;
 			}
