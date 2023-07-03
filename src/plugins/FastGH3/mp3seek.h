@@ -1,7 +1,7 @@
 #define ESWAP(i) (((i & 0xFF) << 24) | ((i & 0xFF00) << 8) | ((i & 0xFF0000) >> 8) | ((i & 0xFF000000) >> 24))
 typedef unsigned int uint;
 
-#define ACCURATETIME 1
+#define ACCURATETIME 0
 
 #if ACCURATETIME
 enum bitrate_index {

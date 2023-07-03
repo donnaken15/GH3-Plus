@@ -1044,13 +1044,13 @@ void ApplyHack()
 	GetCurrentDirectoryA(MAX_PATH, inipath);
 	strcat_s(inipath, MAX_PATH, "\\settings.ini");
 	g_patcher.WriteInt8(CD, GetPrivateProfileIntA("ActionReplay", "CD", 1, inipath));
-	vsync = GetPrivateProfileIntA("Misc", "VSync", 1, inipath);
-	borderless = GetPrivateProfileIntA("Misc", "Borderless", 0, inipath);
+	vsync = GetPrivateProfileIntA("GFX", "VSync", 0, inipath);
+	borderless = GetPrivateProfileIntA("GFX", "Borderless", 0, inipath);
 #if (!FRAMERATE_FROM_QB)
 	frameRate = GetPrivateProfileIntA("Player", "MaxFPS", 60, inipath);
 #endif
 	//(*d3ddev)->
-	windowed = GetPrivateProfileIntA("Misc", "Windowed", 1, inipath);
+	windowed = GetPrivateProfileIntA("GFX", "Windowed", 1, inipath);
 	// ^ because why would you want to turn this off
 	// unless you like purposely suffering
 	g_patcher.WriteInt32((void*)0x0057BB50, windowed);
