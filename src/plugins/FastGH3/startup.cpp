@@ -57,49 +57,6 @@ __declspec(naked) void hWndHack()
 
 }
 
-#define SCREENSHOT 0
-
-float* GameRes_X = (float*)0x00C5E6B0;
-#if SCREENSHOT
-int* GameRes_Xi = (int*)0x00C5E6B8;
-int* GameRes_Yi = (int*)0x00C5E6BC;
-using namespace GH3;
-static void* screenshotDetour = (void*)0x005377B0;
-bool ScreenShot(QbStruct* str, QbScript* scr)
-{
-	// turned off because of D3DXSaveSurfaceToFile bloating the DLL by 334KB
-	// "just make it a separate plugin"
-	// also UPX
-	IDirect3DSurface9* pSurface;
-	IDirect3DSurface9* surf;
-	D3DSURFACE_DESC sd;
-
-	(*d3ddev)->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pSurface);
-	pSurface->GetDesc(&sd);
-	(*d3ddev)->CreateOffscreenPlainSurface(
-		sd.Width, sd.Height, sd.Format, D3DPOOL_SYSTEMMEM, &surf, NULL);
-	(*d3ddev)->GetRenderTargetData(pSurface, surf);
-
-	char maindir[MAX_PATH];
-	char filepath[MAX_PATH];
-	char* filename;
-	if (!str->GetString(QbKey("filename"), filename))
-		filename = "screen";
-	GetCurrentDirectoryA(MAX_PATH, maindir);
-	sprintf_s(filepath, "%s\\%s.bmp", maindir, filename);
-	// WHY DO PNG AND JPG FAIL
-	// DDS USES ARGB8 AND IS THE SAME SIZE AS BITMAP >:(
-	// AND WHY IS IT SO BIG FOR WRITING AN UNCOMPRESSED
-	// RGB32 STUPIDLY LARGE SCREENSHOT
-
-	D3DXSaveSurfaceToFileA(filepath, D3DXIFF_BMP, pSurface, NULL, NULL);
-
-	pSurface->Release();
-	surf->Release();
-	return 1;
-}
-#endif
-
 // copied from my OGL game test
 HANDLE frameLimiter;
 typedef long long dl;
@@ -315,6 +272,10 @@ __declspec(naked) void BWFA_frames2Realtime2()
 	}
 }
 
+
+float* GameRes_X = (float*)0x00C5E6B0;
+int* GameRes_Xi = (int*)0x00C5E6B8;
+int* GameRes_Yi = (int*)0x00C5E6BC;
 float resCurrent = 1280.0f;
 float resFrac = 1280.0f;
 float dummy;
@@ -1064,9 +1025,6 @@ void ApplyHack()
 		g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
 	else
 		g_patcher.WriteInt32(wndStyle, WS_POPUP);
-#if SCREENSHOT
-	g_patcher.WriteJmp(screenshotDetour, ScreenShot);
-#endif
 	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
 	g_patcher.WriteCall(beforePresentDetour, frameLimit);
 	g_patcher.WriteCall(afterPresentDetour, lagBegin);
