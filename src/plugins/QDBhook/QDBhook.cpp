@@ -1199,6 +1199,69 @@ HWND scrlist, ilist, CSDbox, activelist;
 #define QDB_MENU_CSDBOX ((HMENU)7)
 #define QDB_MENU_AUTOSTEP ((HMENU)8)
 #define this _this // lol
+byte*lastLoadedScript = (byte*)0xFFFFFFFF;
+int currentScriptLines[2000];
+int currentScriptLine;
+void LoadScriptBase(byte*op, byte*IP)
+{
+	byte decomp = 0;
+	char cantfind = 0;
+	if (!op) { cantfind = 1; op = IP; }
+	if (op)
+	{
+		int nl;
+		currentScriptLine = cantfind ? 0 : (int)IP; // find current line
+		char*output = (char*)malloc(32000);
+		memset(output, 0, 32000);
+		char clstr[0x1000];
+		Decompile(op, output, 32000, currentScriptLines, &nl, &currentScriptLine);
+		//TODO?: skip writing string just to get current line
+		char*currentLine = output;
+		char*eol;
+		if (lastLoadedScript != op)
+		{
+			LockWindowUpdate(hW);
+			SendMessage(ilist, LB_RESETCONTENT, 0, 0);
+			lastLoadedScript = op;
+			for (int i = 0; ; i++)
+			{
+				eol = strchr(currentLine, '\n');
+				if (eol)
+				{
+					*eol = 0;
+#if 0
+					int clbytes_range = max(2, min(16, currentScriptLines[i + 1] - currentScriptLines[i]));
+					UINT hex_view_len = clbytes_range * 3;
+					char*buf = (char*)malloc(4);
+					char*test = (char*)malloc(hex_view_len + 3);
+					memset(test, 0, hex_view_len + 3);
+					for (int j = 0; j < clbytes_range; j++)
+					{
+						sprintf_s(buf, 4, "%02X ", op[currentScriptLines[i] + j]);
+						//sprintf_s(test, hex_view_len, buf);
+						//strncpy_s(test + (i*3), hex_view_len - (i*3), buf, 3);
+						memcpy(test + (j * 3), buf, 3);
+					}
+					//strcat_s(test, hex_view_len, "A");
+					free(buf);
+					free(test);
+					sprintf_s(clstr, "%04X %-64s %s", currentScriptLines[i], test, currentLine);
+#else
+					sprintf_s(clstr, "%04X %s", currentScriptLines[i], currentLine);
+#endif
+					SendMessage(ilist, LB_ADDSTRING, 0, (LPARAM)clstr);
+					*eol = '\n';
+					currentLine = eol + 1;
+				}
+				else
+					break;
+			}
+			LockWindowUpdate(0);
+		}
+		free(output);
+	}
+	else puts("Couldn't parse bytecode");
+}
 void ReadScriptData(QbScript*this)
 {
 	byte*op = FindScriptCached(this->type);
@@ -1225,64 +1288,17 @@ void ReadScriptData(QbScript*this)
 		strcat_s(CSD_TEXT, "\n");
 	}
 	SetWindowText(CSDbox, CSD_TEXT);
-	char cantfind = 0;
-	if (!op) { cantfind = 1; op = this->instructionPointer; }
-	if (op)
-	{
-		SendMessage(ilist, LB_RESETCONTENT, 0, 0);
-		int ll[2000];
-		int nl;
-		int cl = cantfind ? 0 : (int)this->instructionPointer; // find current line
-		char*output = (char*)malloc(32000);
-		memset(output, 0, 32000);
-		char clstr[0x1000];
-		Decompile(op, output, 32000, ll, &nl, &cl);
-		char*currentLine = output;
-		char*eol;
-		for (int i = 0; ; i++)
-		{
-			eol = strchr(currentLine, '\n');
-			if (eol)
-			{
-				*eol = 0;
-#if 0
-				int clbytes_range = max(2, min(16, ll[i + 1] - ll[i]));
-				UINT hex_view_len = clbytes_range * 3;
-				char*buf = (char*)malloc(4);
-				char*test = (char*)malloc(hex_view_len + 3);
-				memset(test, 0, hex_view_len + 3);
-				for (int j = 0; j < clbytes_range; j++)
-				{
-					sprintf_s(buf, 4, "%02X ", op[ll[i] + j]);
-					//sprintf_s(test, hex_view_len, buf);
-					//strncpy_s(test + (i*3), hex_view_len - (i*3), buf, 3);
-					memcpy(test + (j * 3), buf, 3);
-				}
-				//strcat_s(test, hex_view_len, "A");
-				free(buf);
-				free(test);
-				sprintf_s(clstr, "%04X %-64s %s", ll[i], test, currentLine);
-#else
-				sprintf_s(clstr, "%04X %s", ll[i], currentLine);
-#endif
-				SendMessage(ilist, LB_ADDSTRING, 0, (LPARAM)clstr);
-				*eol = '\n';
-				currentLine = eol + 1;
-			}
-			else
-				break;
-		}
-		if (cl != -1)
-			SendMessage(ilist, LB_SETCURSEL, (LPARAM)(cl - 1), 0);
-		free(output);
-	}
-	else puts("Couldn't parse bytecode");
-	//if (decomp) free(op);
+	byte*loadedScript = op ? op : this->instructionPointer;
+	LoadScriptBase(op, this->instructionPointer);
+	if (decomp) free(op);
+	if (currentScriptLine != -1)
+		SendMessage(ilist, LB_SETCURSEL, (LPARAM)(currentScriptLine - 1), 0);
 }
 #undef this
 void ReadCSD()
 {
 	ReadScriptData(currentScriptPointer);
+	LockWindowUpdate(hW);
 	SendMessage(activelist, LB_RESETCONTENT, 0, 0);
 	UINT si = 0;
 	for (QbScript*ASC = *ActiveScriptChain; ASC; ASC = ASC->next)
@@ -1292,6 +1308,7 @@ void ReadCSD()
 			SendMessage(activelist, LB_SETCURSEL, (LPARAM)si, 0);
 		si++;
 	}
+	LockWindowUpdate(0);
 }
 void initW()
 {
@@ -1306,8 +1323,8 @@ void initW()
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = "GH3QDB";
 	RegisterClass(&wc);
-#define WIN_WIDTH 1200
-#define WIN_HEIGHT 800
+#define WIN_WIDTH 960
+#define WIN_HEIGHT 550
 	hW = CreateWindow(wc.lpszClassName, "Loading...",
 		WS_VISIBLE | WS_DLGFRAME | WS_SYSMENU, 500, 500, WIN_WIDTH, WIN_HEIGHT, 0, 0, wc.hInstance, 0);
 	sserif = CreateFontA(14, 0, 0, 0, 400, 0,  0, 0, 0, 0, 0, 0, 0x20, "Microsoft Sans Serif");
@@ -1319,12 +1336,14 @@ void initW()
 		SendMessage(buttons[i], WM_SETFONT, (WPARAM)sserif, 1);
 	}
 	{
-		HWND h = CreateWindow("static", "Scripts:", WS_CHILD | WS_VISIBLE,
-			5, 37, 80, 20, hW, QDB_NOMENU, wc.hInstance, 0);
-		SendMessage(h, WM_SETFONT, (WPARAM)sserif, 1);
-		h = CreateWindow("static", "Spawned:", WS_CHILD | WS_VISIBLE,
-			5, 254, 80, 20, hW, QDB_NOMENU, wc.hInstance, 0);
-		SendMessage(h, WM_SETFONT, (WPARAM)sserif, 1);
+		SendMessage(
+			CreateWindow("static", "Scripts:", WS_CHILD | WS_VISIBLE,
+				5, 37, 80, 20, hW, QDB_NOMENU, wc.hInstance, 0),
+			WM_SETFONT, (WPARAM)sserif, 1);
+		SendMessage(
+			CreateWindow("static", "Spawned:", WS_CHILD | WS_VISIBLE,
+				5, 254, 80, 20, hW, QDB_NOMENU, wc.hInstance, 0),
+			WM_SETFONT, (WPARAM)sserif, 1);
 	}
 	scrlist = CreateWindowEx(WS_EX_CLIENTEDGE, "listbox", NULL,
 		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL,
