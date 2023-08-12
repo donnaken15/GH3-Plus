@@ -228,6 +228,7 @@ void assertWarn()
 
 int qbstrindent = 0;
 
+// HOW ABOUT RIP THE FUNCTION FROM THUG1
 static void* PrintScriptInfoDetour = (void*)0x005309A0;
 void PrintScriptInfo(QbStruct*params, QbScript*_this)
 {
@@ -244,10 +245,10 @@ void PrintScriptInfo(QbStruct*params, QbScript*_this)
 	//print("    }");
 	print("\n    ");
 	if (l_CreateCon) {
-		fprintf(CON, "0x10 EIP: %04X %04X", _this->instructionPointer, _this->scriptBegin);
+		fprintf(CON, "0x10 EIP: %04X", _this->instructionPointer);
 	}
 	if (l_WriteFile) {
-		fprintf(log, "0x10 EIP: %04X %04X", _this->instructionPointer, _this->scriptBegin);
+		fprintf(log, "0x10 EIP: %04X", _this->instructionPointer);
 	}
 	print("\n    ");
 	print("0x14 mp_function_params: {\n");
@@ -270,27 +271,28 @@ void PrintScriptInfo(QbStruct*params, QbScript*_this)
 	}
 	print("\n    ");
 	if (l_CreateCon) {
-		fprintf(CON, "0x3C Parent script: %s", QbKeyPrintFix(_this->rootScript));
+		fprintf(CON, "0x3C Callstack:");
 	}
 	if (l_WriteFile) {
-		fprintf(log, "0x3C Parent script: %s", QbKeyPrintFix(_this->rootScript));
+		fprintf(log, "0x3C Callstack:");
 	}
-	print("\n    ");
-	print("0x40 some struct: {\n");
-	printStructBase(_this->qbStruct40);
-	print("    }");
-	print("\n    ");
-	if (l_CreateCon) {
-		fprintf(CON, "0x70 some key:", QbKeyPrintFix(_this->someKey70));
+	for (int i = _this->scriptDepth - 1; i > 0; i--)
+	{
+		print("\n        ");
+		auto RA = _this->mp_return_addresses[i];
+		if (l_CreateCon) {
+			fprintf(CON, "%s {\n", QbKeyPrintFix(RA.mScriptNameChecksum));
+		}
+		if (l_WriteFile) {
+			fprintf(log, "%s {\n", QbKeyPrintFix(RA.mScriptNameChecksum));
+		}
+		qbstrindent++;
+		printStructBase(RA.mpParams);
+		qbstrindent--;
+		print("        }");
+		// this is an absolute mess
 	}
-	if (l_WriteFile) {
-		fprintf(log, "0x70 some key:", QbKeyPrintFix(_this->someKey70));
-	}
-	print("\n    ");
-	print("0x74 some struct: {\n");
-	printStructBase(_this->qbStruct74);
-	print("    }");
-	print("\n}\n");
+	print("\n}");
 	qbstrindent--;
 }
 
