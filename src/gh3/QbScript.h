@@ -4,71 +4,124 @@
 #include "QbStruct.h"
 #include "QbKey.h"
 #include <stdint.h>
+#include <inttypes.h>
 
+typedef unsigned char byte;
 namespace GH3
 {
-    /// Neversoft's script class. Most of the contents of the script class are unknown. Also known as CScript
+	struct GH3P_API // Begin-repeat loop structure.    
+		SLoop
+	{
+		// Pointer to the start of the loop, which is the
+		// token following the Begin.
+		byte*mpStart;
+
+		// Pointer to the end of the loop, ie the next instruction after the loop.
+		byte*mpEnd;
+
+		bool mGotCount;			// Whether it is a finite loop with a count value.
+		bool mNeedToReadCount;	// Whether the count value following the repeat needs to be read.
+		int mCount;				// Counts down to zero, and skips past the repeat once it reaches zero.
+	};
+
+	// Values for CScript::m_wait_type
+	enum EWaitType
+	{
+		WAIT_TYPE_NONE = 0,
+		WAIT_TYPE_COUNTER,
+		WAIT_TYPE_TIMER,
+		WAIT_TYPE_BLOCKED,
+		WAIT_TYPE_OBJECT_MOVE,
+		WAIT_TYPE_OBJECT_ANIM_FINISHED,
+		WAIT_TYPE_OBJECT_JUMP_FINISHED,
+		WAIT_TYPE_OBJECT_STOP_FINISHED,
+		WAIT_TYPE_OBJECT_ROTATE,
+		WAIT_TYPE_STREAM_FINISHED,
+		WAIT_TYPE_ONE_PER_FRAME,
+	};
+
+	enum ESingleStepMode
+	{
+		OFF = 0,
+		WAITING,
+		STEP_INTO,
+		STEP_OVER,
+	};
+
+	typedef unsigned int Time;
+
+	// Saves the original location & other info when calling a subroutine.
+	struct SReturnAddress
+	{
+		QbKey mScriptNameChecksum;
+		QbStruct*mpParams;
+		byte*mpReturnAddress;
+		uint32_t*mpObject;
+		SLoop* mpLoop;
+		EWaitType mWaitType;
+		uint32_t*mpWaitComponent;
+		int mWaitTimer;
+		Time mStartTime;
+		Time mWaitPeriod;
+		bool mInterrupted;
+		unsigned int unk1, unk2;
+	};
+
+	// dev comments
+// The maximum level of Begin-Repeat nesting.
+#define MAX_NESTED_BEGIN_REPEATS 10
+#define NESTED_BEGIN_REPEATS_SMALL_BUFFER_SIZE 1
+
+// The maximum number of nested calls to other scripts.                              
+#define MAX_RETURN_ADDRESSES 16
+// The number of SReturnAddress structures in the small buffer in each CScript
+// Mostly 2 is all that is needed, so a buffer of MAX_RETURN_ADDRESSES is only allocated when needed.
+#define RETURN_ADDRESSES_SMALL_BUFFER_SIZE 2
+
+	// Return values from CScript::Update()
+	enum EScriptReturnVal
+	{
+		ESCRIPTRETURNVAL_FINISHED,
+		ESCRIPTRETURNVAL_BLOCKED,
+		ESCRIPTRETURNVAL_WAITING,
+		ESCRIPTRETURNVAL_ERROR,
+		ESCRIPTRETURNVAL_STOPPED_IN_DEBUGGER,
+		ESCRIPTRETURNVAL_FINISHED_INTERRUPT,
+	};
+
+	/// Neversoft's script class. Most of the contents of the script class are unknown. Also known as CScript
 	struct GH3P_API QbScript
 	{
 		uint32_t gap;  // always 0 most likely
-		QbStruct *qbStruct4;
-		QbScript *qbScript8; // cheat engine shows like it's a script
+		QbScript*next;
+		QbScript*prev;
 		uint32_t unkC;
-		uint8_t *instructionPointer; //or mp_pc
-		QbStruct *qbStruct14; // lines up with class items:
+		uint8_t*instructionPointer; //or mp_pc
+		QbStruct*qbStruct14; // lines up with class items:
 							// mp_function_params and mp_params
-		//uint32_t dword18; // near IP, moves with IP, cursor for current op?
-							// IDA shows it has a similar structure to QbStruct
 		QbStruct *qbStruct18;
 		QbStruct *qbStruct1C;
-		uint32_t unk20; // sometimes links to this struct's values @ 0x24
-		uint32_t unk24; // near IP // points to stuff related to script
-		uint32_t unk28; // near IP // SLoop class here?
-		uint32_t unk2C; // points to stuff related to script
-		uint32_t unk30; // used for repeat statement it looks like (decrements)
-		uint32_t unk34;
+		// Begin-Repeat loop stuff.
+		// NULL if not in a loop, otherwise points into the following array.
+		SLoop*currentLoop;
+		// If the number of loops needs to be bigger than NESTED_BEGIN_REPEATS_SMALL_BUFFER_SIZE then
+		// mp_loops will point to a dynamically allocated array of MAX_NESTED_BEGIN_REPEATS SLoop structures,
+		// otherwise mp_loops will equal mp_loops_small_buffer
+		SLoop mp_loops_small_buffer[NESTED_BEGIN_REPEATS_SMALL_BUFFER_SIZE];
+		SLoop*mp_loops;
 		uint32_t scriptDepth; // stack size / call depth
-		uint32_t rootScript; // consistently =s guitar_startup during init
-		QbStruct *qbStruct40; // root script's struct it looks like
-								// init values persist after guitar_startup
-		uint8_t *scriptBegin; // pointer to start of script possibly // or not // as expected
-		uint32_t unk48; // points to stuff related to script
-		uint32_t unk4C; // sometimes links to value 0x24
-		uint32_t unk50; // always 0 maybe
-		uint32_t unk54; //
-		uint32_t unk58; //
-		uint32_t unk5C; //
-		uint32_t unk60; //
-		uint32_t unk64; //
-		uint32_t unk68; // always 0 maybe
-		uint32_t unk6C; // points to code it looks like
-		uint32_t someKey70; // parent script ?
-		QbStruct *qbStruct74;
-		uint32_t unk78; // looks like uncompressed script
-						// checked on the script ProcessorGroup_RegisterDefault
-						// and it lines up
-		uint32_t unk7C; // always 0 maybe
-		uint32_t unk80; //
-		uint32_t unk84; //
-		uint32_t unk88; //
-		uint32_t unk8C; //
-		uint32_t unk90; //
-		uint32_t unk94; //
-		uint32_t unk98; //
-		uint32_t unk9C; ////
-		uint32_t dwordA0; // always 0 maybe
-		uint32_t dwordA4; // links to rootScript?
-						// in an instance, it points to
-						// guitar_startup, a struct,
-						// and a pointer to code with
-						// key setup_sprites
+		SReturnAddress mp_return_addresses_small_buffer[RETURN_ADDRESSES_SMALL_BUFFER_SIZE];
+		// If the num return addresses needs to be bigger than RETURN_ADDRESSES_SMALL_BUFFER_SIZE then
+		// mp_return_addresses will point to a dynamically allocated array of MAX_RETURN_ADDRESSES SReturnAddress structures,
+		// otherwise mp_return_addresses will equal mp_return_addresses_small_buffer
+		SReturnAddress*mp_return_addresses;
 		uint32_t unkStructPtrA8; // always 0 maybe
 		uint32_t dwordAC;
 		uint32_t qbState; // unkB0
 		uint32_t dwordB4; // always 0 maybe
 		uint32_t scriptIndex;
 		uint8_t unkBC; // checked in QbStruct::Update for game frame related
-		uint8_t flags;
+		uint8_t flags2;
 		uint8_t unkBE;
 		uint8_t unkBF;
 		uint8_t *nextIP; // sometimes is 0, why
@@ -84,6 +137,7 @@ namespace GH3
 		uint32_t dwordD0;
 		uint32_t dwordD4; // becomes a pointer at one POINT
 		QbKey type;
+		uint32_t flags;
 	};
 
 	///used for struct items?
