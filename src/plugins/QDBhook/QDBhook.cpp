@@ -485,6 +485,209 @@ namespace LZSS {
 
 #pragma endregion
 
+int qbstrindent = 0;
+
+char*DBGName(UINT key);
+
+const char* qbstructOpen = "{ ";
+void printStructStructIndent(char*buf,int size)
+{
+	return;
+	for (int i = 0; i < qbstrindent + 1; i++) {
+		strcat_s(buf, size, "    ");
+	}
+}
+void printStructItem(QbKey key, DWORD value, QbValueType type, char*buf, int size);
+void printStructBase(QbStruct* qs,char*buf,int size)
+{
+	if (!qs)
+	{
+		//printStructStructIndent();
+		//print("NON-EXISTENT STRUCT!!!\n");
+		return;
+	}
+	QbStructItem* qsi;
+	qsi = qs->first;
+	while (qsi)
+	{
+		printStructStructIndent(buf,size);
+		printStructItem(qsi->key, qsi->value, qsi->Type(), buf, size);
+		if (!qsi->next)
+			break;
+		qsi = qsi->next;
+	}
+}
+#define WTF(x) (*(UINT*)(x))
+void printStructItem(QbKey key, DWORD value, QbValueType type, char*buf, int size)
+{
+	char qbstrstr[0x400];
+	int qbstrstr2;
+	char* keyStr;
+	qbstrstr2 = !(UINT)key ? 0 : sprintf_s(qbstrstr, "%s = ", DBGName(key));
+	sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%s ", DBGName(value));
+	switch (type)
+	{
+	case TypeInt:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%d ", (signed int)value);
+		break;
+	case TypeFloat:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%f ", (*(FLOAT*)&(value)));
+		break;
+	case TypeCString:
+	case TypeWString:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "");
+		break;
+	case TypePair:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "(%f, %f) ",
+			*(float*)(&WTF(value) + 1),
+			*(float*)(&WTF(value) + 2));
+		break;
+	case TypeVector:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "(%f, %f, %f) ",
+			*(float*)(&(WTF(value)) + 1),
+			*(float*)(&(WTF(value)) + 2),
+			*(float*)(&(WTF(value)) + 3));
+		break;
+	case TypeStringPointer:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "0x%08X ", (DWORD*)(value));
+		break;
+	case TypeScript:
+	case TypeCFunc:
+	case TypeUnk9:
+	case TypeUnk20:
+	case TypeUnk21:
+	case TypeBinaryTree1:
+	case TypeBinaryTree2:
+	case TypeQbMap:
+	case TypeQbKeyStringQs:
+		break;
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "WHAT IS THIS: 0x%p: %08X %08X %08X %08X\n",
+			(DWORD*)(value),
+			*(DWORD*)(value), *(DWORD*)(value + 4),
+			*(DWORD*)(value + 8), *(DWORD*)(value + 12));
+		break;
+	}
+	if (//type != TypeStringPointer &&
+		type != TypeCString &&
+		type != TypeWString &&
+		type != TypeQbStruct &&
+		type != TypeQbArray)
+	{
+		strcat_s(buf, size, qbstrstr);
+	}
+	else if (type == TypeCString) {
+		strcat_s(buf, size, qbstrstr);
+		strcat_s(buf, size, "'");
+		strcat_s(buf, size, (char*)value);
+		strcat_s(buf, size, "' ");
+	}
+	else if (type == TypeWString) {
+		strcat_s(buf, size, qbstrstr);
+		char tombs[200];
+		size_t what;
+		strcat_s(buf, size, "\"");
+		wcstombs_s(&what, tombs, sizeof(tombs), ((wchar_t*)value), sizeof(tombs));
+		strcat_s(buf, size, tombs);
+		strcat_s(buf, size, "\" ");
+	}
+	else if (type == TypeQbArray) {
+		strcat_s(buf, size, qbstrstr);
+		//strcat_s(buf, size, "\n");
+		qbstrindent++;
+		printStructStructIndent(buf, size);
+		QbArray* qa = (QbArray*)value;
+		char itoatmp2[12];
+		_itoa_s(qa->Type(), itoatmp2, 12, 10);
+		strcat_s(buf, size, itoatmp2);
+		strcat_s(buf, size, " QbArray [");
+		strcat_s(buf, size, qbstrstr);
+		DWORD weird;
+		QbValueType qatype = qa->Type();
+		// try to collapse items into multiple lines when there's a lot in the array
+		DWORD qal = qa->Length();
+		for (UINT i = 0; i < qal; i++)
+		{
+			switch (qatype)
+			{
+			case TypeInt:
+				char itoatmp[12];
+				_itoa_s((signed int)qa->Get(i), itoatmp, 12, 10);
+				strcat_s(buf, size, itoatmp);
+				break;
+			case TypeFloat:
+				char ftoatmp[16];
+				weird = qa->Get(i);
+				sprintf_s(ftoatmp, "%f", (*(FLOAT*)&weird));
+				strcat_s(buf, size, ftoatmp);
+				break;
+			case TypeCString:
+				strcat_s(buf, size, qbstrstr);
+				strcat_s(buf, size, "\"");
+				strcat_s(buf, size, (char*)value);
+				strcat_s(buf, size, "\"");
+				break;
+			case TypeWString:
+				char tombs[200];
+				size_t what;
+				wcstombs_s(&what, tombs, sizeof(tombs), ((wchar_t*)qa->Get(i)), sizeof(tombs));
+				strcat_s(buf, size, tombs);
+				break;
+			case TypeQbKey:
+				strcat_s(buf, size, DBGName(qa->Get(i)));
+				break;
+			case TypeQbStruct:
+				strcpy_s(qbstrstr, "");
+				qbstrindent++;
+				printStructStructIndent(buf, size);
+				strcat_s(buf, size, (qbstructOpen));
+				qbstrindent++;
+				printStructBase((QbStruct*)(qa->Get(i)), buf, size);
+				qbstrindent--;
+				printStructStructIndent(buf, size);
+				if (i != qa->Length() - 1) {
+					strcat_s(buf, size, "}");
+				}
+				else
+				{
+					qbstrindent--;
+					strcat_s(buf, size, "}");
+					printStructStructIndent(buf, size);
+					qbstrindent++;
+				}
+				qbstrindent--;
+				break;
+			}
+			if (i != qa->Length() - 1) {
+				strcat_s(buf, size, ", ");
+			}
+			else if (i == qa->Length() - 1)
+			{
+				if (qal > 8)
+				{
+					qbstrindent--;
+				}
+			}
+		}
+		strcat_s(buf, size, qbstrstr);
+		strcat_s(buf, size, "]");
+		if (qal <= 8)
+		{
+			qbstrindent--;
+		}
+	}
+	else {
+		strcat_s(buf, size, qbstrstr);
+		printStructStructIndent(buf, size);
+		strcat_s(buf, size, qbstructOpen);
+		qbstrindent++;
+		printStructBase((QbStruct*)(value), buf, size);
+		qbstrindent--;
+		printStructStructIndent(buf, size);
+		strcat_s(buf, size, "}");
+	}
+}
+
+
 static char dbgpath[MAX_PATH];
 
 ///// NOTE: FOR USE WITH QDB:
@@ -729,7 +932,7 @@ byte align(UINT ea, byte bits)
 		return bits - (align & mask);
 	return 0;
 }
-size_t Decompile(byte*IP, char*out, size_t outl)
+size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 {
 	if (!IP) return 0;
 	//printf("%08X\n",IP);
@@ -738,6 +941,8 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 	byte EOS = 0;
 	byte spacecheck = 0;
 	char indent = 0;
+	UINT ll = 0;
+	byte matchedIP = 0;
 	byte firstbyte = 1;
 	byte*line_begin = IP;
 	while (!EOS)
@@ -753,7 +958,7 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 				//strcat_s(out, outl, test);
 				//strcat_s(out, outl, "     ");
 			}
-			if (!(firstbyte && op == 1))
+			if (!(firstbyte && op == ESCRIPTTOKEN_ENDOFLINE))
 				if (op < 0x4D)
 					strcat_s(out, outl, opStr[op]);
 			if (op == ESCRIPTTOKEN_NAME ||
@@ -807,24 +1012,39 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 				strcat_s(out, outl, pair);
 			} break;
 			case ESCRIPTTOKEN_STRING: {
-				strcat_s(out, outl, "\"");
-				size_t len = *(size_t*)++IP;
-				strncpy_s(out, outl, (char*)(IP+4), len);
-				IP += len - 1;
+				IP++;
+				size_t len = *(size_t*)IP;
 				IP += 3;
-				strcat_s(out, outl, "\"");
+				if (spacecheck > 1)
+					strcat_s(out, outl, " ");
+				strcat_s(out, outl, "'");
+				strncat_s(out, outl, (char*)(IP+1), len);
+				strcat_s(out, outl, "' ");
+				if (spacecheck > 1)
+					strcat_s(out, outl, " ");
+				IP += len;
 			} break;
 			case ESCRIPTTOKEN_WSTRING: { // :grimacing:
+				IP++;
+				size_t len = *(size_t*)IP;
+				IP += 3;
+				char*tombs = (char*)malloc(len);
+				size_t what;
+				if (spacecheck > 1)
+					strcat_s(out, outl, " ");
 				strcat_s(out, outl, "\"");
-				size_t len = *(size_t*)++IP;
-				IP += len << 1;
-				IP--;
-				strncpy_s(out, outl, (char*)(IP+4), len);
+				IP++;
+				wcstombs_s(&what, tombs, len, ((wchar_t*)IP), len);
+				strcat_s(out, outl, tombs);
 				strcat_s(out, outl, "\"");
+				if (spacecheck > 1)
+					strcat_s(out, outl, " ");
+				IP += len;
 			} break;
-			case ESCRIPTTOKEN_SHORTJMP:
 			case ESCRIPTTOKEN_KEYWORD_ELSE:
 			case ESCRIPTTOKEN_KEYWORD_ELSEIF:
+				indent++;
+			case ESCRIPTTOKEN_SHORTJMP:
 			case ESCRIPTTOKEN_KEYWORD_IF:
 				IP++;
 				if (op == ESCRIPTTOKEN_KEYWORD_ELSEIF)
@@ -837,12 +1057,32 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 				IP++;
 				if ((UINT)IP % 4 != 0)
 					IP -= (UINT)IP % 4;
-				//qstr(IP + _align);
-				/*{
+					//IP += ((UINT)IP & 3);
+				//while ((UINT)IP & 3)
+				//	IP++; // i hate this
+#if 0
+				{
 					char test[12];
 					sprintf_s(test, "(%08X)", IP);
 					strcat_s(out, outl, test);
-				}*/
+				}
+#endif
+				if (!firstbyte)
+				{
+					// ignore default params
+					qbstrindent += indent;
+					//strcat_s(out, outl, "\{ ");
+					printStructBase((QbStruct*)((byte*)IP + 4), out, outl);
+
+					//char* test = (char*)malloc(indent * 4);
+					//memset(test, ' ', indent * 4);
+					//strncat_s(out, outl, test, indent * 4);
+					//free(test);
+
+					//strcat_s(out, outl, "}");
+					qbstrindent -= indent;
+					//qstr(IP + _align);
+				}
 				IP += QSSIZE - 1 + 4;
 			} break;
 			case ESCRIPTTOKEN_ENDOFLINE: {
@@ -860,17 +1100,29 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 				}
 			} break;
 			}
-#if 0
 			if (indent < 0)
 				indent = 0;
 			if (op == ESCRIPTTOKEN_ENDOFLINE ||
 				!*(byte*)(IP + 1) ||
 				*(byte*)(IP + 1) == ESCRIPTTOKEN_KEYWORD_ENDSCRIPT)
 			{
-				char* test = (char*)malloc(indent * 4);
+				if (lines)
+					lines[ll++] = IP - start;
+				if (IP_)
+					if (IP == (BYTE*)*IP_)
+						if (!matchedIP)
+						{
+							matchedIP = 1;
+							*IP_ = ll;
+						}
+					else
+						if (!matchedIP)
+							*IP_ = -1;
+				char*test = (char*)malloc(indent * 4);
 				memset(test, ' ', indent * 4);
 				strncat_s(out, outl, test, indent * 4);
 				free(test);
+#if 0
 				UINT hex_view_len = (IP - line_begin) * 3;
 				char* buf = (char*)malloc(4);
 				test = (char*)malloc(hex_view_len + 3);
@@ -888,9 +1140,9 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 				strcat_s(out, outl, "\n");
 				free(buf);
 				free(test);
+#endif
 				line_begin = IP;
 			}
-#endif
 			switch (*(byte*)(IP + 1))
 			{
 			case ESCRIPTTOKEN_KEYWORD_IF:
@@ -903,13 +1155,20 @@ size_t Decompile(byte*IP, char*out, size_t outl)
 		}
 		else
 		{
+			if (op == ESCRIPTTOKEN_KEYWORD_ENDSCRIPT)
+				strcat_s(out, outl, opStr[op]);
 			{
 				char test[16];
 				sprintf_s(test, "(%08X:%02X)", IP, *(BYTE*)IP);
 				strcat_s(out, outl, test);
 			}
+			strcat_s(out, outl, "\n");
 			EOS = 1;
 		}
+		//puts("\nAAAAA\n");
+		//puts(out);
+		//puts("\nAAAAA\n");
+		//Sleep(1000);
 	}
 	return IP - start;
 }
@@ -940,23 +1199,24 @@ HWND scrlist, ilist, CSDbox, activelist;
 #define QDB_MENU_CSDBOX ((HMENU)7)
 #define QDB_MENU_AUTOSTEP ((HMENU)8)
 #define this _this // lol
-// TODO: LINE COUNTER
 void ReadScriptData(QbScript*this)
 {
 	byte*op = FindScriptCached(this->type);
 	byte decomp = 0;
 	//if (!op) { op = FindScript(this->type); decomp = 1; }
-	const int CSD_TXSZ = 240 + ((60) * MAX_RETURN_ADDRESSES);
+	const int CSD_TXSZ = 240 + ((60) * MAX_RETURN_ADDRESSES) + 480;
 	char CSD_TEXT[CSD_TXSZ];
-	printf("written vs buffer size: %d / %d",
-		sprintf_s(CSD_TEXT,
-			"%-8s%s\n"
-			"%-8s%08X\n\n"
-			"%s\n"
-			,
-			"Script:", DBGName(this->type),
-			"IP:", this->instructionPointer - op,
-			"\nCallstack:"), CSD_TXSZ);
+	//printf("written vs buffer size: %d / %d\n",
+	sprintf_s(CSD_TEXT,
+		"%-8s%s\n"
+		"%-8s%08X\n"
+		"%-12s%u\n"
+		"\n%s\n"
+		,
+		"Script:", DBGName(this->type),
+		"IP:", this->instructionPointer - op,
+		"Loops left:", this->currentLoop ? this->currentLoop->mCount : 0,
+		"\nCallstack:");//, CSD_TXSZ);
 	auto ra = this->mp_return_addresses;
 	//^ officially too lazy to write it out now
 	for (int i = this->scriptDepth - 1; i > 0; i--)
@@ -965,13 +1225,58 @@ void ReadScriptData(QbScript*this)
 		strcat_s(CSD_TEXT, "\n");
 	}
 	SetWindowText(CSDbox, CSD_TEXT);
-	if (!op) op = this->instructionPointer;
+	char cantfind = 0;
+	if (!op) { cantfind = 1; op = this->instructionPointer; }
 	if (op)
 	{
-		char test[32000];
-		Decompile(op, test, 32000);
-		puts(test);
+		SendMessage(ilist, LB_RESETCONTENT, 0, 0);
+		int ll[2000];
+		int nl;
+		int cl = cantfind ? 0 : (int)this->instructionPointer; // find current line
+		char*output = (char*)malloc(32000);
+		memset(output, 0, 32000);
+		char clstr[0x1000];
+		Decompile(op, output, 32000, ll, &nl, &cl);
+		char*currentLine = output;
+		char*eol;
+		for (int i = 0; ; i++)
+		{
+			eol = strchr(currentLine, '\n');
+			if (eol)
+			{
+				*eol = 0;
+#if 0
+				int clbytes_range = max(2, min(16, ll[i + 1] - ll[i]));
+				UINT hex_view_len = clbytes_range * 3;
+				char*buf = (char*)malloc(4);
+				char*test = (char*)malloc(hex_view_len + 3);
+				memset(test, 0, hex_view_len + 3);
+				for (int j = 0; j < clbytes_range; j++)
+				{
+					sprintf_s(buf, 4, "%02X ", op[ll[i] + j]);
+					//sprintf_s(test, hex_view_len, buf);
+					//strncpy_s(test + (i*3), hex_view_len - (i*3), buf, 3);
+					memcpy(test + (j * 3), buf, 3);
+				}
+				//strcat_s(test, hex_view_len, "A");
+				free(buf);
+				free(test);
+				sprintf_s(clstr, "%04X %-64s %s", ll[i], test, currentLine);
+#else
+				sprintf_s(clstr, "%04X %s", ll[i], currentLine);
+#endif
+				SendMessage(ilist, LB_ADDSTRING, 0, (LPARAM)clstr);
+				*eol = '\n';
+				currentLine = eol + 1;
+			}
+			else
+				break;
+		}
+		if (cl != -1)
+			SendMessage(ilist, LB_SETCURSEL, (LPARAM)(cl - 1), 0);
+		free(output);
 	}
+	else puts("Couldn't parse bytecode");
 	//if (decomp) free(op);
 }
 #undef this
@@ -1001,8 +1306,8 @@ void initW()
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = "GH3QDB";
 	RegisterClass(&wc);
-#define WIN_WIDTH 800
-#define WIN_HEIGHT 650
+#define WIN_WIDTH 1200
+#define WIN_HEIGHT 800
 	hW = CreateWindow(wc.lpszClassName, "Loading...",
 		WS_VISIBLE | WS_DLGFRAME | WS_SYSMENU, 500, 500, WIN_WIDTH, WIN_HEIGHT, 0, 0, wc.hInstance, 0);
 	sserif = CreateFontA(14, 0, 0, 0, 400, 0,  0, 0, 0, 0, 0, 0, 0x20, "Microsoft Sans Serif");
@@ -1159,6 +1464,12 @@ void BreakCond()
 		}
 		return;
 	}
+	if (state == Step)
+	{
+		if (currentScriptPointer->instructionPointer) // only break on newlines when stepping
+			if (*currentScriptPointer->instructionPointer == ESCRIPTTOKEN_ENDOFLINE)
+				state = Pause;
+	}
 	if (state == Pause)
 	{
 		ReadCSD();
@@ -1185,16 +1496,13 @@ void BreakCond()
 			state = Step;
 			timeBeginPeriod(1);
 			Sleep(12);
+			UpdateWindow(hW);
 			timeEndPeriod(1);
 		}
 		//if (DebugData[0] == Running)
 		{
 			//ExecuteScript2(QbKey("unpausegh3"), nullParams, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
 		}
-	}
-	if (state == Step)
-	{
-		state = Pause;
 	}
 	if (state == StepOver)
 	{
