@@ -4,7 +4,7 @@
 #include "gh3\QbScript.h"
 #include "gh3\QbValueType.h"
 #include "core\Patcher.h"
-#include "QDBhook.h"
+#include "QDB.h"
 #include "gh3\malloc.h"
 #include <stdint.h>
 #include <stdio.h>
