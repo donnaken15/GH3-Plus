@@ -97,7 +97,7 @@ bool ProfileTime(QbStruct* str, QbScript* scr)
 // doesn't work?
 //extern "C" NTSYSAPI NTSTATUS NTAPI NtSetTimerResolution(ULONG DesiredResolution, BOOLEAN SetResolution, PULONG CurrentResolution);
 
-static char inipath[MAX_PATH];
+static wchar_t inipath[MAX_PATH];
 
 int killswitchTimer = 0;
 //int killswitchCheckInterval = 100;
@@ -117,9 +117,9 @@ void frameLimit()
 	if (killswitchTimer++ < (frameRate * 2))
 	{
 		killswitchTimer = 0;
-		if (GetPrivateProfileIntA("Misc", "Killswitch", 0, inipath))
+		if (GetPrivateProfileIntW(L"Misc", L"Killswitch", 0, inipath))
 		{
-			WritePrivateProfileStringA("Misc", "Killswitch", "0", inipath);
+			WritePrivateProfileStringW(L"Misc", L"Killswitch", L"0", inipath);
 			lol3();
 		}
 	}
@@ -431,12 +431,12 @@ __declspec(naked) void getPosFix()
 }
 #endif
 
-char* FSBa;
-char* FSBaa;
-char* FSBb;
+wchar_t*FSBa;
+wchar_t*FSBaa;
+wchar_t*FSBb;
 int  FSBm;
-FILE* FSBf;
-char* FSBc;
+FILE*FSBf;
+wchar_t*FSBc;
 
 // Invo
 char SwapByteBits(unsigned char cInput)
@@ -502,15 +502,15 @@ __declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
 		mov  realECX, ecx;
 		mov  realEDX, edx;
 	}
-	FSBa = (char*)malloc(MAX_PATH);
-	FSBaa = (char*)malloc(MAX_PATH);
-	GetModuleFileNameA(0, FSBa, MAX_PATH);
-	FSBc = strrchr(FSBa, '\\');
+	FSBa = (wchar_t*)calloc(MAX_PATH, 2);
+	FSBaa = (wchar_t*)calloc(MAX_PATH, 2);
+	GetModuleFileNameW(0, FSBa, MAX_PATH);
+	FSBc = wcsrchr(FSBa, L'\\');
 	if (FSBc)
 		*FSBc = 0;
-	sprintf_s(FSBaa, MAX_PATH, "%s\\DATA\\%s.fsb.xen", FSBa, FSBb);
+	swprintf_s(FSBaa, MAX_PATH, L"%s\\DATA\\%s.fsb.xen", FSBa, FSBb);
 
-	FSBf = fopen(FSBaa, "rb");
+	_wfopen_s(&FSBf, FSBaa, L"rb");
 	if (FSBf)
 	{
 		fread(&FSBm, 4, 1, FSBf);
@@ -823,6 +823,39 @@ UINT* dynafnt_20058(UINT* a1)
 
 #include "gh3\malloc.h"
 
+#define WHY(x, y) _extn_##x##_##y
+#define why(x, y) WHY(x,y)
+#define EXTN_FUNC(type, name, addr, ...) \
+	typedef type why(name, __LINE__)(__VA_ARGS__); \
+	why(name, __LINE__)*name = (why(name, __LINE__)*)(addr);
+
+//EXTN_FUNC(wchar_t*, ESwapWstr, 0x00588490, wchar_t*)
+EXTN_FUNC(char, GetWStr, 0x004786A0, wchar_t*)
+EXTN_FUNC(char, PrintStruct, 0x00530970, QbStruct*, QbScript*)
+
+#define this _this
+inline char __declspec(naked) __stdcall getlocalstring(QbStruct*this, QbKey name, wchar_t**dest, int assert)
+{
+	static const uint32_t jump = 0x00478950;
+	__asm {
+		pop ebp;
+		pop ecx;
+		push ebp;
+		jmp jump;
+	}
+}
+inline char __declspec(naked) __stdcall getstring(QbStruct*this, QbKey name, char**dest, int assert)
+{
+	static const uint32_t jump = 0x004788B0;
+	__asm {
+		pop ebp;
+		pop ecx;
+		push ebp;
+		jmp jump;
+	}
+}
+#undef this
+
 #define hard_cast(type,value) (*(type*)&(value))
 static void* FGH3ConfigDetour = (void*)0x00897D90;
 bool FGH3Config(QbStruct*params,QbScript*_this)
@@ -831,28 +864,31 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 	// don't know if arguments can get out of order, because I want to see if I can
 	// use purely no-name key values
 	// return true if config value gotten
-	char*paramName,*sect = "Undefined"; // :/
-	if (params->GetString(QbKey((uint32_t)0), paramName))
+	QbStructItem*paramItem;
+	wchar_t*paramName,*sect = L"Undefined";
+	bool gotstring = getlocalstring(params, QbKey((uint32_t)0), &paramName, 0);
+	if (gotstring)
 	{
-		params->GetString(QbKey("sect"), sect);
-		QbStructItem*paramItem;
+		getlocalstring(params, QbKey("sect"), &sect, 0);
 		if (paramItem = params->GetItem(QbKey("default"))) // get value from INI
 		{
-			void*retval;
+			void* retval;
 			QbValueType it = paramItem->Type();
 			switch (it)
 			{
 			case QbValueType::TypeInt:
-				retval = (void*)GetPrivateProfileIntA(sect, paramName, paramItem->value, inipath);
+			{
+				retval = (void*)GetPrivateProfileIntW(sect, paramName, paramItem->value, inipath);
 				break;
+			}
 			case QbValueType::TypeFloat:
 			{
-				char strval[50]; // how many digits do you need
+				wchar_t strval[50]; // how many digits do you need
 				// especially when it does e notation with specific values
 				// i forgot if it's even like that in C++
 				float _retval;
-				if (GetPrivateProfileStringA(sect, paramName, "", strval, sizeof(strval), inipath))
-					_retval = atof(strval); // RETURNS DOUBLE YOU STUPID CRINGE
+				if (GetPrivateProfileStringW(sect, paramName, L"", strval, sizeof(strval), inipath))
+					_retval = _wtof(strval); // RETURNS DOUBLE YOU STUPID CRINGE
 				else
 					_retval = hard_cast(float, paramItem->value);
 				retval = hard_cast(void*, _retval);
@@ -860,21 +896,31 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 			}
 			case QbValueType::TypeCString:
 			{
+				size_t null;
 				char*default = hard_cast(char*, paramItem->value);
-				const int strsize = 0x200;
+				const size_t strsize = 0x200;
+				wchar_t*tombs = (wchar_t*)malloc(1 + strsize << 1);
 				char*strval = (char*)malloc(strsize);
-				if (GetPrivateProfileStringA(sect, paramName, default, strval, strsize, inipath))
+				if (GetPrivateProfileStringW(sect, paramName, 0, tombs, strsize, inipath))
+				{
+					wcstombs_s(&null, strval, strsize, tombs, strsize);
 					retval = strval;
+				}
 				else
 					retval = default;
 				break;
 			}
 			case QbValueType::TypeQbKey:
 			{
-				const int strsize = 0x100;
+				size_t null;
+				const size_t strsize = 0x200;
+				wchar_t* tombs = (wchar_t*)malloc(1 + strsize << 1);
 				char*strval = (char*)malloc(strsize);
-				if (GetPrivateProfileStringA(sect, paramName, "", strval, strsize, inipath))
+				if (GetPrivateProfileStringW(sect, paramName, L"", tombs, strsize, inipath))
+				{
+					wcstombs_s(&null, strval, strsize, tombs, strsize);
 					retval = (void*)crc32::hash(strval);
+				}
 				else
 					retval = hard_cast(void*, paramItem->value);
 				// TODO: accept 0xXXXXXXXX
@@ -885,17 +931,8 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 				wchar_t*default = hard_cast(wchar_t*, paramItem->value);
 				const int strsize = 0x200;
 				wchar_t*strval = (wchar_t*)malloc(strsize<<1);
-				wchar_t*sect_W = (wchar_t*)malloc(strsize<<1);
-				wchar_t*param_W = (wchar_t*)malloc(strsize<<1);
-				wchar_t*inipath_W = (wchar_t*)malloc(strsize<<1);
-				mbstowcs(sect_W,sect,strsize); // ehhhhhhh
-				mbstowcs(param_W,paramName,strsize);
-				mbstowcs(inipath_W,inipath,strsize);
-				GetPrivateProfileStringW(sect_W, param_W, default, strval, strsize, inipath_W);
+				GetPrivateProfileStringW(sect, paramName, default, strval, strsize, inipath);
 				retval = strval;
-				free(sect_W);
-				free(param_W);
-				free(inipath_W);
 				break;
 			}
 			// don't use items that have unknown types or are too complex or unneccessary for INI
@@ -956,36 +993,28 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 			{
 			case QbValueType::TypeInt:
 			{
-				char strval[12];
-				itoa(paramItem->value, strval, 10);
-				WritePrivateProfileStringA(sect, paramName, strval, inipath);
+				wchar_t strval[12];
+				_itow(paramItem->value, strval, 10);
+				WritePrivateProfileStringW(sect, paramName, strval, inipath);
 				break;
 			}
 			case QbValueType::TypeFloat:
 			{
-				char strval[50];
-				sprintf_s(strval, "%f", hard_cast(float,paramItem->value));
-				WritePrivateProfileStringA(sect, paramName, strval, inipath);
+				wchar_t strval[50];
+				swprintf_s(strval, L"%f", hard_cast(float,paramItem->value));
+				WritePrivateProfileStringW(sect, paramName, strval, inipath);
 				break;
 			}
 			case QbValueType::TypeCString:
 			{
-				WritePrivateProfileStringA(sect, paramName, (char*)paramItem->value, inipath);
+				wchar_t*text;
+				getlocalstring(params, paramItem->key, &text, 1);
+				WritePrivateProfileStringW(sect, paramName, text, inipath);
 				break;
 			}
 			case QbValueType::TypeWString:
 			{
-				const int strsize = 0x200;
-				wchar_t* sect_W = (wchar_t*)malloc(strsize << 1);
-				wchar_t* param_W = (wchar_t*)malloc(strsize << 1);
-				wchar_t* inipath_W = (wchar_t*)malloc(strsize << 1);
-				mbstowcs(sect_W, sect, strsize); // ehhhhhhh
-				mbstowcs(param_W, paramName, strsize);
-				mbstowcs(inipath_W, inipath, strsize);
-				WritePrivateProfileStringW(sect_W, param_W, (wchar_t*)paramItem->value, inipath_W);
-				free(sect_W);
-				free(param_W);
-				free(inipath_W);
+				WritePrivateProfileStringW(sect, paramName, (wchar_t*)paramItem->value, inipath);
 				break;
 			}
 			// don't use items that have unknown types or are too complex or unneccessary for INI
@@ -1002,16 +1031,16 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 
 void ApplyHack()
 {
-	GetCurrentDirectoryA(MAX_PATH, inipath);
-	strcat_s(inipath, MAX_PATH, "\\settings.ini");
-	g_patcher.WriteInt8(CD, GetPrivateProfileIntA("ActionReplay", "CD", 1, inipath));
-	vsync = GetPrivateProfileIntA("GFX", "VSync", 0, inipath);
-	borderless = GetPrivateProfileIntA("GFX", "Borderless", 0, inipath);
+	GetCurrentDirectoryW(MAX_PATH, inipath);
+	wcscat_s(inipath, MAX_PATH, L"\\settings.ini");
+	g_patcher.WriteInt8(CD, GetPrivateProfileIntW(L"ActionReplay", L"CD", 1, inipath));
+	vsync = GetPrivateProfileIntW(L"GFX", L"VSync", 0, inipath);
+	borderless = GetPrivateProfileIntW(L"GFX", L"Borderless", 0, inipath);
 #if (!FRAMERATE_FROM_QB)
 	frameRate = GetPrivateProfileIntA("Player", "MaxFPS", 60, inipath);
 #endif
 	//(*d3ddev)->
-	windowed = GetPrivateProfileIntA("GFX", "Windowed", 1, inipath);
+	windowed = GetPrivateProfileIntW(L"GFX", L"Windowed", 1, inipath);
 	// ^ because why would you want to turn this off
 	// unless you like purposely suffering
 	g_patcher.WriteInt32((void*)0x0057BB50, windowed);

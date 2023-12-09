@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <Windows.h>
+#include <CommCtrl.h>
 #include "gh3\GH3Functions.h"
 
 #pragma comment(lib, "winmm.lib")
@@ -932,6 +933,101 @@ byte align(UINT ea, byte bits)
 		return bits - (align & mask);
 	return 0;
 }
+/*size_t GetCurrentLine(byte* IP, byte* cursor, int* lines, int* lcount)
+{
+	if (!IP) return 0;
+	byte*start = IP;
+	byte EOS = 0;
+	UINT l = 0;
+	byte matchedIP = 0;
+	byte firstbyte = 1;
+	byte gotdefaults = 0;
+	byte*line_begin = IP;
+	while (!EOS)
+	{
+		byte op = *IP;
+		if (op != ESCRIPTTOKEN_KEYWORD_ENDSCRIPT && op)
+		{
+			gotdefaults = 0;
+			switch (op)
+			{
+			case ESCRIPTTOKEN_RUNTIME_CFUNCTION:
+			case ESCRIPTTOKEN_RUNTIME_MEMBERFUNCTION:
+			case 0x46: // different type of CFunc operation?????????
+			case ESCRIPTTOKEN_NAME:
+			case ESCRIPTTOKEN_INTEGER:
+			case ESCRIPTTOKEN_FLOAT:
+				IP += 4;
+				break;
+			case ESCRIPTTOKEN_PAIR:
+				IP += 8;
+				break;
+			case ESCRIPTTOKEN_VECTOR:
+				IP += 12;
+				break;
+			case ESCRIPTTOKEN_STRING: {
+				IP++;
+				size_t len = *(size_t*)IP;
+				IP += 3;
+				IP += len;
+			} break;
+			case ESCRIPTTOKEN_WSTRING: {
+				IP++;
+				size_t len = *(size_t*)IP;
+				IP += 4; // ffs
+				IP += len;
+			} break;
+			case ESCRIPTTOKEN_KEYWORD_ELSE:
+				IP++;
+			case ESCRIPTTOKEN_KEYWORD_ELSEIF:
+			case ESCRIPTTOKEN_SHORTJMP:
+			case ESCRIPTTOKEN_KEYWORD_IF:
+				IP++;
+				if (op == ESCRIPTTOKEN_KEYWORD_ELSEIF)
+					IP += 2;
+				IP++;
+				break;
+			case ESCRIPTTOKEN_QBSTRUCT: {
+				IP++;
+				auto QSSIZE = *(WORD*)IP;
+				IP++;
+				if ((UINT)IP % 4 != 0)
+					IP -= (UINT)IP % 4;
+				if (!firstbyte)
+				{
+				}
+				else {
+					gotdefaults = 1;
+				}
+				IP += QSSIZE - 1 + 4;
+			} break;
+			}
+			if (op == ESCRIPTTOKEN_ENDOFLINE ||
+				!*(byte*)(IP + 1) ||
+				*(byte*)(IP + 1) == ESCRIPTTOKEN_KEYWORD_ENDSCRIPT)
+			{
+				if (lines)
+					lines[l++] = IP - start;
+				if (cursor)
+					if (IP == cursor)
+						if (!matchedIP)
+						{
+							matchedIP = 1;
+							cursor = (BYTE*)l; // lol
+						}
+						else
+							if (!matchedIP)
+								cursor = (BYTE*)-1;
+				line_begin = IP;
+			}
+			IP++;
+			firstbyte = 0;
+		}
+		else
+			EOS = 1;
+	}
+	return (size_t)cursor;
+}*/
 size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 {
 	if (!IP) return 0;
@@ -944,6 +1040,7 @@ size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 	UINT ll = 0;
 	byte matchedIP = 0;
 	byte firstbyte = 1;
+	byte gotdefaults = 0;
 	byte*line_begin = IP;
 	while (!EOS)
 	{
@@ -958,9 +1055,10 @@ size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 				//strcat_s(out, outl, test);
 				//strcat_s(out, outl, "     ");
 			}
-			if (!(firstbyte && op == ESCRIPTTOKEN_ENDOFLINE))
+			if (!(firstbyte && op == ESCRIPTTOKEN_ENDOFLINE) && !(gotdefaults))
 				if (op < 0x4D)
 					strcat_s(out, outl, opStr[op]);
+			gotdefaults = 0;
 			if (op == ESCRIPTTOKEN_NAME ||
 				op == ESCRIPTTOKEN_INTEGER ||
 				op == ESCRIPTTOKEN_FLOAT ||
@@ -979,6 +1077,7 @@ size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 				IP += 3;
 			} break;
 			case ESCRIPTTOKEN_NAME:
+			case 0x46:
 				if (spacecheck > 1)
 					strcat_s(out, outl, " ");
 				IP++;
@@ -1025,6 +1124,8 @@ size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 				IP += len;
 			} break;
 			case ESCRIPTTOKEN_WSTRING: { // :grimacing:
+				// I JUST REMEMBERED IT'S BIG ENDIAN
+				// OH NO
 				IP++;
 				size_t len = *(size_t*)IP;
 				IP += 3;
@@ -1033,12 +1134,13 @@ size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 				if (spacecheck > 1)
 					strcat_s(out, outl, " ");
 				strcat_s(out, outl, "\"");
-				IP++;
+				IP++; // REMOVE AND ALLOCATE AND COPY WSTRING AND SWAP BYTES FOR SOME REASON
 				wcstombs_s(&what, tombs, len, ((wchar_t*)IP), len);
 				strcat_s(out, outl, tombs);
 				strcat_s(out, outl, "\"");
 				if (spacecheck > 1)
 					strcat_s(out, outl, " ");
+				free(tombs);
 				IP += len;
 			} break;
 			case ESCRIPTTOKEN_KEYWORD_ELSE:
@@ -1082,6 +1184,9 @@ size_t Decompile(byte*IP, char*out, size_t outl, int*lines, int*lcount, int*IP_)
 					//strcat_s(out, outl, "}");
 					qbstrindent -= indent;
 					//qstr(IP + _align);
+				}
+				else {
+					gotdefaults = 1;
 				}
 				IP += QSSIZE - 1 + 4;
 			} break;
@@ -1186,8 +1291,231 @@ char*btntext[] = {
 	"Step",
 	"Auto Step"
 };
+const byte csdstruc_col_widths[] = { 17, 14 };
+const byte csdstruc_buf_size =
+	1 + csdstruc_col_widths[0] +
+	3 + csdstruc_col_widths[1] +
+	1;
+int csdstruc_indent = 0;
 HFONT sserif, msgoth;
-HWND scrlist, ilist, CSDbox, activelist;
+HWND scrlist, ilist, CSDbox, activelist, CSDstruc;
+#define this _this
+void CSDstruc_structindent(char*buf,int size) // :/
+{
+	for (int i = 0; i < csdstruc_indent; i++) {
+		strcat_s(buf, size, "  ");
+	}
+}
+// stupid
+#define WTF(x) (*(UINT*)(x))
+void LoadStructBase(QbStruct*qs);
+void CSDstruc_item(QbStructItem*qsi)
+{
+	char buf[0x400];
+	memset(buf, 0, sizeof(buf));
+	char qbstrstr[0x100];
+	int qbstrstr2;
+	char* keyStr;;
+	CSDstruc_structindent(buf, sizeof(buf));
+	qbstrstr2 = !(UINT)qsi->key ? 1 : sprintf_s(qbstrstr, " %*s | ",
+		-csdstruc_col_widths[0] + (csdstruc_indent << 1), DBGName(qsi->key));
+	if (!(UINT)qsi->key)
+		strcpy_s(qbstrstr, " ");
+	if (qsi->Type() != TypeQbStruct)
+	{
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%*s",
+			-csdstruc_col_widths[1], DBGName(qsi->value));
+	}
+	switch (qsi->Type())
+	{
+	case TypeInt:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%d", (signed int)qsi->value);
+		break;
+	case TypeFloat:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "%f", (*(FLOAT*)&(qsi->value)));
+		break;
+	case TypeCString:
+	case TypeWString:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "");
+		break;
+	case TypePair:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "(%f, %f)",
+			*(float*)(&WTF(qsi->value) + 1),
+			*(float*)(&WTF(qsi->value) + 2));
+		break;
+	case TypeVector:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "(%f, %f, %f)",
+			*(float*)(&(WTF(qsi->value)) + 1),
+			*(float*)(&(WTF(qsi->value)) + 2),
+			*(float*)(&(WTF(qsi->value)) + 3));
+		break;
+	case TypeStringPointer:
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "0x%08X", (DWORD*)(qsi->value));
+		break;
+	case TypeScript:
+	case TypeCFunc:
+	case TypeUnk9:
+	case TypeUnk20:
+	case TypeUnk21:
+	case TypeBinaryTree1:
+	case TypeBinaryTree2:
+	case TypeQbMap:
+	case TypeQbKeyStringQs:
+		break;
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "WHAT IS THIS: 0x%p: %08X %08X %08X %08X\n",
+			(DWORD*)(qsi->value),
+			*(DWORD*)(qsi->value), *(DWORD*)(qsi->value + 4),
+			*(DWORD*)(qsi->value + 8), *(DWORD*)(qsi->value + 12));
+		break;
+	}
+	if (//type != TypeStringPointer &&
+		qsi->Type() != TypeCString &&
+		qsi->Type() != TypeWString &&
+		qsi->Type() != TypeQbStruct &&
+		qsi->Type() != TypeQbArray)
+	{
+		strcat_s(buf, qbstrstr);
+	}
+	else if (qsi->Type() == TypeCString) {
+		strcat_s(buf, qbstrstr);
+		strcat_s(buf, "'");
+		strcat_s(buf, (char*)qsi->value);
+		strcat_s(buf, "' ");
+	}
+	else if (qsi->Type() == TypeWString) {
+		strcat_s(buf, qbstrstr);
+		char tombs[200];
+		size_t what;
+		strcat_s(buf, "\"");
+		wcstombs_s(&what, tombs, sizeof(tombs), ((wchar_t*)qsi->value), sizeof(tombs));
+		strcat_s(buf, tombs);
+		strcat_s(buf, "\" ");
+	}
+	else if (qsi->Type() == TypeQbArray) {
+		strcat_s(buf, qbstrstr);
+		//strcat_s(buf, size, "\n");
+		csdstruc_indent++;
+		CSDstruc_structindent(buf, sizeof(buf));
+		QbArray* qa = (QbArray*)qsi->value;
+		char itoatmp2[12];
+		_itoa_s(qa->Type(), itoatmp2, 12, 10);
+		strcat_s(buf, itoatmp2);
+		strcat_s(buf, " QbArray [");
+		strcat_s(buf, qbstrstr);
+		DWORD weird;
+		QbValueType qatype = qa->Type();
+		// try to collapse items into multiple lines when there's a lot in the array
+		DWORD qal = qa->Length();
+		for (UINT i = 0; i < qal; i++)
+		{
+			switch (qatype)
+			{
+			case TypeInt:
+				char itoatmp[12];
+				_itoa_s((signed int)qa->Get(i), itoatmp, 12, 10);
+				strcat_s(buf, itoatmp);
+				break;
+			case TypeFloat:
+				char ftoatmp[16];
+				weird = qa->Get(i);
+				sprintf_s(ftoatmp, "%f", (*(FLOAT*)&weird));
+				strcat_s(buf, ftoatmp);
+				break;
+			case TypeCString:
+				strcat_s(buf, qbstrstr);
+				strcat_s(buf, "\"");
+				strcat_s(buf, (char*)qsi->value);
+				strcat_s(buf, "\"");
+				break;
+			case TypeWString:
+				char tombs[200];
+				size_t what;
+				wcstombs_s(&what, tombs, sizeof(tombs), ((wchar_t*)qa->Get(i)), sizeof(tombs));
+				strcat_s(buf, tombs);
+				break;
+			case TypeQbKey:
+				strcat_s(buf, DBGName(qa->Get(i)));
+				break;
+			case TypeQbStruct:
+				/*strcpy_s(qbstrstr, "");
+				csdstruc_indent++;
+				CSDstruc_structindent(buf, sizeof(buf));
+				strcat_s(buf, (qbstructOpen));
+				csdstruc_indent++;
+				printStructBase((QbStruct*)(qa->Get(i)), buf, sizeof(buf));
+				csdstruc_indent--;
+				CSDstruc_structindent(buf, sizeof(buf));
+				if (i != qa->Length() - 1) {
+					strcat_s(buf, sizeof(buf), "}");
+				}
+				else
+				{
+					csdstruc_indent--;
+					strcat_s(buf, sizeof(buf), "}");
+					CSDstruc_structindent(buf, sizeof(buf));
+					csdstruc_indent++;
+				}
+				csdstruc_indent--;*/
+				break;
+			}
+			if (i != qa->Length() - 1) {
+				strcat_s(buf, ", ");
+			}
+			else if (i == qa->Length() - 1)
+			{
+				if (qal > 8)
+				{
+					csdstruc_indent--;
+				}
+			}
+		}
+		strcat_s(buf, qbstrstr);
+		strcat_s(buf, "]");
+		if (qal <= 8)
+		{
+			csdstruc_indent--;
+		}
+	}
+	else {
+		strcat_s(qbstrstr, ">");
+		strcat_s(buf, qbstrstr);
+		SendMessage(CSDstruc, LB_ADDSTRING, 0, (LPARAM)buf);
+		csdstruc_indent++;
+		LoadStructBase((QbStruct*)(qsi->value));
+		csdstruc_indent--;
+	}
+	if (qsi->Type() != TypeQbStruct)
+		SendMessage(CSDstruc, LB_ADDSTRING, 0, (LPARAM)buf);
+}
+void LoadStructBase(QbStruct*qs)
+{
+	QbStructItem*qsi = qs->first;
+	while (qsi)
+	{
+		CSDstruc_item(qsi);
+		if (!qsi->next)
+			break;
+		qsi = qsi->next;
+	}
+}
+void LoadStruct(QbStruct*this)
+{
+	SendMessage(CSDstruc, LB_RESETCONTENT, 0, 0);
+	char*buf = (char*)malloc(csdstruc_buf_size + 1);
+	memset(buf, 0, csdstruc_buf_size + 1);
+	sprintf_s(buf, csdstruc_buf_size, " %*s | %*s",
+		-csdstruc_col_widths[0], "Item",
+		-csdstruc_col_widths[1], "Value");
+	SendMessage(CSDstruc, LB_ADDSTRING, 0, (LPARAM)buf);
+
+	memset(buf, '-', csdstruc_buf_size);
+	buf[2 + csdstruc_col_widths[0]] = '|';
+	SendMessage(CSDstruc, LB_ADDSTRING, 0, (LPARAM)buf);
+
+	LoadStructBase(this);
+	free(buf);
+}
+#undef this
 #define QDB_NOMENU ((HMENU)-1)
 #define QDB_MENU_RUN ((HMENU)0)
 #define QDB_MENU_PAUSE ((HMENU)1)
@@ -1211,11 +1539,15 @@ void LoadScriptBase(byte*op, byte*IP)
 	{
 		int nl;
 		currentScriptLine = cantfind ? 0 : (int)IP; // find current line
+		//if (lastLoadedScript == op)
+		//{
+		//	currentScriptLine = GetCurrentLine(op, IP, currentScriptLines, &nl);
+		//}
+		//else
 		char*output = (char*)malloc(32000);
 		memset(output, 0, 32000);
 		char clstr[0x1000];
 		Decompile(op, output, 32000, currentScriptLines, &nl, &currentScriptLine);
-		//TODO?: skip writing string just to get current line
 		char*currentLine = output;
 		char*eol;
 		if (lastLoadedScript != op)
@@ -1257,8 +1589,8 @@ void LoadScriptBase(byte*op, byte*IP)
 					break;
 			}
 			LockWindowUpdate(0);
+			free(output);
 		}
-		free(output);
 	}
 	else puts("Couldn't parse bytecode");
 }
@@ -1267,30 +1599,59 @@ void ReadScriptData(QbScript*this)
 	byte*op = FindScriptCached(this->type);
 	byte decomp = 0;
 	//if (!op) { op = FindScript(this->type); decomp = 1; }
-	const int CSD_TXSZ = 240 + ((60) * MAX_RETURN_ADDRESSES) + 480;
+	const int CSD_TXSZ = 240 + ((60) * MAX_RETURN_ADDRESSES) + 480 + (32 * MAX_NESTED_BEGIN_REPEATS);
 	char CSD_TEXT[CSD_TXSZ];
 	//printf("written vs buffer size: %d / %d\n",
 	sprintf_s(CSD_TEXT,
 		"%-8s%s\n"
 		"%-8s%08X\n"
-		"%-12s%u\n"
-		"\n%s\n"
 		,
 		"Script:", DBGName(this->type),
-		"IP:", this->instructionPointer - op,
-		"Loops left:", this->currentLoop ? this->currentLoop->mCount : 0,
-		"\nCallstack:");//, CSD_TXSZ);
-	auto ra = this->mp_return_addresses;
-	//^ officially too lazy to write it out now
-	for (int i = this->scriptDepth - 1; i > 0; i--)
+		"IP:", this->instructionPointer - op);//, CSD_TXSZ);
+	if (this->currentLoop)
 	{
-		strcat_s(CSD_TEXT, DBGName(ra[i].mScriptNameChecksum));
-		strcat_s(CSD_TEXT, "\n");
+		byte loopnum = this->currentLoop - this->mp_loops;
+		char buf[32];
+		char numbuf[12]; // fancying
+		auto nl = this->mp_loops;
+		strcat_s(CSD_TEXT, "\nCurrent loops:\n");
+		for (int i = loopnum; i >= 0; i--)
+		{
+			/* " // These get filled in once the repeat is reached.
+			mp_current_loop->mpEnd=NULL;
+			mp_current_loop->mGotCount=false;
+			mp_current_loop->mNeedToReadCount=true;
+			mp_current_loop->mCount=0; " */
+			if (!nl[i].mpEnd) // TODO: read ahead
+				sprintf(buf, "%04X ...\n", nl[i].mpStart - op);
+			else
+			{
+				if (!nl[i].mGotCount)
+					strcpy_s(numbuf, "infinity");
+				else
+					_itoa_s(nl[i].mCount, numbuf, 10);
+				sprintf(buf, "%04X-%04X: %s\n",
+					nl[i].mpStart - op,
+					nl[i].mpEnd - op, numbuf);
+			}
+			strcat_s(CSD_TEXT, buf);
+		}
+	}
+	if (this->scriptDepth)
+	{
+		auto ra = this->mp_return_addresses;
+		//^ officially too lazy to write it out now
+		strcat_s(CSD_TEXT, "\nCallstack:\n");
+		for (int i = this->scriptDepth - 1; i >= 0; i--)
+		{
+			strcat_s(CSD_TEXT, DBGName(ra[i].mScriptNameChecksum));
+			strcat_s(CSD_TEXT, "\n");
+		}
 	}
 	SetWindowText(CSDbox, CSD_TEXT);
 	byte*loadedScript = op ? op : this->instructionPointer;
-	LoadScriptBase(op, this->instructionPointer);
-	if (decomp) free(op);
+	LoadScriptBase(op, decomp ? 0 : this->instructionPointer);
+	//if (decomp) free(op);
 	if (currentScriptLine != -1)
 		SendMessage(ilist, LB_SETCURSEL, (LPARAM)(currentScriptLine - 1), 0);
 }
@@ -1298,6 +1659,25 @@ void ReadScriptData(QbScript*this)
 void ReadCSD()
 {
 	ReadScriptData(currentScriptPointer);
+	QbStruct*qss = (QbStruct*)qbMalloc(sizeof(QbStruct), 0); // hack lol
+	memset(qss, 0, sizeof(QbStruct));
+	qss->InsertQbStructItem((uint32_t)0, currentScriptPointer->qbStruct14);
+	//qss->InsertQbStructItem(QbKey("variables"), currentScriptPointer->qbStruct18);
+	//qss->InsertIntItem((uint32_t)0, 1234567);
+	//qss->InsertQbStructItem(QbKey("test"), currentScriptPointer->qbStruct1C);
+	//qss->InsertQbKeyItem(QbKey("test"), QbKey("test"));
+	//qss->InsertIntItem(QbKey("test2"), 1);
+	//QbStruct*qs2 = (QbStruct*)qbMalloc(sizeof(QbStruct), 0);
+	//memset(qs2, 0, sizeof(QbStruct));
+	//qs2->InsertIntItem((uint32_t)0, 123);
+	//QbStruct* qs3 = (QbStruct*)qbMalloc(sizeof(QbStruct), 0);
+	//memset(qs3, 0, sizeof(QbStruct));
+	//qs3->InsertIntItem((uint32_t)0, 12345);
+	//qs2->InsertQbStructItem(QbKey("test"), qs3);
+	//qss->InsertQbStructItem(QbKey("test3"), qs2);
+	LoadStruct(qss);
+	qbFree(qss);
+	//qbFree(qs2);
 	LockWindowUpdate(hW);
 	SendMessage(activelist, LB_RESETCONTENT, 0, 0);
 	UINT si = 0;
@@ -1312,6 +1692,7 @@ void ReadCSD()
 }
 void initW()
 {
+#define FONT_FACE "fixed613"
 	wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WinProc;
 	wc.cbClsExtra = 0;
@@ -1324,11 +1705,11 @@ void initW()
 	wc.lpszClassName = "GH3QDB";
 	RegisterClass(&wc);
 #define WIN_WIDTH 960
-#define WIN_HEIGHT 550
+#define WIN_HEIGHT 640
 	hW = CreateWindow(wc.lpszClassName, "Loading...",
 		WS_VISIBLE | WS_DLGFRAME | WS_SYSMENU, 500, 500, WIN_WIDTH, WIN_HEIGHT, 0, 0, wc.hInstance, 0);
 	sserif = CreateFontA(14, 0, 0, 0, 400, 0,  0, 0, 0, 0, 0, 0, 0x20, "Microsoft Sans Serif");
-	msgoth = CreateFontA(12, 0, 0, 0, 400, 0,  0, 0, 0, 0, 0, 0, 0x20, "MS Gothic");
+	msgoth = CreateFontA(8, 0, 0, 0, 400, 0,  0, 0, 0, 0, 0, 0, 0x20, FONT_FACE);
 	for (int i = 0; i < 4; i++)
 	{
 		buttons[i] = CreateWindow("button", btntext[i], WS_CHILD | WS_VISIBLE,
@@ -1364,6 +1745,12 @@ void initW()
 	buttons[4] = CreateWindow("button", btntext[4], WS_CHILD | WS_VISIBLE | BS_AUTOCHECKBOX,
 		5 + (40 * 4), 5, 68, 20, hW, QDB_MENU_AUTOSTEP, wc.hInstance, 0);
 	SendMessage(buttons[4], WM_SETFONT, (WPARAM)sserif, 1);
+
+	CSDstruc = CreateWindowEx(WS_EX_CLIENTEDGE, "listbox", NULL,
+		WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_AUTOVSCROLL,
+		WIN_WIDTH - (700 - 465), 175, 225, WIN_HEIGHT - 200, hW, QDB_NOMENU, wc.hInstance, 0);
+	SendMessage(CSDstruc, WM_SETFONT, (WPARAM)msgoth, 1);
+
 	SetWindowText(hW, "QDB -- QbScript Debugger (GH3)");
 }
 #define debugMessage(m,w,l) \
@@ -1647,8 +2034,14 @@ __declspec(naked) void* DebugScriptStop2()
 	}
 }
 
+static char inipath[MAX_PATH];
 void ApplyHack()
 {
+	GetCurrentDirectoryA(MAX_PATH, inipath);
+	strcat_s(inipath, MAX_PATH, "\\settings.ini");
+	if (!GetPrivateProfileIntA("Plugins", "QDB", 1, inipath))
+		return;
+
 	if (!g_patcher.WriteJmp(QBRunDetour1, DebugScriptStart) ||
 		!g_patcher.WriteJmp(QBRunDetour2, DebugScript) ||
 		!g_patcher.WriteJmp(QBRunDetour3, DebugScriptStop) ||

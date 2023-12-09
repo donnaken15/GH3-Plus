@@ -156,10 +156,10 @@ bool __stdcall hitSingleNote(uint32_t pressedFrets, uint32_t noteFrets)
 	if (pressedFrets & FretMask::RED)
 		return (noteFrets == FretMask::RED);
 
-    if (pressedFrets & FretMask::GREEN)
-        return (noteFrets == FretMask::GREEN);
+	if (pressedFrets & FretMask::GREEN)
+		return (noteFrets == FretMask::GREEN);
 
-    return false;
+	return false;
 }
 
 static void * const noteHitCheckDetour = (void *)0x00431E27;
@@ -450,7 +450,7 @@ uint32_t getAnchoredMask(uint32_t fretMask)
 
 void __stdcall noteHitEnd(uint32_t pIdx)
 {
- 	g_lastHit[pIdx] = g_pressedFrets[pIdx];
+	g_lastHit[pIdx] = g_pressedFrets[pIdx];
 	g_canTap[pIdx] = 0;
 	g_canTapLow[pIdx] = 0;
 }

@@ -99,8 +99,8 @@ namespace GH3
 		uint8_t*instructionPointer; //or mp_pc
 		QbStruct*qbStruct14; // lines up with class items:
 							// mp_function_params and mp_params
-		QbStruct *qbStruct18;
-		QbStruct *qbStruct1C;
+		QbStruct*qbStruct18;
+		QbStruct*qbStruct1C;
 		// Begin-Repeat loop stuff.
 		// NULL if not in a loop, otherwise points into the following array.
 		SLoop*currentLoop;

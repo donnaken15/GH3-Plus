@@ -3,9 +3,21 @@
 namespace GH3
 {
 
-	int * QbArray::Initialize(int size, int type)
+	/*QbArray::QbArray()
+	{
+		static const void *function = (void *)0x0055DE70;
+		__asm jmp function;
+	}*/
+	/*__declspec(naked) int* __thiscall QbArray::Initialize(int size, int type)
 	{
 		static const void *function = (void *)0x0055DF00;
+		__asm jmp function;
+	}*/
+
+	int* __thiscall QbArray::Initialize(int size, int type) {
+		static const void* function = (void*)0x0055DF00;
+		__asm pop ecx; // stupid
+		__asm pop ebp; // stupid
 		__asm jmp function;
 	}
 

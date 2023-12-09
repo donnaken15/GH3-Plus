@@ -65,7 +65,7 @@ bool ScreenShot(QbStruct* str, QbScript* scr)
 	else
 	{
 		int alen = strlen(filenameA);
-		filename = (wchar_t*)malloc(alen * 2);
+		filename = (wchar_t*)calloc(++alen, 2);
 		mbstowcs(filename, filenameA, alen);
 	}
 	GetCurrentDirectoryW(MAX_PATH, maindir);

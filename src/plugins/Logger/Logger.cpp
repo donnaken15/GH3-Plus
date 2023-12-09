@@ -276,7 +276,7 @@ void PrintScriptInfo(QbStruct*params, QbScript*_this)
 	if (l_WriteFile) {
 		fprintf(log, "0x3C Callstack:");
 	}
-	for (int i = _this->scriptDepth - 1; i > 0; i--)
+	for (int i = _this->scriptDepth; i > 0; i--)
 	{
 		print("\n        ");
 		auto RA = _this->mp_return_addresses[i];
@@ -292,7 +292,7 @@ void PrintScriptInfo(QbStruct*params, QbScript*_this)
 		print("        }");
 		// this is an absolute mess
 	}
-	print("\n}");
+	print("\n}\n");
 	qbstrindent--;
 }
 
@@ -551,32 +551,12 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 		print("}\n");
 	}
 }
-QbStruct*a1;
 static void *PrintStructDetour = (void *)0x00530970;
-__declspec(naked) void MyPrintStruct()
+bool PrintStruct(QbStruct* params, QbScript* _this)
 {
-	static const uint32_t returnAddress = 0x00530975;
-	DWORD a, c;
-	__asm {
-		push ebp;
-		mov ebp, esp;
-		mov a, eax;
-		mov c, ecx;
-		mov[a1], ecx;
-	}
-	if (c >= 0xF0000000) // stupid thing
-	{
-		__asm mov eax, a;
-		__asm mov[a1], eax;
-	}
-	printStructBase(a1);
-	__asm {
-		mov al, 1;	// zedek told me to put this
-					// game still works without it lol
-					// apparently required in cfuncs
-		pop ebp;
-		ret;
-	}
+	if (params)
+		printStructBase(params);
+	return params;
 }
 char print2ndBuf[512];
 // detours 0x005B0DC0
@@ -640,6 +620,37 @@ void AddToMyLookup(QbKey checksum, char*keyname)
 		if (l_CreateCon)
 			fputs("FormatText's AddToLookup failed. Exceeded amount of debug keys allowed.\n", CON);
 	}
+}
+
+#include "gh3\malloc.h"
+static void* GCStkDetour = (void*)0x00537A50;
+bool GetCCallstack(QbStruct*params, QbScript*_this)
+{
+	QbArray*callstack = (QbArray*)GH3::qbArrMalloc(sizeof(QbArray), 0);
+	memset(callstack, 0, sizeof(GH3::QbArray));
+	//callstack->Clear();
+#if 0
+	callstack->Initialize(_this->scriptDepth, QbValueType::TypeQbStruct);
+	for (int i = 0; i < _this->scriptDepth; i++)
+	{
+		auto RA = _this->mp_return_addresses[i];
+		QbStruct*_cs = (QbStruct*)GH3::qbMalloc(sizeof(QbStruct), 0);
+		memset(_cs, 0, sizeof(GH3::QbStruct));
+		_cs->InsertQbKeyItem((uint32_t)0, RA.mScriptNameChecksum);
+		//_cs->InsertQbStructItem((uint32_t)0, _this->mp_return_addresses[i].mpParams);
+		callstack->Set(i, (UINT)_cs);
+	}
+#else
+	callstack->Initialize(_this->scriptDepth, QbValueType::TypeQbKey);
+	for (int i = 0; i < _this->scriptDepth; i++)
+	{
+		// feels incomplete, the above crashes somehow after printing the struct containing the item
+		auto RA = _this->mp_return_addresses[i];
+		callstack->Set(i, (UINT)RA.mScriptNameChecksum);
+	}
+#endif
+	_this->qbStruct1C->InsertQbArrayItem(QbKey("callstack"), callstack);
+	return 0;
 }
 
 void ApplyHack()
@@ -827,7 +838,7 @@ void ApplyHack()
 			}
 		}
 		if (l_PrintStruct) {
-			if (g_patcher.WriteJmp(PrintStructDetour, MyPrintStruct) &&
+			if (g_patcher.WriteJmp(PrintStructDetour, PrintStruct) &&
 				g_patcher.WriteInt8((void*)(&PrintStructDetour + 5), 0xC3)) // lol
 			{
 				if (l_CreateCon)
@@ -844,6 +855,14 @@ void ApplyHack()
 			}
 			else {
 				print("Failed to patch PrintScriptInfo.\n");
+			}
+			if (g_patcher.WriteJmp(GCStkDetour, GetCCallstack))
+			{
+				if (l_CreateCon)
+					fputs("Patched GetCCallstack.\n", CON);
+			}
+			else {
+				print("Failed to patch GetCCallstack.\n");
 			}
 		}
 		if (l_CreateCon)

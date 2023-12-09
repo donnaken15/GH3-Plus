@@ -48,27 +48,27 @@ bool __fastcall IsSingleNote(FretMask fretMask)
 
 FretMask __fastcall GetFretmaskFromTrackArray(GH3::QbArray *trackArray, int currentNote)
 {
-	uint32_t result = 0; 
+	uint32_t result = 0;
 	int realFretMask = trackArray->Get(currentNote + 2);
 
 	if (realFretMask & QbFretMask::QbOpen)
 		return FretMask::OPEN;
 
 	if (realFretMask & QbFretMask::QbGreen)
-		result = FretMask::GREEN;                 
-													
+		result = FretMask::GREEN;
+
 	if (realFretMask & QbFretMask::QbRed)
-		result |= FretMask::RED;                  
-													
+		result |= FretMask::RED;
+
 	if (realFretMask & QbFretMask::QbYellow)
-		result |= FretMask::YELLOW;                           
-													
+		result |= FretMask::YELLOW;
+
 	if (realFretMask & QbFretMask::QbBlue)
-		result |= FretMask::BLUE;                              
-													 
+		result |= FretMask::BLUE;
+
 	if (realFretMask & QbFretMask::QbOrange)
-		result |= FretMask::ORANGE;                           
-												
+		result |= FretMask::ORANGE;
+
 	return (FretMask)result;
 }
 
@@ -78,7 +78,7 @@ FretMask __fastcall GetFretmaskFromNoteQbArray(GH3::QbArray *noteArr)
 		return FretMask::OPEN;
 
 	uint32_t fretMask = 0;
-		
+
 	if (noteArr->Get(1))
 		fretMask |= FretMask::GREEN;
 
@@ -177,12 +177,12 @@ void __stdcall LoadOpenHopoTappingBits(GH3::QbArray *noteQbArr, GH3::QbArray *pl
 
 	if (noteQbArrSize != 1)
 	{
-		sustainLength = noteQbArr->Get(currentNote + 1); 
+		sustainLength = noteQbArr->Get(currentNote + 1);
 		fretMask = static_cast<FretMask>(noteQbArr->Get(currentNote + 2));
 
 		if (sustainLength * (fretMask & QbFretMask::QbHopoflip) != 0)
 			hopoFlip = true;
-	
+
 		if (sustainLength * (fretMask & QbFretMask::QbTapping) != 0)
 			tappingFlag = true;
 
@@ -246,7 +246,7 @@ void __declspec(naked) LoadOpenHopoTappingBitsNaked()
 
 int __fastcall CreateNoteWithOpenImpl(GH3::QbArray *noteArray, int noteIndex, int noteTime, int greenLength, int redLength, int yellowLength, int blueLength, int orangeLength, int hopoFlag, int nextNoteTime)
 {
-	GH3::QbArray *note = reinterpret_cast<GH3::QbArray *>(noteArray->Get(noteIndex));
+	GH3::QbArray*note = reinterpret_cast<GH3::QbArray *>(noteArray->Get(noteIndex));
 
 	note->Set(0, noteTime);
 	note->Set(1, greenLength);
@@ -261,7 +261,7 @@ int __fastcall CreateNoteWithOpenImpl(GH3::QbArray *noteArray, int noteIndex, in
 	return 1;
 }
 
-void *CreateNote = (void *)0x0041AB60;
+void*CreateNote = (void *)0x0041AB60;
 int __declspec(naked) CreateNoteWithOpen()
 {
 	__asm
@@ -276,7 +276,7 @@ int __declspec(naked) CreateNoteWithOpen()
 
 
 uint32_t*opensus_len = &g_openLength;
-void *SetUpSustainsDetour = (void *)0x0041B7C9;
+void*SetUpSustainsDetour = (void *)0x0041B7C9;
 void __declspec(naked) Sustains4Opens()
 {
 	static const unsigned int returnAddress = 0x0041B7CE;
@@ -300,7 +300,7 @@ void __declspec(naked) Sustains4Opens()
 
 char openName[] = "yellow";
 char*openName_ = openName;
-void* calculateNoteKey = (void*)0x00418AC0;
+void*calculateNoteKey = (void*)0x00418AC0;
 #define MAX_NUM_PLAYERS 2
 int g_lastOpenKeys[] = { 0,0,0,0,0,0,0,0,0,0 };
 
@@ -314,7 +314,7 @@ void __declspec(naked) CheckNoteHoldInit_4Opens()
 		mov  ebp, 10000h;
 		cmp dword ptr[esp + 18h], 33333h;
 		jne  _OPEN;
-		and dword ptr [esp + 18h], ~0x11111;
+		and dword ptr[esp + 18h], ~0x11111;
 
 		mov  eax, [esp + 34h - 20h]; // arrayEntry
 
@@ -361,6 +361,7 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 	static const unsigned int returnAddress3_fail = 0x0042B782;
 	__asm
 	{
+		// used to crash.......???
 		xor  esi, esi;
 		cmp  ebx, 33333h;
 		jne  NOT_OPEN;
@@ -400,7 +401,7 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 
 char duct_tape = 0;
 
-void* pause_detour = (void*)0x00410CF5;
+void*pause_detour = (void*)0x00410CF5;
 void __declspec(naked) pause_fix2()
 {
 	static const unsigned int returnAddress = 0x00410CFA;
@@ -413,7 +414,7 @@ void __declspec(naked) pause_fix2()
 	}
 }
 
-void* CheckNoteHoldPerFrame_detour = (void*)0x0042BC5B;
+void*CheckNoteHoldPerFrame_detour = (void*)0x0042BC5B;
 void __declspec(naked) CheckNoteHoldPerFrame_4Opens()
 {
 	static const unsigned int returnAddress = 0x0042BC60;
@@ -421,6 +422,8 @@ void __declspec(naked) CheckNoteHoldPerFrame_4Opens()
 	{
 		// fix for game not getting held frets
 		// for a frame right after unpausing
+		// probably because note hold checking
+		// runs before real input
 
 		mov   al, duct_tape;
 		test  al,  al;
@@ -449,7 +452,7 @@ void __declspec(naked) CheckNoteHoldPerFrame_4Opens()
 
 // detour CalcSongScoreInfo to add
 // points for open sustains too
-void* CalculateSustainPoints_detour = (void*)0x00423AFE;
+void*CalculateSustainPoints_detour = (void*)0x00423AFE;
 void __declspec(naked) CalculateSustainPoints_4Opens()
 {
 	static const unsigned int returnAddress  = 0x00423B03;

@@ -3,6 +3,7 @@
 #include <string>
 #include "garbagetext.h"
 
+// TODO: point this string to data actually within the EXE instead maybe
 const wchar_t * GIANT_GARBAGE_TEXT[] =
 {
 L"H   $   d\\r   $$d6\\a   D$,=@K*A   \\x1B/   d   \\bD$   2tH   \\b   % 0s   %   L$\\b^d   \\r   lPs{   t\\t_^2   8\\\\$,   \\\\$ t   hi'A   \\\\`\\bZh   Ah   Ah   LSVWh,EA   G8hNEA   ,jZR\\b   jLhhEA   9   %\\b)s   \\x1BtaW   h7JA   Vh[JA   Uh|JA   %,#s   dt^H   '\\\"^   Q;I\\",
@@ -2952,7 +2953,7 @@ L" -  Trapped I am now,  -  And ",
 L"will forever be  -  The pain I feel,  -  You'll never seeAB0BD0BAFFBABBCD5EE09F5DEB8183A5C7EEFE950C9D841AA   7001C77696B8C58E7I dream of the dead but cannot join them%%%%%%%%%%%%%%%%%%%%%%%%%%",
 L"rAnzrSbeIbyhzrZbhagCbvagN   xreary32.qyy   Jbj64QvfnoyrJbj64SfErqverpgvba   Jbj64EriregJbj64SfErqverpgvba   Flfgrz\\\\PheeragPbagebyFrg\\\\Freivprf\\\\fcgq\\\\pst   rtDhrelInyhrRkJ   Nypbuby 120%   Tybony\\\\nypbubyk_zhgrk   Nypbuby 52%   Nypbuby 120%   Nypbuby 120%",
 L" - Gevny Irefvba   Nypbuby 52%   GNccyvpngvba   GZnvaSenzr   qnrzba_gbbyf_zhgrk   Iveghny QNRZBA Znantre I3.47   Iveghny QNRZBA Znantre I4.01UR   Iveghny QNRZBA Znantre I4.03UR   Iveghny QNRZBA Znantre I4.06UR   Iveghny QNRZBA Znantre I4.08UR   Iveghny QNR",
-L"Have you ever been in a nightmare you couldn't wake up from?                  ",
+L"Have you ever been in a nightmare you couldn't wake up from?                  I'M GIVING BACK WHAT YOU PASSED DOWN TO MEI'M GIVING BACK WHAT YOU PASSED DOWN TO MEI'M GIVING BACK WHAT YOU PASSED DOWN TO MEI'M GIVING BACK WHAT YOU PASSED DOWN TO MEFACE THE CASKETFACE THE CASKETFACE THE CASKETFACE THE CASKETFACE YOUR GOD",
 };
 
 GarbageText::GarbageText()
