@@ -9,15 +9,15 @@ static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
 using namespace GH3;
 
-static char inipath[MAX_PATH];
+static wchar_t inipath[MAX_PATH];
 static BYTE flags = 0;
-LPCSTR modnames[] = {
-	"AllStrums",
-	"AllTaps",
-	"AllDoubles",
-	"Hopos2Taps",
-	"Mirror",
-	"ColorShuffle",
+LPCWSTR modnames[] = {
+	L"AllStrums",
+	L"AllTaps",
+	L"AllDoubles",
+	L"Hopos2Taps",
+	L"Mirror",
+	L"ColorShuffle",
 };
 enum modtypes {
 	AllStrums    = 1 << 0,
@@ -343,10 +343,10 @@ __declspec(naked) void forceTapFlagNaked2()
 
 void ApplyHack()
 {
-	GetCurrentDirectoryA(MAX_PATH, inipath);
-	strcat_s(inipath, MAX_PATH, "\\settings.ini");
+	GetCurrentDirectoryW(MAX_PATH, inipath);
+	wcscat_s(inipath, MAX_PATH, L"\\settings.ini");
 	for (int i = 0; i < 8; i++)
-		flags |= (GetPrivateProfileIntA("Modifiers", modnames[i], 0, inipath) != 0) << i;
+		flags |= (GetPrivateProfileIntW(L"Modifiers", modnames[i], 0, inipath) != 0) << i;
 	// DOUBLE NOTES
 	if (flags & AllDoubles) // temp fix for battle
 	{

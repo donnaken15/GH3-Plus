@@ -689,7 +689,6 @@ void printStructItem(QbKey key, DWORD value, QbValueType type, char*buf, int siz
 }
 
 
-static char dbgpath[MAX_PATH];
 
 ///// NOTE: FOR USE WITH QDB:
 ///// https://github.com/donnaken15/QDB
@@ -2034,12 +2033,13 @@ __declspec(naked) void* DebugScriptStop2()
 	}
 }
 
-static char inipath[MAX_PATH];
+static wchar_t dbgpath[MAX_PATH];
+static wchar_t inipath[MAX_PATH];
 void ApplyHack()
 {
-	GetCurrentDirectoryA(MAX_PATH, inipath);
-	strcat_s(inipath, MAX_PATH, "\\settings.ini");
-	if (!GetPrivateProfileIntA("Plugins", "QDB", 1, inipath))
+	GetCurrentDirectoryW(MAX_PATH, inipath);
+	wcscat_s(inipath, MAX_PATH, L"\\settings.ini");
+	if (!GetPrivateProfileIntW(L"Plugins", L"QDB", 1, inipath))
 		return;
 
 	if (!g_patcher.WriteJmp(QBRunDetour1, DebugScriptStart) ||
@@ -2059,10 +2059,10 @@ void ApplyHack()
 
 	g_hashMap = *(HashMapNode***)0xC03AA8;
 
-	GetCurrentDirectoryA(MAX_PATH, dbgpath);
-	strcat_s(dbgpath, MAX_PATH, "\\DATA\\PAK\\dbg.pak.xen");
-	FILE* dbgpak;
-	fopen_s(&dbgpak, dbgpath, "rb"); // wtf
+	GetCurrentDirectoryW(MAX_PATH, dbgpath);
+	wcscat_s(dbgpath, MAX_PATH, L"\\DATA\\PAK\\dbg.pak.xen");
+	FILE*dbgpak;
+	_wfopen_s(&dbgpak, dbgpath, L"rb"); // wtf
 	if (dbgpak) {
 		char ftmp[0x40000], * chksmsSect = "[Checksums]"; // largest official debug file is 157491
 		unsigned char b0, b1, b2, b3;

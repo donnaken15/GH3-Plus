@@ -24,9 +24,8 @@
 /// https://youtube.com/donnaken15
 /// https://github.com/donnaken15
 
-static char inipath[MAX_PATH],
-			logfile[MAX_PATH],
-			dbgpath[MAX_PATH];
+using namespace GH3;
+
 BYTE l_CreateCon, l_WriteFile, l_FixKeys,
 	l_PrintStruct, l_AllSuccess = 1,
 	l_CreateConFail = 0, l_DbgLoaded = 0,
@@ -627,7 +626,7 @@ static void* GCStkDetour = (void*)0x00537A50;
 bool GetCCallstack(QbStruct*params, QbScript*_this)
 {
 	QbArray*callstack = (QbArray*)GH3::qbArrMalloc(sizeof(QbArray), 0);
-	memset(callstack, 0, sizeof(GH3::QbArray));
+	memset(callstack, 0, sizeof(QbArray));
 	//callstack->Clear();
 #if 0
 	callstack->Initialize(_this->scriptDepth, QbValueType::TypeQbStruct);
@@ -653,20 +652,21 @@ bool GetCCallstack(QbStruct*params, QbScript*_this)
 	return 0;
 }
 
+static wchar_t inipath[MAX_PATH], logfile[MAX_PATH], dbgpath[MAX_PATH];
 void ApplyHack()
 {
-	GetCurrentDirectoryA(MAX_PATH, inipath);
+	GetCurrentDirectoryW(MAX_PATH, inipath);
 	memcpy(logfile, inipath, MAX_PATH);
 	memcpy(dbgpath, inipath, MAX_PATH);
-	strcat_s(inipath, MAX_PATH, "\\settings.ini");
-	strcat_s(dbgpath, MAX_PATH, "\\DATA\\PAK\\dbg.pak.xen");
-	l_CreateCon = GetPrivateProfileIntA("Logger", "Console", 0, inipath);
-	l_WriteFile = GetPrivateProfileIntA("Logger", "WriteFile", 1, inipath);
-	l_FixKeys = GetPrivateProfileIntA("Logger", "FixKeys", 1, inipath);
-	l_PrintStruct = GetPrivateProfileIntA("Logger", "PrintStruct", 1, inipath);
-	l_FmtTxtLkup = GetPrivateProfileIntA("Logger", "FmtTxtAddToLkup", 1, inipath);
-	//l_ParseFormatting = GetPrivateProfileIntA("Logger", "ParseFormatting", 1, inipath); // for escape sequences for no reason, which don't actually appear ever
-	l_WarnAsserts = GetPrivateProfileIntA("Logger", "WarnAsserts", 0, inipath);
+	wcscat_s(inipath, MAX_PATH, L"\\settings.ini");
+	wcscat_s(dbgpath, MAX_PATH, L"\\DATA\\PAK\\dbg.pak.xen");
+	l_CreateCon = GetPrivateProfileIntW(L"Logger", L"Console", 0, inipath);
+	l_WriteFile = GetPrivateProfileIntW(L"Logger", L"WriteFile", 1, inipath);
+	l_FixKeys = GetPrivateProfileIntW(L"Logger", L"FixKeys", 1, inipath);
+	l_PrintStruct = GetPrivateProfileIntW(L"Logger", L"PrintStruct", 1, inipath);
+	l_FmtTxtLkup = GetPrivateProfileIntW(L"Logger", L"FmtTxtAddToLkup", 1, inipath);
+	//l_ParseFormatting = GetPrivateProfileIntW(L"Logger", L"ParseFormatting", 1, inipath); // for escape sequences for no reason, which don't actually appear ever
+	l_WarnAsserts = GetPrivateProfileIntW(L"Logger", L"WarnAsserts", 0, inipath);
 	if (l_CreateCon)
 	{
 		l_CreateCon = 0;
@@ -678,9 +678,9 @@ void ApplyHack()
 	}
 	if (l_WriteFile)
 	{
-		strcat_s(logfile, MAX_PATH, "\\output.txt");
+		wcscat_s(logfile, MAX_PATH, L"\\output.txt");
 		l_WriteFile = 0;
-		log = _fsopen(logfile, "w", _SH_DENYNO);
+		log = _wfsopen(logfile, L"w", _SH_DENYNO);
 		if (log)
 		{
 			l_WriteFile = 1;
@@ -716,7 +716,7 @@ void ApplyHack()
 		if (l_FixKeys) {
 			if (l_CreateCon)
 				fputs("Loading debug pak.\n", CON);
-			dbgpak = fopen(dbgpath, "rb");
+			dbgpak = _wfopen(dbgpath, L"rb");
 			if (dbgpak) {
 				char ftmp[0x40000], *chksmsSect = "[Checksums]"; // largest official debug file is 157491
 				unsigned char b0, b1, b2, b3;
