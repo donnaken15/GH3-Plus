@@ -508,7 +508,8 @@ __declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
 	FSBc = wcsrchr(FSBa, L'\\');
 	if (FSBc)
 		*FSBc = 0;
-	swprintf_s(FSBaa, MAX_PATH, L"%s\\DATA\\%s.fsb.xen", FSBa, FSBb);
+	// check if cstring or wstring????
+	swprintf_s(FSBaa, MAX_PATH, L"%s\\DATA\\%S.fsb.xen", FSBa, FSBb);
 
 	_wfopen_s(&FSBf, FSBaa, L"rb");
 	if (FSBf)
