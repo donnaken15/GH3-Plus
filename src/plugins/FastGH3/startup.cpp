@@ -719,15 +719,14 @@ CTRAMType* CreateTextureRAM = (CTRAMType*)0;
 static void* texloadDetour = (void*)0x0068F732;
 HRESULT WINAPI texloadFixFast(CTRAMargs)
 {
-	if (*(DWORD*)pSrcData != ESWAP(0x44445320))
+	DWORD magic = *(DWORD*)pSrcData;
+	if (magic != ESWAP(0x44445320))
 		// if not DDS, use this instead
 		// since D3DX is slow at it
 	{
 		int x, y, comp;
 		char type = 3; // RGB by default
-		BYTE* RGBX;
-		BYTE* DXT;
-		BYTE* DDS;
+		BYTE*RGBX,*DXT,*DDS;
 		UINT DDS_SZ;
 		if (*(DWORD*)pSrcData == ESWAP(0x89504E47))
 			type = 4; // RGBA
@@ -739,6 +738,10 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 		ddsd.dwFlags = 0;
 		ddsd.dwWidth = x;
 		ddsd.dwHeight = y;
+		/*Width = x;
+		Height = y;
+		MipLevels = 1;
+		Format = D3DFMT_DXT5;*/
 		ddsd.lPitch = x * y;
 		ddsd.dwMipMapCount = 0;
 		ddsd.ddpfPixelFormat.dwSize = sizeof(ddsd.ddpfPixelFormat);
@@ -757,12 +760,13 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 	HRESULT hr;
 	hr = CreateTextureRAM(
 		pDevice, pSrcData, SrcDataSize, Width, Height,
-		1, Usage, Format, Pool, Filter, MipFilter,
+		MipLevels, Usage, Format, Pool, Filter, MipFilter,
 		ColorKey, pSrcInfo, pPalette, ppTexture);
-	if (*(DWORD*)pSrcData != ESWAP(0x44445320))
+	if (magic != ESWAP(0x44445320))
 		free((void*)pSrcData);
 	if (hr == D3DXERR_INVALIDDATA)
 	{
+		exit(0);
 		hr = CreateTextureRAM(
 			pDevice, failTex, 112, Width, Height,
 			1, Usage, Format, Pool, Filter, MipFilter,
@@ -773,7 +777,7 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 		pDevice,pSrcData,SrcDataSize,Width,Height,
 		MipLevels,Usage,Format,Pool,Filter,MipFilter,
 		ColorKey,pSrcInfo,pPalette,ppTexture);*/
-	}
+}
 #pragma endregion
 
 float a;
@@ -823,12 +827,6 @@ UINT* dynafnt_20058(UINT* a1)
 #include "gh3\GlobalMap.h"
 
 #include "gh3\malloc.h"
-
-#define WHY(x, y) _extn_##x##_##y
-#define why(x, y) WHY(x,y)
-#define EXTN_FUNC(type, name, addr, ...) \
-	typedef type why(name, __LINE__)(__VA_ARGS__); \
-	why(name, __LINE__)*name = (why(name, __LINE__)*)(addr);
 
 //EXTN_FUNC(wchar_t*, ESwapWstr, 0x00588490, wchar_t*)
 EXTN_FUNC(char, GetWStr, 0x004786A0, wchar_t*)
@@ -1071,9 +1069,12 @@ void ApplyHack()
 		g_patcher.WriteJmp(FMOD_setPosition_Detour, setPosFix);
 #endif
 	g_patcher.WriteJmp(profiletimeDetour, ProfileTime);
-	// use it from image base so we dont have to bloat this plugin
-	CreateTextureRAM = (CTRAMType*)(GetProcAddress(GetModuleHandleA("d3dx9_35.dll"), "D3DXCreateTextureFromFileInMemoryEx"));
-	if (CreateTextureRAM)
-		g_patcher.WriteJmp(texloadDetour, texloadFixFast);
+	if (GetPrivateProfileIntW(L"GFX", L"FastTextureLoad", 1, inipath))
+	{
+		// use it from image base so we dont have to bloat this plugin
+		CreateTextureRAM = (CTRAMType*)(GetProcAddress(GetModuleHandleA("d3dx9_35.dll"), "D3DXCreateTextureFromFileInMemoryEx"));
+		if (CreateTextureRAM)
+			g_patcher.WriteJmp(texloadDetour, texloadFixFast);
+	}
 	g_patcher.WriteJmp(replayrecordDetour, replayPutTime);
 }

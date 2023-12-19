@@ -166,7 +166,7 @@ void __declspec(naked) makeSpStarGemsNaked()
 	const static uint32_t returnAddress  = 0x00432901;
 	const static uint32_t returnAddress2 = 0x00432956;
 
-	__asm { mov why3, eax }
+	__asm mov why3, eax
 	//                      kill me
 	overlapping_starpower = why(0x4039F5F1);
 
@@ -378,7 +378,7 @@ void __declspec(naked) starpowerusedPatch1B()
 	static const void* const returnAddress  = (void*)0x0042495F;
 	static const void* const returnAddress2 = (void*)0x00424947;
 	static const void* const SP_NOT_USED = (void*)0x00424954;
-	__asm { push eax }
+	__asm push eax
 	overlapping_starpower = why(CRCD(0x4039F5F1, "overlapping_starpower"));
 	__asm {
 		pop  eax;

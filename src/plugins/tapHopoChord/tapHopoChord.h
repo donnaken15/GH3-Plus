@@ -10,6 +10,8 @@
 
 // dont use, broken
 // also i wont give out the required zones lol
+// actually figured out animated textures so, no need for this hack
+// and https://donnaken15.cf/FastGH3/zones.html
 //#define RAINBOW 1
 
 ///Determines which tapping gem sprite to use under starpower since we don't have a starpower texture (we do now >:)

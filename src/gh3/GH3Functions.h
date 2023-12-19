@@ -8,6 +8,14 @@
 
 using namespace GH3;
 
+#define WHY(x, y) _extn_##x##_##y
+#define why(x, y) WHY(x,y)
+#define EXTN_FUNC(type, name, addr, ...) \
+	typedef type why(name, __LINE__)(__VA_ARGS__); \
+	why(name, __LINE__)*name = (why(name, __LINE__)*)(addr);
+
+
+
 // needs cleanup i think
 
 typedef int CFunc(QbStruct*params, QbScript*_this);

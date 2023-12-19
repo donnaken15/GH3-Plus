@@ -32,7 +32,7 @@ uint32_t g_gemMatTap[6] = {
 	BlueTapTextureKey,
 	OrangeTapTextureKey,
 	StarpowerTapTextureKey
-}; // open tap?? trollface
+}; // open tap?? trollface // ok CH user
 uint32_t g_gemMatTapSp[6] = {
 	GreenTapStarTextureKey,
 	RedTapStarTextureKey,
