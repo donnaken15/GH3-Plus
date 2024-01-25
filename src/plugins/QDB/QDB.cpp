@@ -1660,7 +1660,8 @@ void ReadCSD()
 	ReadScriptData(currentScriptPointer);
 	QbStruct*qss = (QbStruct*)qbMalloc(sizeof(QbStruct), 0); // hack lol
 	memset(qss, 0, sizeof(QbStruct));
-	qss->InsertQbStructItem((uint32_t)0, currentScriptPointer->qbStruct14);
+	if (currentScriptPointer->qbStruct1C)
+		qss->InsertQbStructItem((uint32_t)0, currentScriptPointer->qbStruct1C);
 	//qss->InsertQbStructItem(QbKey("variables"), currentScriptPointer->qbStruct18);
 	//qss->InsertIntItem((uint32_t)0, 1234567);
 	//qss->InsertQbStructItem(QbKey("test"), currentScriptPointer->qbStruct1C);
@@ -1703,8 +1704,8 @@ void initW()
 	wc.lpszMenuName = NULL;
 	wc.lpszClassName = "GH3QDB";
 	RegisterClass(&wc);
-#define WIN_WIDTH 960
-#define WIN_HEIGHT 640
+#define WIN_WIDTH 1280
+#define WIN_HEIGHT 800
 	hW = CreateWindow(wc.lpszClassName, "Loading...",
 		WS_VISIBLE | WS_DLGFRAME | WS_SYSMENU, 500, 500, WIN_WIDTH, WIN_HEIGHT, 0, 0, wc.hInstance, 0);
 	sserif = CreateFontA(14, 0, 0, 0, 400, 0,  0, 0, 0, 0, 0, 0, 0x20, "Microsoft Sans Serif");
