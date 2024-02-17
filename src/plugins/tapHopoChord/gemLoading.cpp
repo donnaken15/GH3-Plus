@@ -451,6 +451,7 @@ void __declspec(naked) starpowerusedPatch1D()
 	static const int star = CRCD(0x3624A5EB, "star");
 	static const int gem  = CRCD(0x66AF794F, "gem");
 	static const int open = CRCD(0x5B8F7C5B, "open");
+	// getting error on VS15 about exceptions here >:(
 	static const int starstar     = StarStarTextureKey;
 	static const int starstarhopo = StarHammerStarTextureKey;
 	static const int starstartap  = StarTapStarTextureKey;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "gh3\QbStruct.h"
+
 namespace GH3
 {
 	///used for struct items?
