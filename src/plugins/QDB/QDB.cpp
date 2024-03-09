@@ -1770,19 +1770,19 @@ LRESULT CALLBACK WinProc(
 	case WM_COMMAND: {
 		switch (LOWORD(wParam))
 		{
-		case QDB_MENU_RUN:
+		case (int)QDB_MENU_RUN:
 			state = Running;
 			break;
-		case QDB_MENU_PAUSE:
+		case (int)QDB_MENU_PAUSE:
 			state = Pause;
 			break;
-		case QDB_MENU_STOP:
+		case (int)QDB_MENU_STOP:
 			state = Exit;
 			break;
-		case QDB_MENU_STEP:
+		case (int)QDB_MENU_STEP:
 			state = Step;
 			break;
-		case QDB_MENU_ASCLIST:
+		case (int)QDB_MENU_ASCLIST:
 			switch (HIWORD(wParam))
 			{
 				case LBN_DBLCLK: {
@@ -1814,7 +1814,7 @@ LRESULT CALLBACK WinProc(
 					break;
 			}
 			break;
-		case QDB_MENU_AUTOSTEP:
+		case (int)QDB_MENU_AUTOSTEP:
 			autostep = SendMessage(buttons[4], BM_GETCHECK, 0, 0);
 			break;
 		//default:
@@ -2126,7 +2126,7 @@ void ApplyHack()
 							break;
 						}
 						// reduced dbg.pak (for faster key loading):
-						// https://donnaken15.tk/dbg.pak.xen
+						// https://donnaken15.com/dbg.pak.xen
 					}
 					if (!scanDupe)
 #endif

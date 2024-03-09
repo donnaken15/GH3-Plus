@@ -20,7 +20,7 @@
 ///              ## # ####    #######  
 ///               #######              
 ///
-/// https://donnaken15.tk/
+/// https://donnaken15.com/
 /// https://youtube.com/donnaken15
 /// https://github.com/donnaken15
 
@@ -781,7 +781,7 @@ void ApplyHack()
 									break;
 								}
 								// reduced dbg.pak (for faster key loading):
-								// https://donnaken15.tk/dbg.pak.xen
+								// https://donnaken15.com/dbg.pak.xen
 							}
 							if (!scanDupe)
 #endif

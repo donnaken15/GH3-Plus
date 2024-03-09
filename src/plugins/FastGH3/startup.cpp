@@ -17,17 +17,17 @@
 #pragma comment(lib, "winmm.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
-static void* D3DPPpi = (void*)0x0057BB79;
-static LPDIRECT3DDEVICE9* d3ddev = (LPDIRECT3DDEVICE9*)0x00C5C7A8;
+static void*D3DPPpi = (void*)0x0057BB79;
+static LPDIRECT3DDEVICE9*d3ddev = (LPDIRECT3DDEVICE9*)0x00C5C7A8;
 
-HWND* hWnd;
+HWND*hWnd;
 RECT WndR;
 int sizeX, sizeY, centerX, centerY;
 
 BYTE vsync, borderless, windowed;
 
-static void* hWndDetour = (void*)0x0057BA6F;
-static int* wndStyle = (int*)0x0057BA5D;
+static void*hWndDetour = (void*)0x0057BA6F;
+static int*wndStyle = (int*)0x0057BA5D;
 __declspec(naked) void hWndHack()
 {
 	static const uint32_t returnAddress = 0x0057BA75;
@@ -73,7 +73,7 @@ float frameRate = 60.0f; // target FPS limit
 float realFPS;
 bool couldntCap = false;
 
-static void* beforeMainloopDetour = (void*)0x00401FFD;
+static void*beforeMainloopDetour = (void*)0x00401FFD;
 void initFrameTimer()
 {
 	QueryPerformanceFrequency((LARGE_INTEGER*)&CLOCK_FREQ);
@@ -81,10 +81,10 @@ void initFrameTimer()
 }
 
 //nullsub detoured for testing something
-static void* profiletimeDetour = (void*)0x00537300;
+static void*profiletimeDetour = (void*)0x00537300;
 dl PROFILE_TIME;
 double test2;
-bool ProfileTime(QbStruct* str, QbScript* scr)
+bool ProfileTime(QbStruct*str, QbScript*scr)
 {
 	timeBeginPeriod(1);
 	QueryPerformanceCounter((LARGE_INTEGER*)&PROFILE_TIME);
@@ -103,9 +103,9 @@ int killswitchTimer = 0;
 //int killswitchCheckInterval = 100;
 
 typedef int lol2();
-lol2* lol3 = (lol2*)(0x005377F0);
+lol2*lol3 = (lol2*)(0x005377F0);
 
-static void* beforePresentDetour = (void*)0x0048453B;
+static void*beforePresentDetour = (void*)0x0048453B;
 void frameLimit()
 {
 #if (FRAMERATE_FROM_QB)
@@ -166,9 +166,9 @@ void frameLimit()
 	timeEndPeriod(1);
 	// still unstable around 120 FPS :toolcoder:
 }
-lol2* lol = (lol2*)(0x00492780);
-static void* afterPresentDetour = (void*)0x0048458B;
-float* g_delta = (float*)0x009596BC;
+lol2*lol = (lol2*)(0x00492780);
+static void*afterPresentDetour = (void*)0x0048458B;
+float*g_delta = (float*)0x009596BC;
 //int test2 = 0;
 void lagBegin()
 {
@@ -184,13 +184,13 @@ void lagBegin()
 }
 
 static char test[10];
-static int* presint = (int*)0x00C5B934;
-static char* CD = (char*)0x00B45A11;
+static int*presint = (int*)0x00C5B934;
+static char*CD = (char*)0x00B45A11;
 
 // patch framerate fixed velocity and friction of particles
 float frameFrac = 60.0f;
-float* g_gameSpeed1 = (float*)0x009596B4;
-static void* Upd2DPSys_detour = (void*)0x00428E4C;
+float*g_gameSpeed1 = (float*)0x009596B4;
+static void*Upd2DPSys_detour = (void*)0x00428E4C;
 __declspec(naked) void velocityFix()
 {
 	static const uint32_t returnAddress = 0x00428E51;
@@ -210,7 +210,7 @@ __declspec(naked) void velocityFix()
 		jmp returnAddress;
 	}
 }
-static void* Upd2DPSys_detour2 = (void*)0x00429178;
+static void*Upd2DPSys_detour2 = (void*)0x00429178;
 __declspec(naked) void velocityFix2()
 {
 	static const uint32_t returnAddress = 0x0042917D;
@@ -247,7 +247,7 @@ int BossAttack_waitFrames = 100;
 // TODO: use global value/create boss props value
 int BossAttack_waitFrames_ = BossAttack_waitFrames;
 // could i probably make this more efficent by using GetSongTime and setting wait time to 1 until (100 frames in seconds) is reached
-static void* BossWaitForAttack_framesDetour1 = (void*)0x00D7EBF1;
+static void*BossWaitForAttack_framesDetour1 = (void*)0x00D7EBF1;
 __declspec(naked) void BWFA_frames2Realtime1()
 {
 	static const uint32_t returnAddress = 0x00D7EBF8;
@@ -259,7 +259,7 @@ __declspec(naked) void BWFA_frames2Realtime1()
 		jmp returnAddress;
 	}
 }
-static void* BossWaitForAttack_framesDetour2 = (void*)0x00D7EC0B;
+static void*BossWaitForAttack_framesDetour2 = (void*)0x00D7EC0B;
 __declspec(naked) void BWFA_frames2Realtime2()
 {
 	static const uint32_t returnAddress = 0x00D7EC12;
@@ -273,13 +273,13 @@ __declspec(naked) void BWFA_frames2Realtime2()
 }
 
 
-float* GameRes_X = (float*)0x00C5E6B0;
-int* GameRes_Xi = (int*)0x00C5E6B8;
-int* GameRes_Yi = (int*)0x00C5E6BC;
+float*GameRes_X = (float*)0x00C5E6B0;
+int*GameRes_Xi = (int*)0x00C5E6B8;
+int*GameRes_Yi = (int*)0x00C5E6BC;
 float resCurrent = 1280.0f;
 float resFrac = 1280.0f;
 float dummy;
-static void* whammyWidth_Detour = (void*)0x0060354C;
+static void*whammyWidth_Detour = (void*)0x0060354C;
 __declspec(naked) void whammyWidthFix()
 {
 	static const uint32_t returnAddress = 0x00603552;
@@ -307,20 +307,20 @@ __declspec(naked) void whammyWidthFix()
 
 #if ACCURATETIME
 
-WORD** VBRfr;
-int* VBRfrL;
-int* VBRlens;
-BYTE* isVBR;
+WORD**VBRfr;
+int*VBRfrL;
+int*VBRlens;
+BYTE*isVBR;
 int baseBR = 128;
 
 /**/typedef int imgbase_func();
-imgbase_func* setPosition = (imgbase_func*)(0x007A57AC);
-imgbase_func* getPosition = (imgbase_func*)(0x007A5764);
-imgbase_func* QBStr_GetValue = (imgbase_func*)(0x00478E50);
-//imgbase_func* getWaveData = (imgbase_func*)(0x007A57C4);
+imgbase_func*setPosition = (imgbase_func*)(0x007A57AC);
+imgbase_func*getPosition = (imgbase_func*)(0x007A5764);
+imgbase_func*QBStr_GetValue = (imgbase_func*)(0x00478E50);
+//imgbase_func*getWaveData = (imgbase_func*)(0x007A57C4);
 
 // convert time to accurate time for FMOD
-float VBR2CBR(WORD* BR, float fcount, int maxf, int freq)
+float VBR2CBR(WORD*BR, float fcount, int maxf, int freq)
 {
 	float nsamp = 0;
 	if (fcount > maxf)
@@ -333,7 +333,7 @@ float VBR2CBR(WORD* BR, float fcount, int maxf, int freq)
 	nsamp *= ((float)spf / freq);
 	return nsamp;
 }
-FILE* test3;
+FILE*test3;
 
 #define __FC 4
 #define __ESIZE 0x50
@@ -362,7 +362,7 @@ typedef struct {
 	uint16_t var_vol;
 	uint16_t var_pan;
 } FENTRY;
-FENTRY* FSBs;
+FENTRY*FSBs;
 
 int seekval;
 int UID2idx(int key)
@@ -382,7 +382,7 @@ int sID; // fastgh3_* key, set from preload_song
 int sIDx;
 float _test;
 // fix audio seeking (SOON TM)
-static void* FMOD_setPosition_Detour = (void*)0x00D9D12B;
+static void*FMOD_setPosition_Detour = (void*)0x00D9D12B;
 __declspec(naked) void setPosFix()
 {
 	// weirdly messes up sometimes
@@ -410,7 +410,7 @@ __declspec(naked) void setPosFix()
 	}
 }
 // only runs for fastgh3_song in highway scroll func
-static void* FMOD_getPosition_Detour = (void*)0x00D932A4;
+static void*FMOD_getPosition_Detour = (void*)0x00D932A4;
 __declspec(naked) void getPosFix()
 {
 	static const uint32_t returnAddress = 0x00D932B9;
@@ -451,7 +451,7 @@ char SwapByteBits(unsigned char cInput)
 	return (nResult);
 }
 #if ACCURATETIME
-void decfsbpart(char* inp, int len, char* key, int keylen, int keyoff)
+void decfsbpart(char*inp, int len, char*key, int keylen, int keyoff)
 {
 	if (!key || !keylen || !len)
 		return;
@@ -461,12 +461,12 @@ void decfsbpart(char* inp, int len, char* key, int keylen, int keyoff)
 		inp++;
 	}
 }
-int strlenNZ(char* str)
+int strlenNZ(char*str)
 {
 	if (str) return strlen(str);
 	return 0;
 }
-void AlignFile(FILE* f, unsigned char bits)
+void AlignFile(FILE*f, unsigned char bits)
 {
 	// bits == 2, align to 4 bytes
 	bits = 1 << bits;
@@ -491,7 +491,7 @@ int fixseeking = 0;
 #endif
 int realEBX, realECX, realEDX;
 // thx zed
-static void* FSBLoad_Detour = (void*)0x00548F46;
+static void*FSBLoad_Detour = (void*)0x00548F46;
 __declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
 {
 	static const uint32_t returnAddress = 0x00548F4D;
@@ -613,7 +613,7 @@ FAIL:
 ///              ## # ####    #######  
 ///               #######              
 ///
-/// https://donnaken15.tk/
+/// https://donnaken15.com/
 /// https://youtube.com/donnaken15
 /// https://github.com/donnaken15
 #include "ddshead.h"
@@ -638,7 +638,7 @@ FAIL:
 #define STB_DXT_IMPLEMENTATION
 #include "stb_dxt.h"
 // image/compression code from Pintea and nothings STB on github
-unsigned char* compress_to_dxt(const unsigned char* pData, int width, int height, int bpp, UINT* outDstSize)
+unsigned char*compress_to_dxt(const unsigned char*pData, int width, int height, int bpp, UINT*outDstSize)
 {
 	const int blockSize = bpp == 24 ? 8 : 16;
 	const UINT dstSize = ((width + 3) >> 2) * ((height + 3) >> 2) * blockSize;
@@ -652,12 +652,12 @@ unsigned char* compress_to_dxt(const unsigned char* pData, int width, int height
 
 	const int c = bpp >> 3; // num channels
 	const int stride = width * c;
-	BYTE* pd = dst;
+	BYTE*pd = dst;
 	for (int j = 0; j < height; j += 4)
 	{
 		for (int i = 0; i < width; i += 4)
 		{
-			const BYTE* row[4] = {
+			const BYTE*row[4] = {
 				&pData[(j + 0) * stride + i * c],
 				&pData[(j + 1) * stride + i * c],
 				&pData[(j + 2) * stride + i * c],
@@ -715,8 +715,8 @@ LPDIRECT3DTEXTURE9*ppTexture
 
 //int ii = 0;
 typedef HRESULT WINAPI CTRAMType(CTRAMargs);
-CTRAMType* CreateTextureRAM = (CTRAMType*)0;
-static void* texloadDetour = (void*)0x0068F732;
+CTRAMType*CreateTextureRAM = (CTRAMType*)0;
+static void*texloadDetour = (void*)0x0068F732;
 HRESULT WINAPI texloadFixFast(CTRAMargs)
 {
 	DWORD magic = *(DWORD*)pSrcData;
@@ -781,7 +781,7 @@ HRESULT WINAPI texloadFixFast(CTRAMargs)
 #pragma endregion
 
 float a;
-static void* replayrecordDetour = (void*)0x00420FF5;
+static void*replayrecordDetour = (void*)0x00420FF5;
 __declspec(naked) void replayPutTime()
 {
 	static const uint32_t returnAddress = 0x00420FFD;
@@ -797,11 +797,11 @@ __declspec(naked) void replayPutTime()
 
 #if FNTREDUC
 // hate me
-UINT* fontThing = (UINT*)0x00D182A0;
-UINT* dynafnt_20058(UINT* a1)
+UINT*fontThing = (UINT*)0x00D182A0;
+UINT*dynafnt_20058(UINT*a1)
 {
 	const UINT offset = 0x20058 >> 4;
-	UINT* result = *(UINT**)fontThing;
+	UINT*result = *(UINT**)fontThing;
 	if (*fontThing == (UINT)a1)
 	{
 		result = *((UINT**)fontThing[offset]);
@@ -856,22 +856,26 @@ inline char __declspec(naked) __stdcall getstring(QbStruct*this, QbKey name, cha
 #undef this
 
 #define hard_cast(type,value) (*(type*)&(value))
-static void* FGH3ConfigDetour = (void*)0x00897D90;
-bool FGH3Config(QbStruct*params,QbScript*_this)
+static void*FGH3ConfigDetour = (void*)0x00897D90;
+bool FGH3Config(QbStruct*params, QbScript*_this)
 {
+	//ExecuteScript2(QbKey("PrintStruct"), params, QbKey((uint32_t)0), 0, 0, 0, 0, 0, 0, 0);
 	// example use: FGH3Config sect='Player' 'Lefty1' default=0 out=value
 	// don't know if arguments can get out of order, because I want to see if I can
 	// use purely no-name key values
 	// return true if config value gotten
 	QbStructItem*paramItem;
 	wchar_t*paramName,*sect = L"Undefined";
-	bool gotstring = getlocalstring(params, QbKey((uint32_t)0), &paramName, 0);
+	bool gotstring = getlocalstring(params, CRCD(0, ""), &paramName, 0);
 	if (gotstring)
 	{
-		getlocalstring(params, QbKey("sect"), &sect, 0);
+		getlocalstring(params, CRCD(0xF095AB1B, "sect"), &sect, 0);
+		//FILE*KYS = fopen("CONOUT$", "w");
+		//fwprintf(KYS, L"%ls\n", sect);
+		//fclose(KYS);
 		if (paramItem = params->GetItem(QbKey("default"))) // get value from INI
 		{
-			void* retval;
+			void*retval;
 			QbValueType it = paramItem->Type();
 			switch (it)
 			{
@@ -913,7 +917,7 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 			{
 				size_t null;
 				const size_t strsize = 0x200;
-				wchar_t* tombs = (wchar_t*)malloc(1 + strsize << 1);
+				wchar_t*tombs = (wchar_t*)malloc(1 + strsize << 1);
 				char*strval = (char*)malloc(strsize);
 				if (GetPrivateProfileStringW(sect, paramName, L"", tombs, strsize, inipath))
 				{
@@ -941,14 +945,14 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 				return FALSE;
 			}
 			QbStructItem*qi = (QbStructItem*)qbItemMalloc(0x10,0);
-			QbKey name = QbKey("value");
+			QbKey name = CRCD(0xE288A7CB, "value");
 			QbStructItem*outitem;
 #define CFG_ALLOW_GLOBALS 0
 			// figure out to not have to do extra Change command
 #if CFG_ALLOW_GLOBALS
 			bool local = true;
 #endif
-			if (outitem = params->GetItem(QbKey("out")))
+			if (outitem = params->GetItem(CRCD(0x46159266, "out")))
 			{
 				if (outitem->Type() == QbValueType::TypeQbKey)
 				{
@@ -985,7 +989,7 @@ bool FGH3Config(QbStruct*params,QbScript*_this)
 #endif
 			return TRUE;
 		}
-		else if (paramItem = params->GetItem(QbKey("set")))
+		else if (paramItem = params->GetItem(CRCD(0x19EBDA23, "set")))
 		{
 			QbValueType it = paramItem->Type();
 			switch (it)
@@ -1049,10 +1053,7 @@ void ApplyHack()
 		g_patcher.WriteInt32(presint, 0x80000000);
 	}
 	g_patcher.WriteJmp(hWndDetour, hWndHack);
-	if (!borderless)
-		g_patcher.WriteInt32(wndStyle, WS_SYSMENU | WS_MINIMIZEBOX);
-	else
-		g_patcher.WriteInt32(wndStyle, WS_POPUP);
+	g_patcher.WriteInt32(wndStyle, !borderless ? WS_SYSMENU | WS_MINIMIZEBOX : WS_POPUP);
 	g_patcher.WriteCall(beforeMainloopDetour, initFrameTimer);
 	g_patcher.WriteCall(beforePresentDetour, frameLimit);
 	g_patcher.WriteCall(afterPresentDetour, lagBegin);
