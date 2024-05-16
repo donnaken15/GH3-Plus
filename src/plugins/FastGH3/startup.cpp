@@ -1064,6 +1064,8 @@ void ApplyHack()
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
 	g_patcher.WriteJmp(FSBLoad_Detour, FSBLoadAllowUnenc);
 	g_patcher.WriteJmp(FGH3ConfigDetour, FGH3Config);
+	//g_patcher.WriteInt32((void*)0x00513046, 0x1000424A);
+	//g_patcher.WriteInt32((void*)0x0050EBEE, 0x0201404A);
 #if ACCURATETIME
 	// experimental
 	if (fixseeking = GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))

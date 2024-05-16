@@ -127,8 +127,8 @@ _declspec(naked) void gemMutationSPActivationBranchNaked()
 		jz		HAMMER;
 
 		//Tap Notes
-		mov		eax, SP_TAP_NOTE_GEM_INDEX;
-		mov     eax, [g_gemMatTap + eax * 4]; // g_gemMatHammerSp2[eax * 4]
+		mov		eax, [esp + 100h - 0ECh]; // need to get gem color index, it's not changing to specified value that is other than the cyan gem
+		mov     eax, [g_gemMatTapStar + eax * 4]; // g_gemMatHammerSp2[eax * 4]
 		mov     ecx, [ADDR_someStruct + esi * 4];	//this
 		push    eax;	//textureKey
 		jmp     gemMutationSPActivationBranch_Tap;
@@ -280,8 +280,7 @@ _declspec(naked) void WhammyShader_TexKeyCheck_Naked()
 		jmp returnAddress;
 	}
 }
-const float openWhammySizeMultiplier = 11.8f; // probably make a qb value
-// because someone can change whammy_top_width which this code depends on
+float openWhammySize = 100.f;
 static void* const WhammyShader_Resize = (void*)0x00603552;
 _declspec(naked) void WhammyShader_Resize_Naked()
 {
@@ -294,8 +293,7 @@ _declspec(naked) void WhammyShader_Resize_Naked()
 	_OPEN:
 		// and then change the width *
 		// of the whammy before it gets drawn
-		movss xmm1, dword ptr openWhammySizeMultiplier;
-		mulss xmm0, xmm1;
+		movss xmm0, dword ptr openWhammySize;
 
 		movss[esp + 58h], xmm0;
 		movss xmm0, [esp + 24h];

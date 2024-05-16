@@ -1,7 +1,6 @@
 #include "core\Patcher.h"
 #include "gh3\GH3Keys.h"
 #include "gh3\GH3GlobalAddresses.h"
-#include "gh3\GH3Functions.h"
 #include "gh3\malloc.h"
 #include "tapHopoChord.h"
 

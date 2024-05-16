@@ -301,8 +301,9 @@ void __declspec(naked) Sustains4Opens()
 char openName[] = "yellow";
 char*openName_ = openName;
 void*calculateNoteKey = (void*)0x00418AC0;
+int*g_lastGemKeys = (int*)0x00A5E8F0;
 #define MAX_NUM_PLAYERS 2
-int g_lastOpenKeys[] = { 0,0,0,0,0,0,0,0,0,0 };
+int g_lastOpenKeys[] = { 0, 0 };
 
 void*CheckNoteHoldInit_detour = (void *)0x0041EC59;
 void __declspec(naked) CheckNoteHoldInit_4Opens()
@@ -326,7 +327,8 @@ void __declspec(naked) CheckNoteHoldInit_4Opens()
 		call calculateNoteKey;
 
 		mov  eax, [esp + 3Ch - 24h];
-		shr  eax, 2; // why
+		//add  eax, ecx;
+		//shr  eax, 2; // why
 		mov  g_lastOpenKeys[eax], ecx;
 
 		mov  ecx, [esp + 3Ch - 20h]; // arrayEntry
@@ -361,7 +363,6 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 	static const unsigned int returnAddress3_fail = 0x0042B782;
 	__asm
 	{
-		// used to crash.......???
 		xor  esi, esi;
 		cmp  ebx, 33333h;
 		jne  NOT_OPEN;
@@ -369,9 +370,9 @@ void __declspec(naked) CheckNoteHoldWait_4Opens()
 		//lea  edx, [eax*4]; // lea failed to load a zero pointer that isnt accessed
 		//add  edx, eax; // why is it even that way other than for optimization
 		//add  edx, eax; // besides doing two adds
-		mov  edx, [esp + 10h];
-		shr  edx, 2; // why
-		mov  eax, g_lastOpenKeys[edx];
+		//mov  edx, [esp + 10h];
+		//shr  edx, 2; // why
+		mov  eax, g_lastOpenKeys[eax];
 		push 0;
 		push eax;
 		lea  eax, [esp + 28h - 0Ch];
@@ -478,22 +479,28 @@ void __declspec(naked) CalculateSustainPoints_4Opens()
 }
 
 
-
+#include <Windows.h>
 bool TryApplyNoteLoadingPatches()
 {
 
+	wchar_t inipath[MAX_PATH];
+	GetCurrentDirectoryW(MAX_PATH, inipath);
+	wcscat_s(inipath, MAX_PATH, L"\\settings.ini");
+	if (!GetPrivateProfileIntW(L"GFX", L"OPEN_SUSTAINS_SUCK", 1, inipath))
+	{
+		g_patcher.WriteJmp(CheckNoteHoldInit_detour, CheckNoteHoldInit_4Opens);
+		g_patcher.WriteJmp(CheckNoteHoldWait_detour, CheckNoteHoldWait_4Opens);
+	}
 
-	return (g_patcher.WriteInt8((void *)0x0041AAD6, 9) && // Allocate an extra slot for open notes in the open note structure (normally 8)
-			g_patcher.WriteJmp(hopoFlagDetour, LoadOpenHopoTappingBitsNaked) &&
+	return (g_patcher.WriteInt8((void*)0x0041AAD6, 9) && // Allocate an extra slot for open notes in the open note structure (normally 8)
+		g_patcher.WriteJmp(hopoFlagDetour, LoadOpenHopoTappingBitsNaked) &&
 
-			g_patcher.WriteJmp(CreateNote, CreateNoteWithOpen) && //Substitute our own CreateNote function that handles open notes
-			g_patcher.WriteJmp(SetUpSustainsDetour, Sustains4Opens) && // Hack sustain code to apply note lengths for opens too
-			g_patcher.WriteJmp(CheckNoteHoldInit_detour, CheckNoteHoldInit_4Opens) &&
-			g_patcher.WriteJmp(CheckNoteHoldWait_detour, CheckNoteHoldWait_4Opens) &&
-			g_patcher.WriteJmp(CheckNoteHoldPerFrame_detour, CheckNoteHoldPerFrame_4Opens) &&
-			g_patcher.WriteJmp(CalculateSustainPoints_detour, CalculateSustainPoints_4Opens) &&
-			g_patcher.WriteJmp(pause_detour, pause_fix2) &&
-			g_patcher.WriteNOPs((void *)0x0041D452, 3) && //NOP out the "sub esp 20h" following any CreateNote call since we are cleaning up the stack ourselves (effectively changing the calling convention)
-			g_patcher.WriteNOPs((void *)0x0041AD97, 3) &&
-			g_patcher.WriteInt8((void *)0x0041D451, 0x28)); //Since the stack will no longer be off by 0x20 we need to fix anything that grabs a stack variable before it is correct);
+		g_patcher.WriteJmp(CreateNote, CreateNoteWithOpen) && //Substitute our own CreateNote function that handles open notes
+		g_patcher.WriteJmp(SetUpSustainsDetour, Sustains4Opens) && // Hack sustain code to apply note lengths for opens too
+		g_patcher.WriteJmp(CheckNoteHoldPerFrame_detour, CheckNoteHoldPerFrame_4Opens) &&
+		g_patcher.WriteJmp(CalculateSustainPoints_detour, CalculateSustainPoints_4Opens) &&
+		g_patcher.WriteJmp(pause_detour, pause_fix2) &&
+		g_patcher.WriteNOPs((void*)0x0041D452, 3) && //NOP out the "sub esp 20h" following any CreateNote call since we are cleaning up the stack ourselves (effectively changing the calling convention)
+		g_patcher.WriteNOPs((void*)0x0041AD97, 3) &&
+		g_patcher.WriteInt8((void*)0x0041D451, 0x28)); //Since the stack will no longer be off by 0x20 we need to fix anything that grabs a stack variable before it is correct);
 }

@@ -41,6 +41,14 @@ uint32_t g_gemMatTapSp[6] = {
 	OrangeTapStarTextureKey,
 	StarpowerTapTextureKey
 };
+uint32_t g_gemMatTapStar[6] = {
+	GreenTapStarTextureKey,
+	RedTapStarTextureKey,
+	YellowTapStarTextureKey,
+	BlueTapStarTextureKey,
+	OrangeTapStarTextureKey,
+	StarpowerTapTextureKey
+};
 #ifdef OVERLAPPING_STARPOWER
 uint32_t g_gemMatSpSp[6] = {
 	StarStarTextureKey,
@@ -108,6 +116,9 @@ uint32_t g_gemMatRainbowHammerStar[6] = {
 };
 #endif
 
+extern float openWhammySize;
+
+#include "gh3\GH3Functions.h"
 
 void __declspec(naked) setupOpenNote()
 {
@@ -138,6 +149,17 @@ void __declspec(naked) setupOpenNote()
 	g_gemMatWhammy[5] = OpenWhammyTextureKey;
 	g_gemMatSpWhammy[5] = OpenWhammyStarTextureKey;
 
+	//GlobalMapGetFloat(CRCD(0xC6C16C33, "whammy_top_width_open_note"));
+	//__asm fstp openWhammySize;
+	__asm {
+		mov eax, 0xC6C16C33;
+		push 0;
+		push eax;
+		call GlobalMapGetFloat;
+		fstp openWhammySize;
+		add esp, 8;
+	}
+
 #ifdef RAINBOW
 	for (int i = 0; i < 4; i++)
 	{
@@ -155,6 +177,7 @@ void __declspec(naked) setupOpenNote()
 
 #include <cstring>
 
+EXTN_FUNC(char, QbStructGetValue, 0x00478E50, QbStruct*_this, QbKey key, void*outval, int logerrors)
 static void * const gemConstantFixingDetour = (void *)0x0041BB91;
 void __declspec(naked) gemConstantFixingNaked()
 {
@@ -162,45 +185,94 @@ void __declspec(naked) gemConstantFixingNaked()
 	static void * const returnAddress = (void *)0x0041BC62;
 	__asm
 	{
-		fstp	[g_gemLeftStartPosX + esi];
+		fstp[g_gemLeftStartPosX + esi];
 		mov     ecx, [esp + 48h];
 		fld     dword ptr[eax + 8];
 		mov     eax, [esp + 18h];
-		fstp	[g_gemLeftStartPosY + esi];
+		fstp[g_gemLeftStartPosY + esi];
 		movss   xmm0, dword ptr[esp + 1Ch];
 		fld     dword ptr[eax + 4];
-		fstp	[g_gemLeftEndPosX + esi];
+		fstp[g_gemLeftEndPosX + esi];
 		fld     dword ptr[eax + 8];
 		mov     eax, [esp + 44h];
-		fstp	[g_gemLeftEndPosY + esi];
+		fstp[g_gemLeftEndPosY + esi];
 		fld     dword ptr[ebp + 4];
-		fstp	[g_gemStartPosX + esi];
+		fstp[g_gemStartPosX + esi];
 		fld     dword ptr[ebp + 8];
-		fstp	[g_gemStartPosY + esi];
+		fstp[g_gemStartPosY + esi];
 		fld     dword ptr[ebx + 4];
-		fstp	[g_gemEndPosX + esi];
+		fstp[g_gemEndPosX + esi];
 		fld     dword ptr[ebx + 8];
-		mov		[g_gemMatHammerSp + esi], edx;
+		mov[g_gemMatHammerSp + esi], edx;
 		mov     edx, [esp + 4Ch];
-		fstp	[g_gemEndPosY + esi];
-		mov		[g_gemMatSp + esi], eax;
+		fstp[g_gemEndPosY + esi];
+		mov[g_gemMatSp + esi], eax;
 		mov     eax, [esp + 50h];
-		mov		[g_gemMatHammerBattle + esi], ecx;
+		mov[g_gemMatHammerBattle + esi], ecx;
 		mov     ecx, [esp + 54h];
-		mov		[g_gemMatBattle + esi], edx;
+		mov[g_gemMatBattle + esi], edx;
 		mov     edx, [esp + 58h];
-		mov		[g_gemMatHammerStar + esi], eax;
+		mov[g_gemMatHammerStar + esi], eax;
 		mov     eax, [esp + 5Ch];
-		mov		[g_gemMatStar + esi], ecx;
+		mov[g_gemMatStar + esi], ecx;
 		mov     ecx, [esp + 60h];
-		mov		[g_gemMatHammer + esi], edx;
+		mov[g_gemMatHammer + esi], edx;
 		mov     edx, [esp + 64h];
-		movss	[g_gemLeftAngle + esi], xmm0;
+		movss[g_gemLeftAngle + esi], xmm0;
 		movss   xmm0, dword ptr[esp + 20h];
-		mov		[g_gemMatNormal + esi], eax;
-		movss	[g_gemAngle + esi], xmm0;
-		mov		[g_gemMatSpWhammy + esi], ecx;
-		mov		[g_gemMatWhammy + esi], edx;
+		mov[g_gemMatNormal + esi], eax;
+		movss[g_gemAngle + esi], xmm0;
+		mov[g_gemMatSpWhammy + esi], ecx;
+		mov[g_gemMatWhammy + esi], edx;
+
+
+		// I'M DOING THIS JUST FOR ROCK BAND THEME
+		sub		esp, 4;
+
+		xor		edx, edx;
+		push	1;
+		lea		ecx, [esp + 70h - 70h]; // this should be the pointer of the output variable but somehow key is getting loaded into EDX and not here
+		push	ecx;
+		mov		ecx, [esp + 74h - 58h];
+		mov		eax, 047B075B6h; // gem_tap_material
+		push	eax;
+		call	QbStructGetValue;
+
+		test	edx, edx;
+		jz		notFound1;
+		mov		[g_gemMatTap + esi], edx;
+
+	notFound1:
+		xor		edx, edx;
+		push	1;
+		lea		ecx, [esp + 70h - 70h];
+		push	ecx;
+		mov		ecx, [esp + 74h - 58h];
+		mov		eax, 0207F3D3Ch; // star_tap_material
+		push	eax;
+		call	QbStructGetValue;
+
+		test	edx, edx;
+		jz		notFound2;
+		mov		[g_gemMatTapSp + esi], edx;
+
+	notFound2:
+		xor		edx, edx;
+		push	1;
+		lea		ecx, [esp + 70h - 70h];
+		push	ecx;
+		mov		ecx, [esp + 74h - 58h];
+		mov		eax, 050B01943h; // star_power_tap_material
+		push	eax;
+		call	QbStructGetValue;
+
+		test	edx, edx;
+		jz		notFound3;
+		mov		[g_gemMatTapStar + esi], edx;
+
+	notFound3:
+
+		add		esp, 4;
 
 		add     esi, 4;
 		cmp     esi, 20;
