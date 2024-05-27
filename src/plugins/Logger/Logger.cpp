@@ -89,7 +89,7 @@ __declspec(naked) char* QbKeyPrintFix(UINT qbk)
 	}
 }
 
-void print(const char*str)
+void put(const char*str)
 {
 	if (l_CreateCon) {
 		fputs(str, CON);
@@ -97,6 +97,21 @@ void print(const char*str)
 	if (l_WriteFile) {
 		fputs(str, log);
 		fflush(log); // how can i do this only when the program crashes
+	}
+}
+void print(const char*str, ...)
+{
+	va_list A, B;
+	if (l_WriteFile) {
+		va_start(A, str);
+		vfprintf(log, str, A);
+		fflush(log);
+		va_end(A);
+	}
+	if (l_CreateCon) {
+		va_start(B, str);
+		vfprintf(CON, str, B);
+		va_end(B);
 	}
 }
 
@@ -109,7 +124,7 @@ __declspec(naked) void RedirectOutput()
 		mov logtext, edx;
 		call PrintsubIthink;
 	}
-	print(logtext);
+	put(logtext);
 	__asm {
 		jmp returnAddress;
 	}
@@ -122,40 +137,13 @@ __declspec(naked) void RedirectOutput2()
 		mov logtext, edx;
 		call PrintsubIthink;
 	}
-	print(logtext);
+	put(logtext);
 	__asm {
 		jmp returnAddress;
 	}
 }
 
-typedef struct {
-	void* rangeStart;
-	void* rangeEnd; // on ret
-	char* funcName;
-} _ASSERT_INFO_FUNC;
-#define AIF(S,E,N) { (void*)S,(void*)E,N }
-_ASSERT_INFO_FUNC assert_functions[] = {
-	AIF(0x00404D60,0x00404DE9,0),
-	AIF(0x00404DF0,0x00404E2F,0),
-	AIF(0x004075B0,0x00407747,"SendStructure"),
-	AIF(0x004100B0,0x00410122,"InitCutsceneInfo"),
-	AIF(0x00410800,0x004108B5,"CProgressionSave__method_410800"),
-	AIF(0x00411290,0x004112E3,"SetLeakCheck"),
-	AIF(0x00412860,0x004128B4,"ToggleLOD"),
-	AIF(0x00412FC0,0x00413393,"CreateParticleSystem"),
-	AIF(0x00419A50,0x00419ADE,"WinPortSioGetControlPress"),
-	AIF(0x00419AE0,0x00419B2F,"WinPortSioIsDirectInputGamepad"),
-	AIF(0x00419B30,0x00419B7E,"WinPortSioIsKeyboard"),
-	AIF(0x00419B80,0x00419BD3,"WinPortSioSetDevice0"),
-	AIF(0x00419BE0,0x00419C8F,"WinPortSioGetControlName"),
-	AIF(0x00419C90,0x00419D17,"WinPortSioGetControlBinding"),
-	AIF(0x00419D20,0x00419DC4,"WinPortSioSetControlBinding"),
-	AIF(0x00532DD0,0x00532E10,"ScriptAssert"),
-	AIF(0x0053FD30,0x0053FD7F,"LoadMovieIntoBuffer"),
-	AIF(0x0053FD80,0x0053FE05,"PlayMovieFromBuffer"),
-	AIF(0x00478E50,0x004790FD,"QbStruct::GetValue"),
-	AIF(0x004789F0,0x00478A34,"QbStruct::GetInt"),
-};
+#include "AssertPoints.h"
 DWORD textSegs[] = {
 	0x00401000, 0x00898000, // .text
 	0x00D7A000, 0x00DB0000, // .HATRED
@@ -182,15 +170,18 @@ char*getAssertFunctionRange(void*addr)
 }
 
 void printStructBase(QbStruct* qs);
+bool PrintStruct(QbStruct*params, QbScript*_this);
 
+int inProperSegments = 0;
+char*assertC_OOR = "Assert execution address is not in code range !!!!!!!!!!!!!!! %08X\n";
 static void* LogErrDfnctDetour = (void*)0x004F6500;
 void assertWarn()
 {
 	if (!l_WarnAsserts)
 		return;
-	__asm mov eax, [esp+12]; // +12 from function setting up stack or whatever
+	__asm mov eax, [esp + 12]; // +12 from function setting up stack or whatever
 	int EIP;
-	__asm mov ecx, [esp+12+8]; // get extra arguments (qbstruct)
+	__asm mov ecx, [esp + 12 + 4]; // get extra arguments (qbstruct)
 	// I FORGOT I WAS JUST JMPING ON A NULLSUB
 	// SO I COULD'VE SET PARAMETERS HERE
 	// but i dont know if when i add those, ESP will move again
@@ -206,23 +197,19 @@ void assertWarn()
 		}*/
 		if (EIP > textSegs[(i << 1)] &&
 			EIP < textSegs[(i << 1) + 1])
-			break;
-		else
 		{
-			print("Assert execution address is not in code range !!!!!!!!!!!!!!!\n");
-			return;
+			inProperSegments = 1;
+			break;
 		}
 	}
+	if (!inProperSegments)
+	{
+		print(assertC_OOR, EIP);
+		return;
+	}
 	char*funcName = getAssertFunctionRange((void*)EIP);
-	if (l_CreateCon) {
-		fprintf(CON, "ASSERT in %s @ %p\n", funcName, EIP);
-		// just use vprintf instead of putting this twice
-		// already did for qcc so why not here
-	}
-	if (l_WriteFile) {
-		fprintf(log, "ASSERT in %s @ %p\n", funcName, EIP);
-	}
-	printStructBase(a);
+	print("ASSERT in %s @ %p\n", funcName, EIP);
+	PrintStruct(a, NULL);
 }
 
 int qbstrindent = 0;
@@ -231,67 +218,35 @@ int qbstrindent = 0;
 static void* PrintScriptInfoDetour = (void*)0x005309A0;
 void PrintScriptInfo(QbStruct*params, QbScript*_this)
 {
-	if (l_CreateCon) {
-		fprintf(CON, "Printing script %s:\n{", QbKeyPrintFix(_this->type));
-	}
-	if (l_WriteFile) {
-		fprintf(log, "Printing script %s:\n{", QbKeyPrintFix(_this->type));
-	}
+	print("Printing script %s:\n{", QbKeyPrintFix(_this->type));
 	qbstrindent++;
-	//print("\n    "); // grease for half optimization
-	//print("0x04 some struct: {\n");
-	//printStructBase(_this->qbStruct4);
-	//print("    }");
-	print("\n    ");
-	if (l_CreateCon) {
-		fprintf(CON, "0x10 EIP: %04X", _this->instructionPointer);
-	}
-	if (l_WriteFile) {
-		fprintf(log, "0x10 EIP: %04X", _this->instructionPointer);
-	}
-	print("\n    ");
-	print("0x14 mp_function_params: {\n");
+	print(
+		"\n    " "0x10 EIP: %04X"
+		"\n    " "0x14 mp_function_params: {\n"
+		, _this->instructionPointer);
 	printStructBase(_this->qbStruct14);
-	print("    }");
-	print("\n    ");
-	print("0x18 Arguments: {\n");
+	put(	"    }"
+		"\n    " "0x18 Arguments: {" "\n");
 	printStructBase(_this->qbStruct18);
-	print("    }");
-	print("\n    ");
-	print("0x1C Variables: {\n");
+	put(	"    }"
+		"\n    " "0x1C Variables: {" "\n");
 	printStructBase(_this->qbStruct1C);
-	print("    }");
-	print("\n    ");
-	if (l_CreateCon) {
-		fprintf(CON, "0x38 Call depth: %u", _this->scriptDepth);
-	}
-	if (l_WriteFile) {
-		fprintf(log, "0x38 Call depth: %u", _this->scriptDepth);
-	}
-	print("\n    ");
-	if (l_CreateCon) {
-		fprintf(CON, "0x3C Callstack:");
-	}
-	if (l_WriteFile) {
-		fprintf(log, "0x3C Callstack:");
-	}
+	print(	"    }"
+		"\n    " "0x38 Call depth: %u"
+		, _this->scriptDepth);
+	put("\n    " "0x3C Callstack:");
 	for (int i = _this->scriptDepth; i > 0; i--)
 	{
-		print("\n        ");
+		put("\n        ");
 		auto RA = _this->mp_return_addresses[i];
-		if (l_CreateCon) {
-			fprintf(CON, "%s {\n", QbKeyPrintFix(RA.mScriptNameChecksum));
-		}
-		if (l_WriteFile) {
-			fprintf(log, "%s {\n", QbKeyPrintFix(RA.mScriptNameChecksum));
-		}
+		print("%s {\n", QbKeyPrintFix(RA.mScriptNameChecksum));
 		qbstrindent++;
 		printStructBase(RA.mpParams);
 		qbstrindent--;
-		print("        }");
+		put("        }");
 		// this is an absolute mess
 	}
-	print("\n}\n");
+	put("\n}\n");
 	qbstrindent--;
 }
 
@@ -304,8 +259,8 @@ __declspec(naked) void MyScriptAssert()
 		call PrintsubIthink;
 	}
 	if (l_WarnAsserts)
-		print("ASSERT: ");
-	print(logtext);
+		put("ASSERT: ");
+	put(logtext);
 	__asm {
 		jmp returnAddress;
 	}
@@ -317,7 +272,7 @@ const char*qbstructOpen = "QbStruct {\n";
 void printStructStructIndent()
 {
 	for (int i = 0; i < qbstrindent + 1; i++) {
-		print("    ");
+		put("    ");
 	}
 }
 void printStructItem(QbKey key, DWORD value, QbValueType type);
@@ -326,26 +281,23 @@ void printStructBase(QbStruct*qs)
 	if (!qs)
 	{
 		//printStructStructIndent();
-		//print("NON-EXISTENT STRUCT!!!\n");
+		//put("NON-EXISTENT STRUCT!!!\n");
 		return;
 	}
 	if (!qbstrindent)
 	{
-		print(qbstructOpen);
+		put(qbstructOpen);
 	}
 	QbStructItem*qsi;
 	qsi = qs->first;
-	while (qsi)
-	{
+	while (qsi) {
 		printStructStructIndent();
 		printStructItem(qsi->key, qsi->value, qsi->Type());
-		if (!qsi->next)
-			break;
 		qsi = qsi->next;
 	}
 	if (!qbstrindent)
 	{
-		print("}\n");
+		put("}\n");
 	}
 }
 void printStructItem(QbKey key, DWORD value, QbValueType type)
@@ -413,34 +365,26 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 		type != TypeQbStruct &&
 		type != TypeQbArray)
 	{
-		print(qbstrstr);
+		put(qbstrstr);
 	}
 	else if (type == TypeCString) {
-		print(qbstrstr);
-		print("'");
-		print((char*)value);
-		print("'\n");
+		put(qbstrstr);
+		put("'");
+		put((char*)value);
+		put("'\n");
 	}
 	else if (type == TypeWString) {
-		print(qbstrstr);
-		if (l_CreateCon) {
-			fprintf(CON, "\"%ls\"\n", (wchar_t*)value);
-		}
-		if (l_WriteFile) {
-			fprintf(log, "\"%ls\"\n", (wchar_t*)value);
-		}
+		put(qbstrstr);
+		print("\"%ls\"\n", (wchar_t*)value);
 	}
 	else if (type == TypeQbArray) {
-		sprintf(qbstrstr + qbstrstr2, "\n");
-		print(qbstrstr);
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) - qbstrstr2, "\n");
+		put(qbstrstr);
 		qbstrindent++;
 		printStructStructIndent();
-		sprintf(qbstrstr, "");
+		sprintf_s(qbstrstr, BLANK);
 		QbArray*qa = (QbArray*)value;
-		if (l_CreateCon)
-			fprintf(CON, "%02X QbArray [", qa->Type());
-		if (l_WriteFile)
-			fprintf(log, "%02X QbArray [", qa->Type());
+		print("%02X QbArray [", qa->Type());
 		DWORD weird;
 		QbValueType qatype = qa->Type();
 		// try to collapse items into multiple lines when there's a lot in the array
@@ -449,7 +393,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 		DWORD qalnl = 0;
 		if (qal > 16)
 		{
-			print("\n");
+			put("\n");
 			qbstrindent++;
 			printStructStructIndent();
 			qalnl = 8;
@@ -466,45 +410,42 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 			case TypeInt:
 				char itoatmp[12];
 				_itoa_s((signed int)qa->Get(i), itoatmp, 12, 10);
-				print(itoatmp);
+				put(itoatmp);
 				break;
 			case TypeFloat:
 				char ftoatmp[16];
 				weird = qa->Get(i);
-				sprintf(ftoatmp, "%f", (*(FLOAT*)&weird));
-				print(ftoatmp);
+				sprintf_s(ftoatmp, "%f", (*(FLOAT*)&weird));
+				put(ftoatmp);
 				break;
 			case TypeCString:
-				print(qbstrstr);
-				print("\"");
-				print((char*)value);
-				print("\"\n");
+				put(qbstrstr);
+				put("\"");
+				put((char*)value);
+				put("\"\n");
 				break;
 			case TypeWString:
-				if (l_CreateCon)
-					fprintf(CON, "\"%ls\"", (wchar_t*)qa->Get(i));
-				if (l_WriteFile)
-					fprintf(log, "\"%ls\"", (wchar_t*)qa->Get(i));
+				print("\"%ls\"", (wchar_t*)qa->Get(i));
 				break;
 			case TypeQbKey:
-				print(QbKeyPrintFix(qa->Get(i)));
+				put(QbKeyPrintFix(qa->Get(i)));
 				break;
 			case TypeQbStruct:
-				print("\n");
+				put("\n");
 				qbstrindent++;
 				printStructStructIndent();
-				print(qbstructOpen);
+				put(qbstructOpen);
 				qbstrindent++;
 				printStructBase((QbStruct*)(qa->Get(i)));
 				qbstrindent--;
 				printStructStructIndent();
 				if (i != qa->Length() - 1) {
-					print("}");
+					put("}");
 				}
 				else
 				{
 					qbstrindent--;
-					print("}\n");
+					put("}\n");
 					printStructStructIndent();
 					qbstrindent++;
 				}
@@ -512,7 +453,7 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 				break;
 			}
 			if (i != qa->Length() - 1) {
-				print(", ");
+				put(", ");
 			}
 			else if (i == qa->Length() - 1)
 			{
@@ -525,29 +466,29 @@ void printStructItem(QbKey key, DWORD value, QbValueType type)
 			if (qalnl > 0)
 				if (i % qalnl == qalnl - 1 && qatype != TypeQbStruct)
 				{
-					print("\n");
+					put("\n");
 					printStructStructIndent();
 				}
 #endif
 		}
-		print(qbstrstr);
-		print("]\n");
+		put(qbstrstr);
+		put("]\n");
 		if (qal <= 8)
 		{
 			qbstrindent--;
 		}
 	}
 	else {
-		sprintf(qbstrstr + qbstrstr2, "\n");
-		print(qbstrstr);
+		sprintf_s(qbstrstr + qbstrstr2, sizeof(qbstrstr) + qbstrstr2, "\n");
+		put(qbstrstr);
 		printStructStructIndent();
-		print(qbstructOpen);
-		sprintf(qbstrstr, "");
+		put(qbstructOpen);
+		sprintf_s(qbstrstr, BLANK); // why didn't i just strcpy
 		qbstrindent++;
 		printStructBase((QbStruct*)(value));
 		qbstrindent--;
 		printStructStructIndent();
-		print("}\n");
+		put("}\n");
 	}
 }
 static void *PrintStructDetour = (void *)0x00530970;
@@ -562,12 +503,12 @@ char print2ndBuf[512];
 int extraPrinting(char* fmt, ...)
 {
 	// hasn't been executed
-	print("TESTTESTTESTTESTTESTTESTTESTTEST\n");
+	put("TESTTESTTESTTESTTESTTESTTESTTEST\n");
 	va_list args;
 	va_start(args, fmt);
 	int ret = vsprintf_s(print2ndBuf, 512, fmt, args);
 	va_end(args);
-	print(print2ndBuf);
+	put(print2ndBuf);
 	return ret;
 }
 
@@ -817,7 +758,7 @@ void ApplyHack()
 					}
 				}
 				else {
-					print("Failed to patch debug key formatter.\n");
+					put("Failed to patch debug key formatter.\n");
 					l_AllSuccess = 0;
 				}
 				if (l_FmtTxtLkup)
@@ -827,13 +768,13 @@ void ApplyHack()
 							fputs("Patched FormatText's AddToLookup code.\n", CON);
 					}
 					else {
-						print("Failed to patch FormatText's AddToLookup code.\n");
+						put("Failed to patch FormatText's AddToLookup code.\n");
 						l_AllSuccess = 0;
 					}
 					fclose(dbgpak);
 			}
 			else {
-				print("Failed to open debug pak.\nDoes it exist?\n");
+				put("Failed to open debug pak.\nDoes it exist?\n");
 				l_AllSuccess = 0;
 			}
 		}
@@ -845,7 +786,7 @@ void ApplyHack()
 					fputs("Patched PrintStruct.\n", CON);
 			}
 			else {
-				print("Failed to patch PrintStruct.\n");
+				put("Failed to patch PrintStruct.\n");
 				l_AllSuccess = 0;
 			}
 			if (g_patcher.WriteJmp(PrintScriptInfoDetour, PrintScriptInfo))
@@ -854,7 +795,7 @@ void ApplyHack()
 					fputs("Patched PrintScriptInfo.\n", CON);
 			}
 			else {
-				print("Failed to patch PrintScriptInfo.\n");
+				put("Failed to patch PrintScriptInfo.\n");
 			}
 			if (g_patcher.WriteJmp(GCStkDetour, GetCCallstack))
 			{
@@ -862,7 +803,7 @@ void ApplyHack()
 					fputs("Patched GetCCallstack.\n", CON);
 			}
 			else {
-				print("Failed to patch GetCCallstack.\n");
+				put("Failed to patch GetCCallstack.\n");
 			}
 		}
 		if (l_CreateCon)
@@ -879,7 +820,7 @@ void ApplyHack()
 					fputs("Patched assert function.\n", CON);
 			}
 			else
-				print("Failed to patch assert function.\n");
+				put("Failed to patch assert function.\n");
 		}
 		if (l_AllSuccess)
 			if (l_CreateCon)

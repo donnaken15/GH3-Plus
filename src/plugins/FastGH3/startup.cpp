@@ -1032,6 +1032,56 @@ bool FGH3Config(QbStruct*params, QbScript*_this)
 	return FALSE;
 }
 
+
+//#define Q_CONCAT_STRING_BUFFER_SIZE 16384
+//void*QConcatStrBuf[Q_CONCAT_STRING_BUFFER_SIZE * 2];
+
+EXTN_FUNC(size_t, wstrlen, &wcslen, wchar_t*a); // y tho
+
+static void*QConcatStringDetour = (void*)0x0062AF39;
+__declspec(naked) void QConcatStringFix()
+{
+	static const uint32_t retAddr1 = 0x0062AF44;
+	static const uint32_t retAddr2 = 0x0062AF85;
+	static const uint32_t retAddr3 = 0x0062BF11;
+	static const uint32_t errstring = 0x008C1270;
+	static const uint32_t assertfunc = 0x0062A750;
+	__asm {
+		mov		cl, [ebp + 1];
+		and		cl, 0FEh;
+		cmp		cl, 8;
+		jnz		idk;
+		mov		edx, [ebx + 8]; // base string
+		push	eax;
+		push	ecx;
+		push	edx;
+		call	wstrlen;
+		add		esp, 4;
+		mov		ecx, [ebp + 8]; // appending string
+		push	eax;
+		push	ecx;
+		call	wstrlen;
+		add		esp, 4;
+		pop		edx;
+		add		eax, edx;
+		shl		eax, 1;
+		pop		ecx;
+		pop		edx;
+		cmp		eax, 400; // screw this, of all the places to have a S.B.O.
+		jb		no_overflow; // not even on the cstring concat case
+		push	errstring;
+		mov		ecx, edi;
+		call	assertfunc;
+		jmp		retAddr3;
+	idk:
+		jmp		retAddr2;
+	no_overflow:
+		jmp		retAddr1;
+	}
+}
+
+
+
 void ApplyHack()
 {
 	GetCurrentDirectoryW(MAX_PATH, inipath);
@@ -1080,4 +1130,6 @@ void ApplyHack()
 			g_patcher.WriteJmp(texloadDetour, texloadFixFast);
 	}
 	g_patcher.WriteJmp(replayrecordDetour, replayPutTime);
+	//g_patcher.WriteInt32((void*)(0x0062AF63 + 1), 399); // unbelievable, a stack buffer overflow
+	g_patcher.WriteJmp(QConcatStringDetour, QConcatStringFix);
 }

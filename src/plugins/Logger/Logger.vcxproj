@@ -66,6 +66,7 @@
     <ClCompile Include="dllmain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AssertPoints.h" />
     <ClInclude Include="Logger.h" />
   </ItemGroup>
   <ItemGroup>
