@@ -433,7 +433,7 @@ __declspec(naked) void getPosFix()
 
 wchar_t*FSBa;
 wchar_t*FSBaa;
-wchar_t*FSBb;
+char*FSBb;
 int  FSBm;
 FILE*FSBf;
 wchar_t*FSBc;
@@ -492,7 +492,7 @@ int fixseeking = 0;
 int realEBX, realECX, realEDX;
 // thx zed
 static void*FSBLoad_Detour = (void*)0x00548F46;
-__declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
+__declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s (not right now, i'm a bad coder)
 {
 	static const uint32_t returnAddress = 0x00548F4D;
 	__asm {
@@ -508,9 +508,8 @@ __declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
 	FSBc = wcsrchr(FSBa, L'\\');
 	if (FSBc)
 		*FSBc = 0;
-	// check if cstring or wstring????
-	swprintf_s(FSBaa, MAX_PATH, L"%s\\DATA\\%S.fsb.xen", FSBa, FSBb);
-
+	// LoadFSB uses CString function, and CStr/WStr struct functions get either type of string and convert to the matching type requested if needed
+	swprintf_s(FSBaa, MAX_PATH, L"%ls\\DATA\\%S.fsb%S", FSBa, FSBb, (char*)0x008B5028);
 	_wfopen_s(&FSBf, FSBaa, L"rb");
 	if (FSBf)
 	{
@@ -595,6 +594,9 @@ __declspec(naked) void FSBLoadAllowUnenc() // and fix seeking VBR MP3s
 	}
 FAIL:
 	// else assert :/
+
+	free(FSBa);
+	free(FSBaa);
 
 	__asm {
 		push realECX;

@@ -231,43 +231,46 @@ void __declspec(naked) gemConstantFixingNaked()
 
 		xor		edx, edx;
 		push	1;
-		lea		ecx, [esp + 70h - 70h]; // this should be the pointer of the output variable but somehow key is getting loaded into EDX and not here
+		lea		ecx, [esp + 4]; // this should be the pointer of the output variable but somehow key is getting loaded into EDX and not here // NEVERMIND!!!!!!!! I WAS STUCK ON THIS FOR HOURS AND * *** ****** **** *T
 		push	ecx;
 		mov		ecx, [esp + 74h - 58h];
 		mov		eax, 047B075B6h; // gem_tap_material
 		push	eax;
 		call	QbStructGetValue;
 
-		test	edx, edx;
+		test	al, al;
 		jz		notFound1;
+		mov		edx, [esp];
 		mov		[g_gemMatTap + esi], edx;
 
 	notFound1:
 		xor		edx, edx;
 		push	1;
-		lea		ecx, [esp + 70h - 70h];
+		lea		ecx, [esp + 4];
 		push	ecx;
 		mov		ecx, [esp + 74h - 58h];
 		mov		eax, 0207F3D3Ch; // star_tap_material
 		push	eax;
 		call	QbStructGetValue;
 
-		test	edx, edx;
+		test	al, al;
 		jz		notFound2;
+		mov		edx, [esp];
 		mov		[g_gemMatTapSp + esi], edx;
 
 	notFound2:
 		xor		edx, edx;
 		push	1;
-		lea		ecx, [esp + 70h - 70h];
+		lea		ecx, [esp + 4];
 		push	ecx;
 		mov		ecx, [esp + 74h - 58h];
 		mov		eax, 050B01943h; // star_power_tap_material
 		push	eax;
 		call	QbStructGetValue;
 
-		test	edx, edx;
+		test	al, al;
 		jz		notFound3;
+		mov		edx, [esp];
 		mov		[g_gemMatTapStar + esi], edx;
 
 	notFound3:

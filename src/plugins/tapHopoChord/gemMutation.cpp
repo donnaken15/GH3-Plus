@@ -280,7 +280,7 @@ _declspec(naked) void WhammyShader_TexKeyCheck_Naked()
 		jmp returnAddress;
 	}
 }
-float openWhammySize = 100.f;
+float openWhammySize = 86.f;
 static void* const WhammyShader_Resize = (void*)0x00603552;
 _declspec(naked) void WhammyShader_Resize_Naked()
 {
@@ -317,7 +317,7 @@ _declspec(naked) void WhammyShader_WeirdFix_Naked()
 
 bool TryApplyGemMutationPatches()
 {
-	return  (g_patcher.WriteJmp(gemMutationSPActivationBranch, &gemMutationSPActivationBranchNaked) &&
+	return (g_patcher.WriteJmp(gemMutationSPActivationBranch, &gemMutationSPActivationBranchNaked) &&
 			g_patcher.WriteJmp(gemMutationSPDeactivationBranch, &gemMutationSPDeactivationBranchNaked) &&
 			g_patcher.WriteJmp(gemMutationPhraseMissBranch, &gemMutationPhraseMissBranchNaked) &&
 			g_patcher.WriteJmp(gemMutationStarOverlapBranch, &gemMutationStarOverlapBranchNaked) &&
