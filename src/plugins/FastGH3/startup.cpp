@@ -286,19 +286,18 @@ __declspec(naked) void whammyWidthFix()
 	__asm {
 		movss   dummy, xmm0;
 
-		push    eax;
 		mov     eax, dword ptr GameRes_X;
 		movss   xmm0, [eax]; // couldnt i just mov value, [eax]
 		// what's even the point of this in compilation
 		// when nothing is being done to the float
 		movss   resCurrent, xmm0;
-		pop     eax;
 	}
 	// ez hack overwriting xmm0 using temporary math operations
 	dummy = dummy * (resCurrent / resFrac);
 	__asm {
 		movss[esp + 58h], xmm0;
-
+		mov	eax, d3ddev;
+		mov eax, [eax]; // why, (dword ptr) [d3ddev] doesn't work
 		jmp returnAddress;
 	}
 }

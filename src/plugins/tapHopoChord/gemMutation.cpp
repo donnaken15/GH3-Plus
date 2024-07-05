@@ -280,11 +280,11 @@ _declspec(naked) void WhammyShader_TexKeyCheck_Naked()
 		jmp returnAddress;
 	}
 }
-float openWhammySize = 86.f;
-static void* const WhammyShader_Resize = (void*)0x00603552;
+float openWhammySize = 0.f;
+static void* const WhammyShader_Resize = (void*)0x00603547;
 _declspec(naked) void WhammyShader_Resize_Naked()
 {
-	static const uint32_t returnAddress = 0x00603558;
+	static const uint32_t returnAddress = 0x0060354C;
 	__asm
 	{
 		cmp  isOpenWhammy, 0;
@@ -296,7 +296,6 @@ _declspec(naked) void WhammyShader_Resize_Naked()
 		movss xmm0, dword ptr openWhammySize;
 
 		movss[esp + 58h], xmm0;
-		movss xmm0, [esp + 24h];
 	NOT_OPEN:
 		jmp returnAddress;
 	}
