@@ -13,7 +13,7 @@
 // why can't I UPX pack this plugin
 // without getting an error now
 
-#pragma comment(lib, "E:\\D3D9\\d3dx9.lib")
+#pragma comment(lib, "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x86\\d3dx9.lib")
 #pragma comment(lib, "winmm.lib")
 static GH3P::Patcher g_patcher = GH3P::Patcher(__FILE__);
 
