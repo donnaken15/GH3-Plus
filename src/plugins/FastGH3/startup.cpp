@@ -1068,7 +1068,7 @@ __declspec(naked) void QConcatStringFix()
 		shl		eax, 1;
 		pop		ecx;
 		pop		edx;
-		cmp		eax, 400; // screw this, of all the places to have a S.B.O.
+		cmp		eax, 399; // screw this, of all the places to have a S.B.O.
 		jb		no_overflow; // not even on the cstring concat case
 		push	errstring;
 		mov		ecx, edi;
@@ -1081,6 +1081,25 @@ __declspec(naked) void QConcatStringFix()
 	}
 }
 
+#define this _this
+static void*ClampDetour = (void*)0x0062AF39;
+char RealClamp(QbStruct*params, QbScript*this)
+{
+	float min, max, val;
+	if (!params->GetFloat(QbKey(), val))
+		return 0;
+	if (!params->GetFloat(QbKey("max"), max))
+		return 0;
+	if (!params->GetFloat(QbKey("min"), min))
+		return 0;
+	if (val < min)
+		val = min;
+	else if (val > max)
+		val = max;
+	this->qbStruct1C->InsertFloatItem(KEY_CLAMPED, val);
+	return 1;
+}
+#undef this
 
 
 void ApplyHack()
@@ -1115,8 +1134,8 @@ void ApplyHack()
 	g_patcher.WriteJmp(whammyWidth_Detour, whammyWidthFix);
 	g_patcher.WriteJmp(FSBLoad_Detour, FSBLoadAllowUnenc);
 	g_patcher.WriteJmp(FGH3ConfigDetour, FGH3Config);
-	//g_patcher.WriteInt32((void*)0x00513046, 0x1000424A);
-	//g_patcher.WriteInt32((void*)0x0050EBEE, 0x0201404A);
+	g_patcher.WriteInt32((void*)0x00513046, 0x1000424A); // FMOD flags THAT DON'T EVEN WORK
+	g_patcher.WriteInt32((void*)0x0050EBEE, 0x0201404A); // FMOD flags THAT DON'T EVEN WORK
 #if ACCURATETIME
 	// experimental
 	if (fixseeking = GetPrivateProfileIntA("Misc", "FixSeeking", 0, inipath))
@@ -1129,8 +1148,11 @@ void ApplyHack()
 		CreateTextureRAM = (CTRAMType*)(GetProcAddress(GetModuleHandleA("d3dx9_35.dll"), "D3DXCreateTextureFromFileInMemoryEx"));
 		if (CreateTextureRAM)
 			g_patcher.WriteJmp(texloadDetour, texloadFixFast);
+		else
+			puts("Failed to get texture creator function.");
 	}
 	g_patcher.WriteJmp(replayrecordDetour, replayPutTime);
 	//g_patcher.WriteInt32((void*)(0x0062AF63 + 1), 399); // unbelievable, a stack buffer overflow
 	g_patcher.WriteJmp(QConcatStringDetour, QConcatStringFix);
+	g_patcher.WriteJmp(ClampDetour, RealClamp);
 }
